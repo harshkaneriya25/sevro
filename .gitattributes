@@ -1,0 +1,8 @@
+# Normalize line endings
+* text=auto
+
+# GitHub Linguist configuration for ASP.NET Core MVC
+# Exclude Razor HTML markup & generated files from skewing language stats so C# is shown as the primary language
+*.cshtml linguist-detectable=false
+*.svg linguist-vendored
+Sevro/Data/Migrations/* linguist-generated=true
