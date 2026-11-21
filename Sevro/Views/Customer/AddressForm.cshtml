@@ -1,0 +1,58 @@
+﻿@model Sevro.ViewModels.Customer.AddressViewModel
+@{
+    var isEdit = Model.AddressId > 0;
+    ViewData["Title"] = isEdit ? "Edit Address" : "Add New Address";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="sc-card p-4 p-md-5 border-0 shadow-sm">
+                <h2 class="h4 fw-bold mb-1">@ViewData["Title"]</h2>
+                <p class="text-muted small mb-4">Enter your full local address where the service provider should visit.</p>
+
+                <form asp-action="@(isEdit ? "EditAddress" : "AddAddress")" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="AddressId" />
+                    @if (!isEdit && ViewBag.ReturnUrl != null)
+                    {
+                        <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+                    }
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2"></div>
+
+                    <div class="form-floating mb-3">
+                        <textarea asp-for="Address" class="form-control" style="height: 100px;" placeholder="Flat / House No., Street, Landmark"></textarea>
+                        <label asp-for="Address"></label>
+                        <span asp-validation-for="Address" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-7">
+                            <div class="form-floating">
+                                <input asp-for="City" class="form-control" placeholder="City" />
+                                <label asp-for="City"></label>
+                                <span asp-validation-for="City" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-floating">
+                                <input asp-for="Pincode" class="form-control" placeholder="Pincode" />
+                                <label asp-for="Pincode"></label>
+                                <span asp-validation-for="Pincode" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-terracotta px-4">@(isEdit ? "Update Address" : "Save Address")</button>
+                        <a asp-action="Addresses" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,165 @@
+﻿@model Sevro.ViewModels.Account.RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+    var isProvider = Model.Role == "Provider";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <div class="sc-auth-split row g-0">
+                <!-- Left Brand Graphic Panel -->
+                <div class="col-md-5 sc-auth-brand-panel p-4 p-lg-5 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-4">
+                            <img src="~/images/favicon.png" alt="Sevro" class="bg-white rounded-2 p-1" style="width:42px;height:42px;object-fit:contain;" asp-append-version="true" />
+                            <span class="fs-4 fw-bold">Sevro</span>
+                        </div>
+                        <h3 class="fw-bold mb-3">Join Our Local Service Community</h3>
+                        <p class="opacity-75 small lh-base">
+                            Whether you're looking for dependable local help or growing your skilled service business, Sevro makes scheduling simple and transparent.
+                        </p>
+                    </div>
+
+                    <div class="small mt-4">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-check-circle-fill text-warning"></i>
+                            <span>Zero middleman fees &mdash; direct pay on service</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-check-circle-fill text-warning"></i>
+                            <span>Admin-verified provider badge for trust</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill text-warning"></i>
+                            <span>Real-time booking status tracking</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Tabbed Form Panel -->
+                <div class="col-md-7 p-4 p-lg-5 bg-white">
+                    <h4 class="fw-bold mb-1">Create your account</h4>
+                    <p class="text-muted small mb-3">Choose how you would like to use Sevro.</p>
+
+                    <!-- Role Tabs -->
+                    <ul class="nav nav-pills nav-fill bg-light p-1 rounded-3 mb-4">
+                        <li class="nav-item">
+                            <button type="button" class="nav-link fw-semibold @(!isProvider ? "active" : "")" data-role-tab="Customer">
+                                <i class="bi bi-person me-1"></i> Customer
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button type="button" class="nav-link fw-semibold @(isProvider ? "active" : "")" data-role-tab="Provider">
+                                <i class="bi bi-tools me-1"></i> Service Provider
+                            </button>
+                        </li>
+                    </ul>
+
+                    <form asp-action="Register" method="post" novalidate>
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Role" id="registerRoleInput" />
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2" role="alert"></div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="FullName" class="form-control" placeholder="Full Name" />
+                                    <label asp-for="FullName"></label>
+                                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="PhoneNumber" class="form-control" placeholder="Phone Number" />
+                                    <label asp-for="PhoneNumber"></label>
+                                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <input asp-for="Email" class="form-control" placeholder="Email Address" />
+                                    <label asp-for="Email"></label>
+                                    <span asp-validation-for="Email" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating sc-password-wrapper">
+                                    <input asp-for="Password" class="form-control" placeholder="Password (min 6 digits)" inputmode="numeric" autocomplete="new-password" />
+                                    <label asp-for="Password"></label>
+                                    <button type="button" class="sc-password-toggle" aria-label="Show password" title="Show/Hide password">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <span asp-validation-for="Password" class="text-danger small"></span>
+                                </div>
+                                <div class="form-text small">Numbers only, at least 6 digits.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating sc-password-wrapper">
+                                    <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm Password" inputmode="numeric" autocomplete="new-password" />
+                                    <label asp-for="ConfirmPassword"></label>
+                                    <button type="button" class="sc-password-toggle" aria-label="Show confirm password" title="Show/Hide password">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Provider-Specific Business Fields -->
+                        <div id="providerFieldsSection" class="mt-4 pt-3 border-top @(isProvider ? "" : "d-none")">
+                            <h6 class="fw-bold text-terracotta mb-3">
+                                <i class="bi bi-building me-1"></i> Business Profile Details
+                            </h6>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        <input asp-for="BusinessName" class="form-control" placeholder="Business Name" />
+                                        <label asp-for="BusinessName"></label>
+                                        <span asp-validation-for="BusinessName" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input asp-for="City" class="form-control" placeholder="City" />
+                                        <label asp-for="City"></label>
+                                        <span asp-validation-for="City" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input asp-for="ExperienceYears" type="number" min="0" max="60" class="form-control" placeholder="Years" />
+                                        <label asp-for="ExperienceYears"></label>
+                                        <span asp-validation-for="ExperienceYears" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        <textarea asp-for="Description" class="form-control" style="height: 90px;" placeholder="Describe your skills and experience"></textarea>
+                                        <label asp-for="Description"></label>
+                                        <span asp-validation-for="Description" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-terracotta w-100 py-2 fw-semibold mt-4">
+                            Create Account
+                        </button>
+                    </form>
+
+                    <hr class="my-4" />
+                    <p class="text-center small text-muted mb-0">
+                        Already have an account?
+                        <a asp-action="Login" class="text-terracotta fw-semibold text-decoration-none">Sign In</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,43 @@
+@model BookingStatus
+
+@if (Model == BookingStatus.Cancelled || Model == BookingStatus.Rejected)
+{
+    <div class="d-flex align-items-center gap-2 p-2 px-3 rounded-3 bg-danger bg-opacity-10 border border-danger border-opacity-25 text-danger small fw-medium">
+        <i class="bi bi-x-circle-fill"></i>
+        <span>
+            @(Model == BookingStatus.Cancelled
+                ? "This booking was cancelled."
+                : "This booking request was declined by the service provider.")
+        </span>
+    </div>
+}
+else
+{
+    var stepIndex = Model switch
+    {
+        BookingStatus.Pending => 0,
+        BookingStatus.Confirmed => 1,
+        BookingStatus.InProgress => 2,
+        BookingStatus.Completed => 3,
+        _ => 0
+    };
+
+    <div class="sc-stepper">
+        <div class="sc-step @(stepIndex > 0 ? "completed" : "active-pending")">
+            <div class="sc-step-dot">@(stepIndex > 0 ? "✓" : "1")</div>
+            <div class="sc-step-label">Pending</div>
+        </div>
+        <div class="sc-step @(stepIndex > 1 ? "completed" : stepIndex == 1 ? "active-confirmed" : "")">
+            <div class="sc-step-dot">@(stepIndex > 1 ? "✓" : "2")</div>
+            <div class="sc-step-label">Confirmed</div>
+        </div>
+        <div class="sc-step @(stepIndex > 2 ? "completed" : stepIndex == 2 ? "active-inprogress" : "")">
+            <div class="sc-step-dot">@(stepIndex > 2 ? "✓" : "3")</div>
+            <div class="sc-step-label">In Progress</div>
+        </div>
+        <div class="sc-step @(stepIndex == 3 ? "active-completed" : "")">
+            <div class="sc-step-dot">@(stepIndex == 3 ? "✓" : "4")</div>
+            <div class="sc-step-label">Completed</div>
+        </div>
+    </div>
+}

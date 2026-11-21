@@ -1,0 +1,93 @@
+﻿@model List<Sevro.Models.Booking>
+@{
+    ViewData["Title"] = "Manage All Bookings";
+    var currentStatus = ViewBag.CurrentStatus as string;
+}
+
+<div class="container py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1">All Platform Bookings</h1>
+            <p class="text-muted mb-0">Monitor every booking across customers and providers.</p>
+        </div>
+        <a asp-action="Dashboard" class="btn btn-outline-secondary btn-sm">Back to Dashboard</a>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <a asp-action="Bookings" class="btn btn-sm @(string.IsNullOrEmpty(currentStatus) ? "btn-terracotta" : "btn-outline-secondary")">All</a>
+        @foreach (var st in Enum.GetNames<BookingStatus>())
+        {
+            <a asp-action="Bookings" asp-route-status="@st" class="btn btn-sm @(string.Equals(currentStatus, st, StringComparison.OrdinalIgnoreCase) ? "btn-terracotta" : "btn-outline-secondary")">@st</a>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="sc-card p-5 text-center border-0 shadow-sm text-muted">
+            No bookings match this filter.
+        </div>
+    }
+    else
+    {
+        <div class="sc-card border-0 shadow-sm p-4">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light small text-uppercase text-muted">
+                        <tr>
+                            <th>ID</th>
+                            <th>Service &amp; Provider</th>
+                            <th>Customer</th>
+                            <th>Service Date</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Review</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var b in Model)
+                        {
+                            <tr>
+                                <td class="fw-semibold">#@b.BookingId</td>
+                                <td>
+                                    <div class="fw-semibold">@b.ProviderService.ServiceName</div>
+                                    <small class="text-muted">@b.ProviderService.ProviderProfile.BusinessName &bull; @b.ProviderService.Category.CategoryName</small>
+                                </td>
+                                <td>
+                                    <div class="fw-medium">@b.Customer.FullName</div>
+                                    <small class="text-muted">@b.Address.City (@b.Address.Pincode)</small>
+                                </td>
+                                <td class="small">@b.BookingDate.ToString("dd MMM yyyy")</td>
+                                <td class="fw-semibold">&#8377;@b.ProviderService.Price.ToString("N0")</td>
+                                <td><partial name="_StatusBadgePartial" model="b.Status" /></td>
+                                <td class="small">
+                                    @if (b.Review != null)
+                                    {
+                                        <span class="text-warning">&#9733;</span> @b.Review.Rating<span>/5</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">&mdash;</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    @if (b.Status == BookingStatus.Pending || b.Status == BookingStatus.Confirmed || b.Status == BookingStatus.InProgress)
+                                    {
+                                        <form asp-action="CancelBooking" asp-route-id="@b.BookingId" method="post" onsubmit="return confirm('Cancel Booking #@b.BookingId as Admin?');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="small text-muted">Closed</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,119 @@
+﻿@model Sevro.ViewModels.Provider.ProviderProfileViewModel
+@{
+    ViewData["Title"] = "Business Profile";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <!-- Profile Header with Rating Summary, Verification Badge & Live Availability Switch -->
+            <div class="sc-card p-4 border-0 shadow-sm mb-4">
+                <div class="row align-items-center gy-3">
+                    <div class="col-md-7">
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                            <h2 class="h4 fw-bold mb-0">@Model.BusinessName</h2>
+                            @if (Model.IsVerified)
+                            {
+                                <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">
+                                    <i class="bi bi-patch-check-fill me-1"></i> Verified
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge rounded-pill bg-warning text-dark">Pending Verification</span>
+                            }
+                        </div>
+                        <div class="small text-muted">
+                            <span class="text-warning">&#9733;</span>
+                            <strong>@(Model.ReviewCount > 0 ? Model.AverageRating.ToString("0.0") : "New")</strong>
+                            (@Model.ReviewCount @(Model.ReviewCount == 1 ? "review" : "reviews")) &bull; @Model.City
+                        </div>
+                    </div>
+                    <div class="col-md-5 d-flex justify-content-md-end">
+                        <form asp-action="ToggleAvailability" method="post" class="bg-light px-3 py-2 rounded-3 border">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="returnUrl" value="@Url.Action("Profile", "Provider")" />
+                            <div class="form-check form-switch sc-avail-switch mb-0 d-flex align-items-center gap-2">
+                                <input class="form-check-input js-availability-switch mt-0" type="checkbox" role="switch" id="profAvailSwitch" @(Model.IsAvailable ? "checked" : "") />
+                                <label class="form-check-label fw-semibold small @(Model.IsAvailable ? "text-success" : "text-secondary")" for="profAvailSwitch">
+                                    @(Model.IsAvailable ? "Available" : "Unavailable")
+                                </label>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Business Profile Form -->
+            <div class="sc-card p-4 p-md-5 border-0 shadow-sm">
+                <h5 class="fw-bold mb-4">Edit Business Details</h5>
+
+                <form asp-action="Profile" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="ProviderProfileId" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="BusinessName" class="form-control" placeholder="Business Name" />
+                                <label asp-for="BusinessName"></label>
+                                <span asp-validation-for="BusinessName" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="FullName" class="form-control" placeholder="Owner Full Name" />
+                                <label asp-for="FullName"></label>
+                                <span asp-validation-for="FullName" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="Email" class="form-control" readonly disabled />
+                                <label asp-for="Email"></label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="PhoneNumber" class="form-control" placeholder="Phone Number" />
+                                <label asp-for="PhoneNumber"></label>
+                                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="City" class="form-control" placeholder="City" />
+                                <label asp-for="City"></label>
+                                <span asp-validation-for="City" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="ExperienceYears" type="number" min="0" max="60" class="form-control" placeholder="Years" />
+                                <label asp-for="ExperienceYears"></label>
+                                <span asp-validation-for="ExperienceYears" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <textarea asp-for="Description" class="form-control" style="height: 110px;" placeholder="Describe your business"></textarea>
+                                <label asp-for="Description"></label>
+                                <span asp-validation-for="Description" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-terracotta px-4">Save Profile</button>
+                        <a asp-action="Dashboard" class="btn btn-outline-secondary">Back to Dashboard</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

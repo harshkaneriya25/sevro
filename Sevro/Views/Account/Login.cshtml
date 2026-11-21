@@ -1,0 +1,88 @@
+﻿@model Sevro.ViewModels.Account.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9 col-xl-8">
+            <div class="sc-auth-split row g-0">
+                <!-- Left Brand Graphic Panel -->
+                <div class="col-md-5 sc-auth-brand-panel p-4 p-lg-5 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-4">
+                            <img src="~/images/favicon.png" alt="Sevro" class="bg-white rounded-2 p-1" style="width:42px;height:42px;object-fit:contain;" asp-append-version="true" />
+                            <span class="fs-4 fw-bold">Sevro</span>
+                        </div>
+                        <h3 class="fw-bold mb-3">Welcome Back</h3>
+                        <p class="opacity-75 small lh-base">
+                            Sign in to book trusted local services, track live job progress, or manage your provider business profile.
+                        </p>
+                    </div>
+
+                    <div class="small mt-4">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-check-circle-fill text-warning"></i>
+                            <span>Verified local service providers</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-check-circle-fill text-warning"></i>
+                            <span>Transparent fixed pricing in &#8377;</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill text-warning"></i>
+                            <span>Live booking tracking &amp; ratings</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Login Form -->
+                <div class="col-md-7 p-4 p-lg-5 bg-white">
+                    <h4 class="fw-bold mb-1">Sign in to your account</h4>
+                    <p class="text-muted small mb-4">Enter your registered email and password below.</p>
+
+                    <form asp-action="Login" method="post" novalidate>
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="ReturnUrl" />
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2" role="alert"></div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Email" class="form-control" placeholder="name@example.com" autocomplete="username" />
+                            <label asp-for="Email"></label>
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-floating mb-3 sc-password-wrapper">
+                            <input asp-for="Password" class="form-control" placeholder="Password" autocomplete="current-password" />
+                            <label asp-for="Password"></label>
+                            <button type="button" class="sc-password-toggle" aria-label="Show password" title="Show/Hide password">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input asp-for="RememberMe" class="form-check-input" />
+                            <label asp-for="RememberMe" class="form-check-label small text-muted"></label>
+                        </div>
+
+                        <button type="submit" class="btn btn-terracotta w-100 py-2 fw-semibold">
+                            Sign In
+                        </button>
+                    </form>
+
+                    <hr class="my-4" />
+                    <p class="text-center small text-muted mb-0">
+                        Don't have an account yet?
+                        <a asp-action="Register" class="text-terracotta fw-semibold text-decoration-none">Create Account</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

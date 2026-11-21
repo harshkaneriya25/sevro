@@ -1,0 +1,52 @@
+﻿@model List<Sevro.Models.ServiceCategory>
+@{
+    ViewData["Title"] = "Manage Service Categories";
+}
+
+<div class="container py-4">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1">Service Categories</h1>
+            <p class="text-muted mb-0">Add, edit, or remove service categories used across the Sevro catalog.</p>
+        </div>
+        <a asp-action="CreateCategory" class="btn btn-terracotta">
+            <i class="bi bi-plus-lg me-1"></i> Add Category
+        </a>
+    </div>
+
+    <div class="sc-card border-0 shadow-sm p-4">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-light small text-uppercase text-muted">
+                    <tr>
+                        <th>ID</th>
+                        <th>Category Name</th>
+                        <th>Description</th>
+                        <th>Linked Services</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cat in Model)
+                    {
+                        <tr>
+                            <td class="text-muted">#@cat.CategoryId</td>
+                            <td class="fw-bold">@cat.CategoryName</td>
+                            <td class="small text-muted">@(cat.Description ?? "—")</td>
+                            <td><span class="badge bg-light text-dark border">@cat.ProviderServices.Count</span></td>
+                            <td class="text-end">
+                                <div class="d-inline-flex gap-2">
+                                    <a asp-action="EditCategory" asp-route-id="@cat.CategoryId" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                    <form asp-action="DeleteCategory" asp-route-id="@cat.CategoryId" method="post" onsubmit="return confirm('Delete this service category?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

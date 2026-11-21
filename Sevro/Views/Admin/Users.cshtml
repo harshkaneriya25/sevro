@@ -1,0 +1,103 @@
+﻿@model List<Sevro.ViewModels.Admin.UserListItemViewModel>
+@{
+    ViewData["Title"] = "Manage Users";
+    var roleFilter = ViewBag.RoleFilter as string;
+    var search = ViewBag.Search as string;
+}
+
+<div class="container py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1">Manage Users</h1>
+            <p class="text-muted mb-0">View all registered Customers, Service Providers, and Admins.</p>
+        </div>
+        <a asp-action="Dashboard" class="btn btn-outline-secondary btn-sm">Back to Dashboard</a>
+    </div>
+
+    <!-- Filter Form -->
+    <form asp-action="Users" method="get" class="sc-card p-3 border-0 shadow-sm mb-4">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <input type="text" name="search" value="@search" class="form-control" placeholder="Search by name, email, or business name..." />
+            </div>
+            <div class="col-md-3">
+                <select name="role" class="form-select">
+                    <option value="">All Roles</option>
+                    <option value="Customer" selected="@(roleFilter == "Customer")">Customer</option>
+                    <option value="Provider" selected="@(roleFilter == "Provider")">Provider</option>
+                    <option value="Admin" selected="@(roleFilter == "Admin")">Admin</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-terracotta w-100">Filter</button>
+            </div>
+            <div class="col-md-2">
+                <a asp-action="Users" class="btn btn-outline-secondary w-100">Reset</a>
+            </div>
+        </div>
+    </form>
+
+    <div class="sc-card border-0 shadow-sm p-4">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-light small text-uppercase text-muted">
+                    <tr>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Phone</th>
+                        <th>Joined</th>
+                        <th>Status</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var u in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">@u.FullName</div>
+                                <div class="small text-muted">@u.Email</div>
+                                @if (!string.IsNullOrWhiteSpace(u.BusinessName))
+                                {
+                                    <div class="small text-terracotta fw-medium">@u.BusinessName</div>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill @(u.Role == "Admin" ? "bg-dark" : u.Role == "Provider" ? "bg-primary" : "bg-terracotta-soft")">
+                                    @u.Role
+                                </span>
+                            </td>
+                            <td class="small">@(u.PhoneNumber ?? "—")</td>
+                            <td class="small text-muted">@u.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
+                            <td>
+                                @if (u.IsLockedOut)
+                                {
+                                    <span class="badge bg-danger">Suspended</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                @if (u.Role != "Admin")
+                                {
+                                    <form asp-action="ToggleUserLock" asp-route-id="@u.UserId" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm @(u.IsLockedOut ? "btn-outline-success" : "btn-outline-danger")">
+                                            @(u.IsLockedOut ? "Reactivate" : "Suspend")
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="small text-muted">Protected</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,15 @@
+﻿namespace Sevro.ViewModels.Admin
+{
+    public class UserListItemViewModel
+    {
+        public string UserId { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string? PhoneNumber { get; set; }
+        public string Role { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
+        public bool IsLockedOut { get; set; }
+        public bool? IsProviderVerified { get; set; }
+        public string? BusinessName { get; set; }
+    }
+}

@@ -1,0 +1,144 @@
+﻿@model List<Sevro.Models.Booking>
+@{
+    ViewData["Title"] = "My Bookings";
+    var currentStatus = ViewBag.CurrentStatus as string;
+}
+
+<div class="container py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1">My Bookings</h1>
+            <p class="text-muted mb-0">Track live job progress, cancel pending requests, and review completed services.</p>
+        </div>
+        <a asp-controller="Services" asp-action="Index" class="btn btn-terracotta">
+            <i class="bi bi-plus-lg me-1"></i> Book Another Service
+        </a>
+    </div>
+
+    <!-- Status Filter Pills -->
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <a asp-action="Bookings" class="btn btn-sm @(string.IsNullOrEmpty(currentStatus) ? "btn-terracotta" : "btn-outline-secondary")">All</a>
+        @foreach (var st in Enum.GetNames<BookingStatus>())
+        {
+            <a asp-action="Bookings" asp-route-status="@st" class="btn btn-sm @(string.Equals(currentStatus, st, StringComparison.OrdinalIgnoreCase) ? "btn-terracotta" : "btn-outline-secondary")">@st</a>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="sc-card p-5 text-center border-0 shadow-sm">
+            <i class="bi bi-calendar-x display-5 text-muted"></i>
+            <h5 class="fw-bold mt-3">No bookings found</h5>
+            <p class="text-muted small">Browse verified services and book your first appointment.</p>
+            <a asp-controller="Services" asp-action="Index" class="btn btn-terracotta btn-sm px-4">Browse Services</a>
+        </div>
+    }
+    else
+    {
+        <div class="vstack gap-3">
+            @foreach (var b in Model)
+            {
+                <div class="sc-card p-4 border-0 shadow-sm">
+                    <div class="row align-items-center gy-3">
+                        <div class="col-lg-5">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="badge bg-light text-dark border">#@b.BookingId</span>
+                                <span class="badge bg-terracotta-soft">@b.ProviderService.Category.CategoryName</span>
+                                <partial name="_StatusBadgePartial" model="b.Status" />
+                            </div>
+                            <h5 class="fw-bold mb-1">@b.ProviderService.ServiceName</h5>
+                            <div class="small text-muted mb-1">
+                                <i class="bi bi-building me-1"></i>
+                                <a asp-controller="Services" asp-action="ProviderDetails" asp-route-id="@b.ProviderService.ProviderProfileId" class="text-decoration-none text-dark fw-medium">
+                                    @b.ProviderService.ProviderProfile.BusinessName
+                                </a>
+                                &bull; <i class="bi bi-telephone ms-1 me-1"></i>@b.ProviderService.ProviderProfile.User.PhoneNumber
+                            </div>
+                            <div class="small text-muted">
+                                <i class="bi bi-calendar-event me-1"></i>@b.BookingDate.ToString("dd MMM yyyy")
+                                &bull; <i class="bi bi-geo-alt ms-1 me-1"></i>@b.Address.Address, @b.Address.City (@b.Address.Pincode)
+                            </div>
+                        </div>
+
+                        <!-- Linear Progress Stepper -->
+                        <div class="col-lg-5">
+                            <partial name="_BookingStepperPartial" model="b.Status" />
+                        </div>
+
+                        <!-- Price & Contextual Actions -->
+                        <div class="col-lg-2 text-lg-end">
+                            <div class="fs-5 fw-bold mb-2">&#8377;@b.ProviderService.Price.ToString("N0")</div>
+
+                            @if (b.Status == BookingStatus.Pending)
+                            {
+                                <form asp-action="CancelBooking" asp-route-id="@b.BookingId" method="post" onsubmit="return confirm('Cancel Booking #@b.BookingId?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-danger w-100">Cancel Booking</button>
+                                </form>
+                            }
+                            else if (b.Status == BookingStatus.Completed && b.Review == null)
+                            {
+                                <button type="button"
+                                        class="btn btn-sm btn-terracotta w-100"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#reviewModal"
+                                        data-booking-id="@b.BookingId"
+                                        data-service-name="@b.ProviderService.ServiceName">
+                                    <i class="bi bi-star me-1"></i> Rate &amp; Review
+                                </button>
+                            }
+                            else if (b.Review != null)
+                            {
+                                <span class="badge bg-warning bg-opacity-25 text-dark px-2 py-1">
+                                    <span class="text-warning">&#9733;</span> Rated @b.Review.Rating/5
+                                </span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- Interactive 5-Star Review Modal -->
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <form asp-action="SubmitReview" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="BookingId" id="reviewBookingId" />
+                <input type="hidden" name="Rating" id="reviewRatingInput" value="5" />
+
+                <div class="modal-header border-0 pb-0">
+                    <div>
+                        <h5 class="modal-title fw-bold" id="reviewModalLabel">Rate Your Experience</h5>
+                        <small class="text-muted" id="reviewServiceName">Service</small>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body text-center pt-3">
+                    <div class="sc-star-selector mb-2" role="radiogroup" aria-label="Star rating">
+                        <button type="button" class="sc-star-btn active" data-value="1" aria-label="1 star">&#9733;</button>
+                        <button type="button" class="sc-star-btn active" data-value="2" aria-label="2 stars">&#9733;</button>
+                        <button type="button" class="sc-star-btn active" data-value="3" aria-label="3 stars">&#9733;</button>
+                        <button type="button" class="sc-star-btn active" data-value="4" aria-label="4 stars">&#9733;</button>
+                        <button type="button" class="sc-star-btn active" data-value="5" aria-label="5 stars">&#9733;</button>
+                    </div>
+                    <div class="small fw-semibold text-terracotta mb-3" id="reviewRatingLabel">5 / 5 — Excellent</div>
+
+                    <div class="text-start">
+                        <label for="reviewCommentInput" class="form-label small fw-semibold">Share your feedback (optional)</label>
+                        <textarea name="Comment" id="reviewCommentInput" class="form-control" rows="3" maxlength="1000" placeholder="How was the punctuality, quality, and professionalism?"></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-terracotta px-4">Submit Review</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

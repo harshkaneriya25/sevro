@@ -1,0 +1,98 @@
+﻿@model List<Sevro.Models.ProviderProfile>
+@{
+    ViewData["Title"] = "Verify Service Providers";
+    var filter = ViewBag.Filter as string;
+}
+
+<div class="container py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1">Verify Service Providers</h1>
+            <p class="text-muted mb-0">Approve or reject registered service providers before their services appear in the marketplace.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Providers" class="btn btn-sm @(string.IsNullOrEmpty(filter) ? "btn-terracotta" : "btn-outline-secondary")">All</a>
+            <a asp-action="Providers" asp-route-filter="pending" class="btn btn-sm @(filter == "pending" ? "btn-terracotta" : "btn-outline-secondary")">Pending</a>
+            <a asp-action="Providers" asp-route-filter="verified" class="btn btn-sm @(filter == "verified" ? "btn-terracotta" : "btn-outline-secondary")">Verified</a>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="sc-card p-5 text-center border-0 shadow-sm text-muted">
+            No service providers found for this filter.
+        </div>
+    }
+    else
+    {
+        <div class="sc-card border-0 shadow-sm p-4">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light small text-uppercase text-muted">
+                        <tr>
+                            <th>Business &amp; Owner</th>
+                            <th>City &amp; Experience</th>
+                            <th>Services</th>
+                            <th>Availability</th>
+                            <th>Verification</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="fw-bold">@p.BusinessName</div>
+                                    <div class="small text-muted">@p.User.FullName &bull; @p.User.Email &bull; @p.User.PhoneNumber</div>
+                                    @if (!string.IsNullOrWhiteSpace(p.Description))
+                                    {
+                                        <div class="small text-muted mt-1">@(p.Description.Length > 110 ? p.Description.Substring(0, 110) + "..." : p.Description)</div>
+                                    }
+                                </td>
+                                <td class="small">
+                                    <div>@p.City</div>
+                                    <div class="text-muted">@p.ExperienceYears yrs exp</div>
+                                </td>
+                                <td><span class="badge bg-light text-dark border">@p.Services.Count</span></td>
+                                <td>
+                                    <span class="badge rounded-pill @(p.IsAvailable ? "bg-success" : "bg-secondary")">
+                                        @(p.IsAvailable ? "Available" : "Unavailable")
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (p.IsVerified)
+                                    {
+                                        <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary">
+                                            <i class="bi bi-patch-check-fill me-1"></i>Verified
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge rounded-pill bg-warning text-dark">Pending</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    @if (!p.IsVerified)
+                                    {
+                                        <form asp-action="VerifyProvider" asp-route-id="@p.ProviderProfileId" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-success">Verify Provider</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="RejectProvider" asp-route-id="@p.ProviderProfileId" method="post" class="d-inline" onsubmit="return confirm('Revoke verification for this provider?');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Revoke / Reject</button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

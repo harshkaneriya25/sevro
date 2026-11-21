@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#EEF5F9"/>
+      <stop offset="100%" stop-color="#D7E8F2"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#bg)"/>
+  <circle cx="520" cy="70" r="95" fill="#B86B4B" opacity="0.10"/>
+  <circle cx="110" cy="300" r="80" fill="#212529" opacity="0.06"/>
+  <g transform="translate(260, 105)" fill="none" stroke="#212529" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 82 L68 32 C62 18 72 4 86 10 L76 20 L86 30 L96 20 C102 34 88 44 74 38 L24 88 C16 96 6 88 18 82 Z" fill="#B86B4B" stroke="#212529"/>
+    <path d="M58 106 C58 120 70 130 82 130 C94 130 106 120 106 106 C106 90 82 68 82 68 C82 68 58 90 58 106 Z" fill="#FFFFFF" stroke="#B86B4B"/>
+  </g>
+  <text x="320" y="302" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="600" fill="#212529">PLUMBING SERVICES</text>
+</svg>

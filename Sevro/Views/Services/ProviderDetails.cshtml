@@ -1,0 +1,124 @@
+﻿@model Sevro.ViewModels.Catalog.ProviderDetailsViewModel
+@{
+    ViewData["Title"] = Model.Profile.BusinessName;
+}
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-terracotta">Home</a></li>
+            <li class="breadcrumb-item"><a asp-action="Providers" class="text-decoration-none text-terracotta">Providers</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Profile.BusinessName</li>
+        </ol>
+    </nav>
+
+    <!-- Provider Header Card -->
+    <div class="sc-card p-4 border-0 shadow-sm mb-4">
+        <div class="row align-items-center gy-3">
+            <div class="col-lg-8">
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                    <h1 class="h3 fw-bold mb-0">@Model.Profile.BusinessName</h1>
+                    @if (Model.Profile.IsVerified)
+                    {
+                        <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">
+                            <i class="bi bi-patch-check-fill me-1"></i> Verified Provider
+                        </span>
+                    }
+                    <span class="badge rounded-pill @(Model.Profile.IsAvailable ? "bg-success" : "bg-secondary")">
+                        @(Model.Profile.IsAvailable ? "Available Now" : "Currently Unavailable")
+                    </span>
+                </div>
+                <p class="text-muted mb-3">@Model.Profile.Description</p>
+                <div class="d-flex flex-wrap gap-4 small text-muted">
+                    <span><i class="bi bi-person me-1 text-terracotta"></i>Managed by <strong class="text-dark">@Model.Profile.User.FullName</strong></span>
+                    <span><i class="bi bi-geo-alt me-1 text-terracotta"></i>@Model.Profile.City</span>
+                    <span><i class="bi bi-briefcase me-1 text-terracotta"></i>@Model.Profile.ExperienceYears years experience</span>
+                    <span><i class="bi bi-telephone me-1 text-terracotta"></i>@Model.Profile.User.PhoneNumber</span>
+                </div>
+            </div>
+
+            <div class="col-lg-4 text-lg-end">
+                <div class="d-inline-block bg-light rounded-3 p-3 text-center">
+                    <div class="fs-2 fw-bold text-dark">
+                        <span class="text-warning">&#9733;</span> @(Model.ReviewCount > 0 ? Model.AverageRating.ToString("0.0") : "New")
+                    </div>
+                    <div class="small text-muted">@Model.ReviewCount verified @(Model.ReviewCount == 1 ? "review" : "reviews") &bull; @Model.CompletedJobsCount completed jobs</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Provider Service Menu -->
+    <h3 class="h4 fw-bold mb-3">Service Menu</h3>
+    @if (!Model.Services.Any())
+    {
+        <div class="sc-card p-4 text-center text-muted mb-5">
+            This provider hasn't added any services yet.
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
+            @foreach (var svc in Model.Services)
+            {
+                <div class="col">
+                    <div class="card sc-service-card h-100">
+                        <img src="@svc.ThumbnailUrl" alt="@svc.CategoryName" class="sc-card-thumb" />
+                        <div class="card-body d-flex flex-column">
+                            <span class="badge bg-terracotta-soft align-self-start mb-2">@svc.CategoryName</span>
+                            <h5 class="fw-bold mb-1">@svc.ServiceName</h5>
+                            <p class="small text-muted mb-3">@svc.Description</p>
+                            <div class="mt-auto">
+                                <div class="d-flex justify-content-between align-items-center mb-3 pt-2 border-top">
+                                    <span class="small text-muted">Fixed Price</span>
+                                    <span class="fs-5 fw-bold text-dark">&#8377;@svc.Price.ToString("N0")</span>
+                                </div>
+                                @if (Model.Profile.IsAvailable)
+                                {
+                                    <a asp-controller="Customer" asp-action="Book" asp-route-id="@svc.ProviderServiceId" class="btn btn-terracotta w-100">
+                                        Book Service
+                                    </a>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-secondary w-100" disabled>Provider Unavailable</button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- Customer Reviews -->
+    <h3 class="h4 fw-bold mb-3">Customer Reviews (@Model.ReviewCount)</h3>
+    @if (!Model.Reviews.Any())
+    {
+        <div class="sc-card p-4 text-center text-muted border-0 shadow-sm">
+            No customer reviews yet. Reviews appear here after completed bookings.
+        </div>
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var rev in Model.Reviews)
+            {
+                <div class="col-md-6">
+                    <div class="sc-card p-4 h-100 border-0 shadow-sm">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <div class="fw-bold">@rev.Customer.FullName</div>
+                                <small class="text-muted">@rev.Booking.ProviderService.ServiceName &bull; @rev.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</small>
+                            </div>
+                            <span class="badge bg-warning bg-opacity-25 text-dark fw-semibold px-2 py-1">
+                                <span class="text-warning">&#9733;</span> @rev.Rating.0
+                            </span>
+                        </div>
+                        <p class="mb-0 text-muted small">@(string.IsNullOrWhiteSpace(rev.Comment) ? "Rated without additional comment." : rev.Comment)</p>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

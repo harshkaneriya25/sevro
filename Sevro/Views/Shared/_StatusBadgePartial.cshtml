@@ -1,0 +1,14 @@
+@model BookingStatus
+@{
+    var (badgeClass, label) = Model switch
+    {
+        BookingStatus.Pending => ("bg-warning text-dark", "Pending"),
+        BookingStatus.Confirmed => ("bg-primary text-white", "Confirmed"),
+        BookingStatus.InProgress => ("bg-info text-dark", "In Progress"),
+        BookingStatus.Completed => ("bg-success text-white", "Completed"),
+        BookingStatus.Rejected => ("bg-danger text-white", "Rejected"),
+        BookingStatus.Cancelled => ("bg-danger text-white", "Cancelled"),
+        _ => ("bg-secondary text-white", Model.ToString())
+    };
+}
+<span class="badge rounded-pill @badgeClass px-3 py-2 fw-medium">@label</span>

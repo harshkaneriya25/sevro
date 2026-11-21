@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#EEF8F3"/>
+      <stop offset="100%" stop-color="#D6EFE2"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#bg)"/>
+  <circle cx="520" cy="75" r="90" fill="#B86B4B" opacity="0.10"/>
+  <g transform="translate(260, 95)" stroke="#212529" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M60 12 L72 48 L108 60 L72 72 L60 108 L48 72 L12 60 L48 48 Z" fill="#B86B4B"/>
+    <path d="M102 98 L108 116 L126 122 L108 128 L102 146 L96 128 L78 122 L96 116 Z" fill="#FFFFFF" stroke="#B86B4B"/>
+  </g>
+  <text x="320" y="302" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="600" fill="#212529">CLEANING SERVICES</text>
+</svg>

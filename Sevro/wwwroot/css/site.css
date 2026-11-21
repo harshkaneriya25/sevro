@@ -1,0 +1,372 @@
+:root {
+    --sc-canvas: #F9F8F6;
+    --sc-surface: #FFFFFF;
+    --sc-primary: #B86B4B;
+    --sc-primary-hover: #9C573B;
+    --sc-primary-soft: #FBF1EC;
+    --sc-text: #212529;
+    --sc-muted: #6C757D;
+    --sc-border: #E5E7EB;
+}
+
+html, body {
+    background-color: var(--sc-canvas);
+    color: var(--sc-text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    min-height: 100vh;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+/* Brand & Primary Buttons */
+.text-terracotta {
+    color: var(--sc-primary) !important;
+}
+
+.bg-terracotta {
+    background-color: var(--sc-primary) !important;
+}
+
+.bg-terracotta-soft {
+    background-color: var(--sc-primary-soft) !important;
+    color: var(--sc-primary) !important;
+}
+
+.btn-terracotta {
+    background-color: var(--sc-primary);
+    border-color: var(--sc-primary);
+    color: #FFFFFF;
+    font-weight: 500;
+    transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.15s ease;
+}
+
+.btn-terracotta:hover,
+.btn-terracotta:focus {
+    background-color: var(--sc-primary-hover);
+    border-color: var(--sc-primary-hover);
+    color: #FFFFFF;
+}
+
+.btn-outline-terracotta {
+    border-color: var(--sc-primary);
+    color: var(--sc-primary);
+    font-weight: 500;
+}
+
+.btn-outline-terracotta:hover,
+.btn-outline-terracotta:focus {
+    background-color: var(--sc-primary);
+    border-color: var(--sc-primary);
+    color: #FFFFFF;
+}
+
+/* Navbar */
+.sc-navbar {
+    background-color: var(--sc-surface);
+    border-bottom: 1px solid var(--sc-border);
+}
+
+.sc-brand-icon {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    border-radius: 6px;
+}
+
+.sc-navbar .nav-link {
+    color: var(--sc-text);
+    font-weight: 500;
+    padding: 0.5rem 0.9rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.sc-navbar .nav-link:hover,
+.sc-navbar .nav-link.active {
+    color: var(--sc-primary);
+    background-color: var(--sc-primary-soft);
+}
+
+/* Cards */
+.sc-card {
+    background-color: var(--sc-surface);
+    border: 1px solid var(--sc-border);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.05);
+}
+
+.sc-service-card {
+    background-color: var(--sc-surface);
+    border: 0;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 8px rgba(33, 37, 41, 0.06);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sc-service-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(33, 37, 41, 0.10);
+}
+
+.sc-card-thumb {
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    object-fit: cover;
+    display: block;
+    background-color: var(--sc-primary-soft);
+}
+
+/* Sticky Filter Rail */
+.sc-filter-rail {
+    position: sticky;
+    top: 84px;
+    background-color: var(--sc-surface);
+    border: 1px solid var(--sc-border);
+    border-radius: 0.75rem;
+}
+
+.form-check-input:checked {
+    background-color: var(--sc-primary);
+    border-color: var(--sc-primary);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--sc-primary);
+    box-shadow: 0 0 0 0.2rem rgba(184, 107, 75, 0.2);
+}
+
+/* Filter Pill Tags */
+.sc-filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.84rem;
+    border-radius: 999px;
+    background-color: var(--sc-primary-soft);
+    color: var(--sc-primary);
+    border: 1px solid rgba(184, 107, 75, 0.25);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.sc-filter-tag:hover {
+    background-color: var(--sc-primary);
+    color: #FFFFFF;
+}
+
+/* Hero Section */
+.sc-hero {
+    background: linear-gradient(135deg, #FFFFFF 0%, #FBF1EC 100%);
+    border-bottom: 1px solid var(--sc-border);
+}
+
+.sc-category-tile {
+    background-color: var(--sc-surface);
+    border: 1px solid var(--sc-border);
+    border-radius: 0.75rem;
+    text-decoration: none;
+    color: var(--sc-text);
+    transition: all 0.18s ease;
+}
+
+.sc-category-tile:hover {
+    border-color: var(--sc-primary);
+    background-color: var(--sc-primary-soft);
+    color: var(--sc-primary);
+    transform: translateY(-2px);
+}
+
+/* Split Auth Card */
+.sc-auth-split {
+    border-radius: 1rem;
+    overflow: hidden;
+    background-color: var(--sc-surface);
+    box-shadow: 0 12px 32px rgba(33, 37, 41, 0.08);
+}
+
+.sc-auth-brand-panel {
+    background: linear-gradient(155deg, #212529 0%, #3A2C26 55%, #B86B4B 100%);
+    color: #FFFFFF;
+}
+
+/* Metric Tiles */
+.sc-metric-tile {
+    background-color: var(--sc-surface);
+    border: 1px solid var(--sc-border);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+}
+
+.sc-metric-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 0.65rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+/* Booking Linear Progress Stepper */
+.sc-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    padding: 0.5rem 0;
+}
+
+.sc-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+}
+
+.sc-step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    width: 100%;
+    height: 3px;
+    background-color: var(--sc-border);
+    z-index: -1;
+}
+
+.sc-step.completed:not(:last-child)::after {
+    background-color: #198754;
+}
+
+.sc-step-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background-color: #E9ECEF;
+    color: #6C757D;
+    border: 2px solid #FFFFFF;
+    box-shadow: 0 0 0 1px var(--sc-border);
+}
+
+.sc-step.active-pending .sc-step-dot {
+    background-color: #FFC107;
+    color: #212529;
+}
+
+.sc-step.active-confirmed .sc-step-dot {
+    background-color: #0D6EFD;
+    color: #FFFFFF;
+}
+
+.sc-step.active-inprogress .sc-step-dot {
+    background-color: #0DCAF0;
+    color: #212529;
+}
+
+.sc-step.completed .sc-step-dot,
+.sc-step.active-completed .sc-step-dot {
+    background-color: #198754;
+    color: #FFFFFF;
+}
+
+.sc-step-label {
+    font-size: 0.74rem;
+    margin-top: 0.35rem;
+    color: var(--sc-muted);
+    font-weight: 500;
+    text-align: center;
+}
+
+.sc-step.completed .sc-step-label,
+.sc-step[class*="active-"] .sc-step-label {
+    color: var(--sc-text);
+    font-weight: 600;
+}
+
+/* Interactive 5-Star Selector */
+.sc-star-selector {
+    display: inline-flex;
+    gap: 0.4rem;
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+.sc-star-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #D1D5DB;
+    transition: transform 0.12s ease, color 0.12s ease;
+    line-height: 1;
+}
+
+.sc-star-btn.active,
+.sc-star-btn:hover {
+    color: #F59E0B;
+    transform: scale(1.1);
+}
+
+/* Availability Switch Accent */
+.sc-avail-switch .form-check-input {
+    width: 3rem;
+    height: 1.5rem;
+    cursor: pointer;
+}
+
+.sc-avail-switch .form-check-input:checked {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+/* Password Show/Hide Eye Toggle */
+.sc-password-wrapper {
+    position: relative;
+}
+
+.sc-password-wrapper .form-control {
+    padding-right: 2.85rem;
+}
+
+.sc-password-toggle {
+    position: absolute;
+    top: 29px;
+    right: 0.75rem;
+    transform: translateY(-50%);
+    background: transparent;
+    border: 0;
+    padding: 0.25rem;
+    color: var(--sc-muted);
+    cursor: pointer;
+    z-index: 5;
+    line-height: 1;
+    font-size: 1.1rem;
+}
+
+.sc-password-toggle:hover,
+.sc-password-toggle:focus {
+    color: var(--sc-primary);
+    outline: none;
+}
+
+/* Footer */
+.sc-footer {
+    background-color: var(--sc-surface);
+    border-top: 1px solid var(--sc-border);
+}

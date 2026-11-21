@@ -1,0 +1,98 @@
+﻿@model Sevro.ViewModels.Catalog.ProviderSearchViewModel
+@{
+    ViewData["Title"] = "Find Service Providers";
+}
+
+<div class="container py-4">
+    <div class="mb-4">
+        <h1 class="h2 fw-bold mb-1">Verified Local Providers</h1>
+        <p class="text-muted mb-0">Browse admin-verified local businesses, view their experience, and explore their complete service menus.</p>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <form asp-action="Providers" method="get" class="sc-card p-3 mb-4 border-0 shadow-sm">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-5">
+                <input type="text" name="search" value="@Model.Search" class="form-control" placeholder="Search by business name or keyword..." />
+            </div>
+            <div class="col-md-3">
+                <select name="city" class="form-select">
+                    <option value="">All Cities</option>
+                    @foreach (var c in Model.Cities)
+                    {
+                        <option value="@c" selected="@(Model.City == c)">@c</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="provAvailSwitch" name="availableOnly" value="true" @(Model.AvailableOnly ? "checked" : "") />
+                    <label class="form-check-label small fw-medium" for="provAvailSwitch">Available Now</label>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-terracotta w-100">Search</button>
+            </div>
+        </div>
+    </form>
+
+    @if (!Model.Providers.Any())
+    {
+        <div class="sc-card p-5 text-center border-0 shadow-sm">
+            <i class="bi bi-people display-5 text-muted"></i>
+            <h5 class="fw-bold mt-3">No verified providers match your criteria</h5>
+            <a asp-action="Providers" class="btn btn-outline-terracotta btn-sm mt-2">Show All Providers</a>
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var p in Model.Providers)
+            {
+                <div class="col">
+                    <div class="card sc-service-card h-100 p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h5 class="fw-bold mb-1 d-flex align-items-center gap-1">
+                                    @p.BusinessName
+                                    @if (p.IsVerified)
+                                    {
+                                        <i class="bi bi-patch-check-fill text-primary fs-6" title="Verified Provider"></i>
+                                    }
+                                </h5>
+                                <div class="small text-muted">
+                                    <i class="bi bi-geo-alt me-1"></i>@p.City &bull; @p.ExperienceYears @(p.ExperienceYears == 1 ? "yr" : "yrs") exp
+                                </div>
+                            </div>
+                            <span class="badge rounded-pill @(p.IsAvailable ? "bg-success" : "bg-secondary")">
+                                @(p.IsAvailable ? "Available" : "Unavailable")
+                            </span>
+                        </div>
+
+                        <p class="small text-muted my-2">
+                            @(string.IsNullOrWhiteSpace(p.Description) ? "Verified local service professional on Sevro." : (p.Description.Length > 120 ? p.Description.Substring(0, 120) + "..." : p.Description))
+                        </p>
+
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            @foreach (var cat in p.Categories)
+                            {
+                                <span class="badge rounded-pill bg-terracotta-soft fw-normal">@cat</span>
+                            }
+                        </div>
+
+                        <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                            <div class="small fw-semibold">
+                                <span class="text-warning">&#9733;</span>
+                                @(p.ReviewCount > 0 ? p.AverageRating.ToString("0.0") : "New")
+                                <span class="text-muted fw-normal">(@p.ReviewCount) &bull; @p.ServiceCount @(p.ServiceCount == 1 ? "service" : "services")</span>
+                            </div>
+                            <a asp-action="ProviderDetails" asp-route-id="@p.ProviderProfileId" class="btn btn-sm btn-outline-terracotta">
+                                View Menu
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

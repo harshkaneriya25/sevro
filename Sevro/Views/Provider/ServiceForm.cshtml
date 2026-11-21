@@ -1,0 +1,65 @@
+﻿@model Sevro.ViewModels.Provider.ProviderServiceFormViewModel
+@{
+    var isEdit = Model.ProviderServiceId > 0;
+    ViewData["Title"] = isEdit ? "Edit Service" : "Add New Service";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="sc-card p-4 p-md-5 border-0 shadow-sm">
+                <h2 class="h4 fw-bold mb-1">@ViewData["Title"]</h2>
+                <p class="text-muted small mb-4">Link your service to a category and set a clear, transparent fixed price.</p>
+
+                @if (!Model.Categories.Any())
+                {
+                    <div class="alert alert-warning border-0 small">
+                        <i class="bi bi-exclamation-circle me-1"></i>
+                        No service categories are available yet. Please ask the Admin to add Service Categories first.
+                    </div>
+                }
+
+                <form asp-action="@(isEdit ? "EditService" : "CreateService")" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="ProviderServiceId" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2"></div>
+
+                    <div class="form-floating mb-3">
+                        <select asp-for="CategoryId" asp-items="Model.Categories" class="form-select">
+                            <option value="">-- Select Category --</option>
+                        </select>
+                        <label asp-for="CategoryId"></label>
+                        <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="ServiceName" class="form-control" placeholder="e.g., Ceiling Fan Installation" />
+                        <label asp-for="ServiceName"></label>
+                        <span asp-validation-for="ServiceName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Price" type="number" step="0.01" min="1" class="form-control" placeholder="499.00" />
+                        <label asp-for="Price"></label>
+                        <span asp-validation-for="Price" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-4">
+                        <textarea asp-for="Description" class="form-control" style="height: 110px;" placeholder="Describe what is included in this service"></textarea>
+                        <label asp-for="Description"></label>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-terracotta px-4">@(isEdit ? "Update Service" : "Publish Service")</button>
+                        <a asp-action="Services" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

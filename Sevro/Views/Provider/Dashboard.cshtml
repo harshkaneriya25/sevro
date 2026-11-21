@@ -1,0 +1,201 @@
+﻿@model Sevro.ViewModels.Provider.ProviderDashboardViewModel
+@{
+    ViewData["Title"] = "Provider Dashboard";
+}
+
+<div class="container py-4">
+    <!-- Provider Header & Live Availability Switch -->
+    <div class="sc-card p-4 border-0 shadow-sm mb-4">
+        <div class="row align-items-center gy-3">
+            <div class="col-lg-8">
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                    <h1 class="h3 fw-bold mb-0">@Model.Profile.BusinessName</h1>
+                    @if (Model.Profile.IsVerified)
+                    {
+                        <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">
+                            <i class="bi bi-patch-check-fill me-1"></i> Verified Provider
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge rounded-pill bg-warning text-dark">
+                            <i class="bi bi-hourglass-split me-1"></i> Pending Admin Verification
+                        </span>
+                    }
+                </div>
+                <div class="small text-muted">
+                    <i class="bi bi-geo-alt me-1"></i>@Model.Profile.City
+                    &bull; @Model.Profile.ExperienceYears yrs experience
+                    &bull; <span class="text-warning">&#9733;</span> @(Model.ReviewCount > 0 ? Model.AverageRating.ToString("0.0") : "New") (@Model.ReviewCount reviews)
+                </div>
+            </div>
+
+            <div class="col-lg-4 d-flex justify-content-lg-end align-items-center gap-3">
+                <form asp-action="ToggleAvailability" method="post" class="d-flex align-items-center gap-2 bg-light px-3 py-2 rounded-3 border">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="returnUrl" value="@Url.Action("Dashboard", "Provider")" />
+                    <div class="form-check form-switch sc-avail-switch mb-0 d-flex align-items-center gap-2">
+                        <input class="form-check-input js-availability-switch mt-0" type="checkbox" role="switch" id="dashAvailSwitch" @(Model.Profile.IsAvailable ? "checked" : "") />
+                        <label class="form-check-label fw-semibold small @(Model.Profile.IsAvailable ? "text-success" : "text-secondary")" for="dashAvailSwitch">
+                            @(Model.Profile.IsAvailable ? "Available for Bookings" : "Marked Unavailable")
+                        </label>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        @if (!Model.Profile.IsVerified)
+        {
+            <div class="alert alert-warning border-0 small mt-3 mb-0">
+                <i class="bi bi-info-circle-fill me-1"></i>
+                Your business profile is awaiting Admin verification. You can already add your services below; once verified, they will automatically appear in the public catalog.
+            </div>
+        }
+    </div>
+
+    <!-- 4 Summary Metric Tiles -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="sc-metric-tile shadow-sm h-100">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="small text-muted fw-medium">Pending Requests</div>
+                        <div class="fs-2 fw-bold mt-1 text-warning">@Model.PendingRequests</div>
+                    </div>
+                    <span class="sc-metric-icon bg-warning bg-opacity-10 text-warning"><i class="bi bi-bell-fill"></i></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="sc-metric-tile shadow-sm h-100">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="small text-muted fw-medium">Active Jobs</div>
+                        <div class="fs-2 fw-bold mt-1 text-primary">@Model.ActiveJobs</div>
+                    </div>
+                    <span class="sc-metric-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-wrench-adjustable"></i></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="sc-metric-tile shadow-sm h-100">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="small text-muted fw-medium">Completed Jobs</div>
+                        <div class="fs-2 fw-bold mt-1 text-success">@Model.CompletedJobs</div>
+                    </div>
+                    <span class="sc-metric-icon bg-success bg-opacity-10 text-success"><i class="bi bi-check2-all"></i></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="sc-metric-tile shadow-sm h-100">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="small text-muted fw-medium">Listed Services</div>
+                        <div class="fs-2 fw-bold mt-1">@Model.ListedServices</div>
+                    </div>
+                    <span class="sc-metric-icon bg-terracotta-soft"><i class="bi bi-tools"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Incoming & Recent Bookings -->
+    <div class="sc-card border-0 shadow-sm p-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <h5 class="fw-bold mb-0">Recent Booking Requests</h5>
+            <div class="d-flex gap-2">
+                <a asp-action="CreateService" class="btn btn-sm btn-terracotta"><i class="bi bi-plus-lg me-1"></i> Add Service</a>
+                <a asp-action="Bookings" class="btn btn-sm btn-outline-secondary">Manage All Bookings</a>
+            </div>
+        </div>
+
+        @if (!Model.RecentBookings.Any())
+        {
+            <div class="text-center py-4 text-muted">
+                No booking requests received yet. Ensure your services are listed and availability is turned on.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light small text-uppercase text-muted">
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Service</th>
+                            <th>Service Date</th>
+                            <th>Status</th>
+                            <th class="text-end">Quick Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var b in Model.RecentBookings)
+                        {
+                            <tr>
+                                <td class="fw-semibold">#@b.BookingId</td>
+                                <td>
+                                    <div class="fw-semibold">@b.Customer.FullName</div>
+                                    <small class="text-muted">@b.Address.City &bull; @b.Customer.PhoneNumber</small>
+                                </td>
+                                <td>
+                                    <div class="fw-medium">@b.ProviderService.ServiceName</div>
+                                    <small class="text-muted">&#8377;@b.ProviderService.Price.ToString("N0")</small>
+                                </td>
+                                <td>@b.BookingDate.ToString("dd MMM yyyy")</td>
+                                <td><partial name="_StatusBadgePartial" model="b.Status" /></td>
+                                <td class="text-end">
+                                    @if (b.Status == BookingStatus.Pending)
+                                    {
+                                        <div class="d-inline-flex gap-1">
+                                            <form asp-action="UpdateBookingStatus" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@b.BookingId" />
+                                                <input type="hidden" name="nextStatus" value="Confirmed" />
+                                                <input type="hidden" name="returnUrl" value="@Url.Action("Dashboard", "Provider")" />
+                                                <button type="submit" class="btn btn-sm btn-success">Accept</button>
+                                            </form>
+                                            <form asp-action="UpdateBookingStatus" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@b.BookingId" />
+                                                <input type="hidden" name="nextStatus" value="Rejected" />
+                                                <input type="hidden" name="returnUrl" value="@Url.Action("Dashboard", "Provider")" />
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">Reject</button>
+                                            </form>
+                                        </div>
+                                    }
+                                    else if (b.Status == BookingStatus.Confirmed)
+                                    {
+                                        <form asp-action="UpdateBookingStatus" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@b.BookingId" />
+                                            <input type="hidden" name="nextStatus" value="InProgress" />
+                                            <input type="hidden" name="returnUrl" value="@Url.Action("Dashboard", "Provider")" />
+                                            <button type="submit" class="btn btn-sm btn-info text-dark">Start Job</button>
+                                        </form>
+                                    }
+                                    else if (b.Status == BookingStatus.InProgress)
+                                    {
+                                        <form asp-action="UpdateBookingStatus" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@b.BookingId" />
+                                            <input type="hidden" name="nextStatus" value="Completed" />
+                                            <input type="hidden" name="returnUrl" value="@Url.Action("Dashboard", "Provider")" />
+                                            <button type="submit" class="btn btn-sm btn-success">Mark Completed</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="small text-muted">&mdash;</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
