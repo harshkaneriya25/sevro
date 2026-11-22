@@ -1,0 +1,349 @@
+/* ==========================================================================
+   Sevro â€” Local Service Marketplace Stylesheet
+   Design System: design-system/sevro/MASTER.md & tokens.css
+   Stack: ASP.NET Core MVC + Bootstrap 5.3 + Bootstrap Icons
+   ========================================================================== */
+
+:root {
+    /* Brand & Semantic Tokens */
+    --color-primary: #C2410C;
+    --color-primary-hover: #9A3412;
+    --color-primary-soft: #FFF4ED;
+    --color-primary-border: #FDBA74;
+    --color-on-primary: #FFFFFF;
+
+    --color-secondary: #0F172A;
+    --color-secondary-hover: #1E293B;
+    --color-on-secondary: #FFFFFF;
+
+    --color-accent: #1D4ED8;
+    --color-accent-soft: #EFF6FF;
+
+    /* Neutral Surfaces & Ink */
+    --color-background: #F8F7F4;
+    --color-foreground: #18181B;
+    --color-card: #FFFFFF;
+    --color-muted: #F1F0EC;
+    --color-muted-foreground: #52525B;
+    --color-border: #E4E4E7;
+    --color-border-strong: #D4D4D8;
+
+    /* 6-State Booking & Status Tokens */
+    --color-pending: #B45309;
+    --color-pending-bg: #FEF3C7;
+    --color-pending-dot: #F59E0B;
+
+    --color-confirmed: #1D4ED8;
+    --color-confirmed-bg: #EFF6FF;
+    --color-confirmed-dot: #2563EB;
+
+    --color-inprogress: #0E7490;
+    --color-inprogress-bg: #ECFEFF;
+    --color-inprogress-dot: #0891B2;
+
+    --color-completed: #15803D;
+    --color-completed-bg: #F0FDF4;
+    --color-completed-dot: #16A34A;
+
+    --color-destructive: #DC2626;
+    --color-destructive-text: #B91C1C;
+    --color-destructive-bg: #FEF2F2;
+    --color-rating: #F59E0B;
+
+    /* Typography */
+    --font-heading: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+    /* Radii & Elevation */
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 18px;
+    --radius-pill: 9999px;
+
+    --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+    --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+    --shadow-md: 0 10px 26px rgba(15, 23, 42, 0.09);
+    --shadow-lg: 0 18px 42px rgba(15, 23, 42, 0.12);
+    --shadow-focus: 0 0 0 3px rgba(194, 65, 12, 0.22);
+
+    /* Motion */
+    --motion-fast: 150ms cubic-bezier(0.2, 0, 0, 1);
+    --motion-base: 200ms cubic-bezier(0.2, 0, 0, 1);
+
+    /* Bootstrap 5.3 Native Overrides */
+    --bs-primary: var(--color-primary);
+    --bs-primary-rgb: 194, 65, 12;
+    --bs-secondary: var(--color-secondary);
+    --bs-secondary-rgb: 15, 23, 42;
+    --bs-success: var(--color-completed);
+    --bs-success-rgb: 21, 128, 61;
+    --bs-info: var(--color-inprogress);
+    --bs-info-rgb: 14, 116, 144;
+    --bs-warning: var(--color-pending);
+    --bs-warning-rgb: 180, 83, 9;
+    --bs-danger: var(--color-destructive);
+    --bs-danger-rgb: 220, 38, 38;
+
+    --bs-body-font-family: var(--font-body);
+    --bs-body-color: var(--color-foreground);
+    --bs-body-color-rgb: 24, 24, 27;
+    --bs-body-bg: var(--color-background);
+    --bs-body-bg-rgb: 248, 247, 244;
+    --bs-secondary-color: var(--color-muted-foreground);
+    --bs-border-color: var(--color-border);
+    --bs-link-color: var(--color-primary);
+    --bs-link-hover-color: var(--color-primary-hover);
+    --bs-focus-ring-color: rgba(194, 65, 12, 0.22);
+
+    /* Sevro Legacy Aliases */
+    --sc-canvas: var(--color-background);
+    --sc-surface: var(--color-card);
+    --sc-primary: var(--color-primary);
+    --sc-primary-hover: var(--color-primary-hover);
+    --sc-primary-soft: var(--color-primary-soft);
+    --sc-text: var(--color-foreground);
+    --sc-muted: var(--color-muted-foreground);
+    --sc-border: var(--color-border);
+}
+
+/* ==========================================================================
+   Base & Typography
+   ========================================================================== */
+html {
+    background-color: var(--color-background);
+}
+
+body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: clip;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6,
+.navbar-brand {
+    font-family: var(--font-heading);
+    letter-spacing: -0.02em;
+    color: var(--color-secondary);
+}
+
+.sc-tabular,
+.fs-2, .fs-4, .fs-5,
+td {
+    font-variant-numeric: tabular-nums;
+}
+
+.text-muted {
+    color: var(--color-muted-foreground) !important;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Brand Utilities & Unified Modern Buttons
+   ========================================================================== */
+.text-terracotta {
+    color: var(--color-primary) !important;
+}
+
+.bg-terracotta {
+    background-color: var(--color-primary) !important;
+    color: #FFFFFF !important;
+}
+
+.bg-terracotta-soft {
+    background-color: var(--color-primary-soft) !important;
+    color: var(--color-primary) !important;
+    border: 1px solid rgba(194, 65, 12, 0.16);
+}
+
+.btn {
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    transition: background-color var(--motion-fast), border-color var(--motion-fast), color var(--motion-fast), box-shadow var(--motion-fast), transform var(--motion-fast);
+    cursor: pointer;
+}
+
+.btn-sm {
+    border-radius: 8px;
+    padding: 0.42rem 0.85rem;
+    font-size: 0.84rem;
+}
+
+.btn-terracotta {
+    background-color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+    color: #FFFFFF;
+    box-shadow: 0 1px 2px rgba(194, 65, 12, 0.18);
+}
+
+.btn-terracotta:hover,
+.btn-terracotta:focus-visible {
+    background-color: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+    color: #FFFFFF;
+    box-shadow: 0 6px 16px rgba(194, 65, 12, 0.24);
+    transform: translateY(-1px);
+}
+
+.btn-terracotta:active {
+    background-color: #7C2D12 !important;
+    border-color: #7C2D12 !important;
+    color: #FFFFFF !important;
+    transform: translateY(0);
+}
+
+.btn-outline-terracotta {
+    background-color: transparent;
+    border: 1.5px solid var(--color-primary);
+    color: var(--color-primary);
+}
+
+.btn-outline-terracotta:hover,
+.btn-outline-terracotta:focus-visible {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #FFFFFF;
+    transform: translateY(-1px);
+}
+
+.btn-outline-secondary {
+    background-color: var(--color-card);
+    border: 1px solid var(--color-border-strong);
+    color: var(--color-foreground);
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus-visible {
+    background-color: var(--color-muted);
+    border-color: #A1A1AA;
+    color: var(--color-secondary);
+}
+
+.btn-light {
+    background-color: var(--color-card);
+    border-color: var(--color-border);
+    color: var(--color-foreground);
+}
+
+.btn-light:hover,
+.btn-light:focus-visible {
+    background-color: var(--color-muted);
+    border-color: var(--color-border-strong);
+    color: var(--color-secondary);
+}
+
+.btn-success {
+    background-color: var(--color-completed);
+    border-color: var(--color-completed);
+    color: #FFFFFF;
+}
+
+.btn-success:hover,
+.btn-success:focus-visible {
+    background-color: #166534;
+    border-color: #166534;
+    color: #FFFFFF;
+}
+
+.btn-info {
+    background-color: var(--color-inprogress-dot);
+    border-color: var(--color-inprogress-dot);
+    color: #FFFFFF !important;
+}
+
+.btn-info:hover,
+.btn-info:focus-visible {
+    background-color: var(--color-inprogress);
+    border-color: var(--color-inprogress);
+    color: #FFFFFF !important;
+}
+
+.btn-outline-danger {
+    color: var(--color-destructive-text);
+    border-color: rgba(220, 38, 38, 0.35);
+    background-color: var(--color-card);
+}
+
+.btn-outline-danger:hover,
+.btn-outline-danger:focus-visible {
+    background-color: var(--color-destructive);
+    border-color: var(--color-destructive);
+    color: #FFFFFF;
+}
+
+.btn-outline-success {
+    color: var(--color-completed);
+    border-color: rgba(21, 128, 61, 0.38);
+    background-color: var(--color-card);
+}
+
+.btn-outline-success:hover,
+.btn-outline-success:focus-visible {
+    background-color: var(--color-completed);
+    border-color: var(--color-completed);
+    color: #FFFFFF;
+}
+
+.btn:disabled,
+.btn.disabled {
+    transform: none !important;
+    box-shadow: none !important;
+    cursor: not-allowed;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .sc-anim-ready .sc-reveal {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .btn:hover,
+    .sc-brand:hover .sc-brand-badge,
+    .sc-navbar .nav-link:hover .sc-nav-icon,
+    .sc-nav-cta:hover .sc-cta-arrow,
+    .sc-btn-sheen:hover .sc-cta-arrow,
+    .sc-link-arrow:hover .sc-cta-arrow,
+    .dropdown-item:hover,
+    .sc-service-card:hover,
+    .sc-service-card:hover .sc-card-thumb,
+    .sc-category-tile:hover,
+    .sc-category-tile:hover .sc-cat-icon,
+    .sc-metric-tile:hover,
+    .sc-metric-tile:hover .sc-metric-icon,
+    .sc-feature-card:hover,
+    .sc-feature-card:hover .sc-feature-icon,
+    .sc-how-step:hover,
+    .sc-kpi-pill:hover,
+    .sc-cta-banner-btn:hover,
+    .sc-star-btn:hover {
+        transform: none !important;
+    }
+}
+

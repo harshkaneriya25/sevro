@@ -1,89 +1,176 @@
-﻿@model List<Sevro.Models.Booking>
+@model List<Sevro.Models.Booking>
 @{
     ViewData["Title"] = "Manage Bookings";
     var currentStatus = ViewBag.CurrentStatus as string;
 }
 
-<div class="container py-4">
-    <div class="mb-4">
+<div class="sc-page-header sc-reveal">
+    <div>
+        <div class="sc-section-eyebrow"><i class="bi bi-clipboard-check" aria-hidden="true"></i> Job Queue</div>
         <h1 class="h3 fw-bold mb-1">Manage Bookings</h1>
-        <p class="text-muted mb-0">Accept or reject incoming requests and update active jobs through completion.</p>
+        <p class="text-muted small mb-0">Accept requests, send transparent quotations for inspection/custom jobs, and advance jobs to completion.</p>
     </div>
+    <span class="sc-status-pill sc-status-confirmed bg-white border shadow-sm px-3 py-2">
+        <span class="sc-status-dot" aria-hidden="true"></span>
+        <strong class="sc-tabular">@Model.Count</strong> @(Model.Count == 1 ? "booking" : "bookings")
+    </span>
+</div>
 
-    <!-- Status Filter Pills -->
-    <div class="d-flex flex-wrap gap-2 mb-4">
-        <a asp-action="Bookings" class="btn btn-sm @(string.IsNullOrEmpty(currentStatus) ? "btn-terracotta" : "btn-outline-secondary")">All</a>
-        @foreach (var st in Enum.GetNames<BookingStatus>())
-        {
-            <a asp-action="Bookings" asp-route-status="@st" class="btn btn-sm @(string.Equals(currentStatus, st, StringComparison.OrdinalIgnoreCase) ? "btn-terracotta" : "btn-outline-secondary")">@st</a>
-        }
-    </div>
-
-    @if (!Model.Any())
+<!-- Status Filter Pills -->
+<div class="sc-pill-dock mb-4 sc-reveal">
+    <a asp-action="Bookings" class="btn btn-sm @(string.IsNullOrEmpty(currentStatus) ? "btn-terracotta" : "btn-outline-secondary")">All</a>
+    @foreach (var st in Enum.GetNames<BookingStatus>())
     {
-        <div class="sc-card p-5 text-center border-0 shadow-sm">
-            <i class="bi bi-clipboard-x display-5 text-muted"></i>
-            <h5 class="fw-bold mt-3">No bookings in this view</h5>
-            <p class="text-muted small mb-0">Incoming customer requests will appear here automatically.</p>
-        </div>
+        <a asp-action="Bookings" asp-route-status="@st" class="btn btn-sm @(string.Equals(currentStatus, st, StringComparison.OrdinalIgnoreCase) ? "btn-terracotta" : "btn-outline-secondary")">@st</a>
     }
-    else
-    {
-        <div class="sc-card border-0 shadow-sm p-4">
-            <div class="table-responsive">
-                <table class="table align-middle mb-0">
-                    <thead class="table-light small text-uppercase text-muted">
+</div>
+
+@if (!Model.Any())
+{
+    <div class="sc-empty-state">
+        <div class="sc-empty-icon"><i class="bi bi-clipboard-x" aria-hidden="true"></i></div>
+        <h5 class="fw-bold">No bookings in this view</h5>
+        <p class="text-muted small mb-0">Incoming customer requests will appear here automatically.</p>
+    </div>
+}
+else
+{
+    <div class="sc-card p-0 overflow-hidden sc-reveal">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="small text-uppercase text-muted">
+                    <tr>
+                        <th class="ps-4">Booking &amp; Issue</th>
+                        <th>Customer &amp; Address</th>
+                        <th>Schedule</th>
+                        <th>Price / Quote</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Workflow Actions</th>
+                    </tr>
+                </thead>
+                <tbody data-sc-paginate="8">
+                    @foreach (var b in Model)
+                    {
+                        var svc = b.ProviderService;
+                        var basePriceText = PricingFormatter.FormatPrice(
+                            b.AgreedPrice ?? (svc.PricingType == PricingType.QuoteRequired ? null : svc.Price),
+                            svc.PricingType,
+                            svc.Unit);
+                        var needsQuoteApproval = svc.PricingType == PricingType.QuoteRequired && b.IsQuoteApproved != true;
+                        var canSendQuote = b.Status == BookingStatus.Pending || b.Status == BookingStatus.Confirmed;
+
                         <tr>
-                            <th>Booking</th>
-                            <th>Customer &amp; Address</th>
-                            <th>Service Date</th>
-                            <th>Price</th>
-                            <th>Status</th>
-                            <th class="text-end">Workflow Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var b in Model)
-                        {
-                            <tr>
-                                <td>
-                                    <div class="fw-bold">#@b.BookingId &mdash; @b.ProviderService.ServiceName</div>
-                                    <span class="badge bg-terracotta-soft fw-normal">@b.ProviderService.Category.CategoryName</span>
-                                </td>
-                                <td>
-                                    <div class="fw-semibold">@b.Customer.FullName</div>
-                                    <div class="small text-muted"><i class="bi bi-telephone me-1"></i>@b.Customer.PhoneNumber</div>
-                                    <div class="small text-muted"><i class="bi bi-geo-alt me-1"></i>@b.Address.Address, @b.Address.City (@b.Address.Pincode)</div>
-                                </td>
-                                <td>@b.BookingDate.ToString("dd MMM yyyy")</td>
-                                <td class="fw-semibold">&#8377;@b.ProviderService.Price.ToString("N0")</td>
-                                <td><partial name="_StatusBadgePartial" model="b.Status" /></td>
-                                <td class="text-end">
-                                    @if (b.Status == BookingStatus.Pending)
+                            <td class="ps-4">
+                                <div class="fw-bold sc-tabular">#@b.BookingId &mdash; @svc.ServiceName</div>
+                                <div class="d-flex flex-wrap gap-1 mt-1">
+                                    <span class="badge rounded-pill bg-terracotta-soft">@svc.Category.CategoryName</span>
+                                    <span class="badge rounded-pill @PricingFormatter.GetPricingBadgeClass(svc.PricingType)" style="font-size:0.7rem;">
+                                        @PricingFormatter.GetPricingTypeLabel(svc.PricingType)
+                                    </span>
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(b.ProblemDescription))
+                                {
+                                    <div class="small text-muted mt-1 sc-line-clamp-2" title="@b.ProblemDescription">
+                                        <i class="bi bi-chat-left-text me-1" aria-hidden="true"></i>@b.ProblemDescription
+                                    </div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(b.IssuePhotoPath))
+                                {
+                                    <a href="@b.IssuePhotoPath" target="_blank" rel="noopener" class="small text-terracotta text-decoration-none fw-semibold d-inline-block mt-1">
+                                        <i class="bi bi-image me-1" aria-hidden="true"></i>View Issue Photo
+                                    </a>
+                                }
+                            </td>
+                            <td>
+                                <div class="fw-semibold">@b.Customer.FullName</div>
+                                <div class="small text-muted"><i class="bi bi-telephone me-1" aria-hidden="true"></i>@b.Customer.PhoneNumber</div>
+                                <div class="small text-muted"><i class="bi bi-geo-alt me-1" aria-hidden="true"></i>@b.Address.Address, @b.Address.City (@b.Address.Pincode)</div>
+                            </td>
+                            <td class="small sc-tabular">
+                                <div class="fw-semibold">@b.BookingDate.ToString("dd MMM yyyy")</div>
+                                @if (!string.IsNullOrWhiteSpace(b.PreferredTimeSlot))
+                                {
+                                    <div class="text-muted">@b.PreferredTimeSlot</div>
+                                }
+                            </td>
+                            <td>
+                                @if (b.QuotedAmount.HasValue)
+                                {
+                                    <div class="fw-bold sc-tabular">&#8377;@b.QuotedAmount.Value.ToString("N0")</div>
+                                    if (b.IsQuoteApproved == true)
                                     {
-                                        <div class="d-inline-flex gap-2">
-                                            <form asp-action="UpdateBookingStatus" method="post">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="id" value="@b.BookingId" />
-                                                <input type="hidden" name="nextStatus" value="Confirmed" />
-                                                <button type="submit" class="btn btn-sm btn-success">Accept</button>
-                                            </form>
-                                            <form asp-action="UpdateBookingStatus" method="post" onsubmit="return confirm('Reject Booking #@b.BookingId?');">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="id" value="@b.BookingId" />
-                                                <input type="hidden" name="nextStatus" value="Rejected" />
-                                                <button type="submit" class="btn btn-sm btn-outline-danger">Reject</button>
-                                            </form>
-                                        </div>
+                                        <span class="badge rounded-pill bg-success bg-opacity-10 text-success border border-success border-opacity-25" style="font-size:0.7rem;">
+                                            <i class="bi bi-check-circle-fill me-1" aria-hidden="true"></i>Quote Approved
+                                        </span>
                                     }
-                                    else if (b.Status == BookingStatus.Confirmed)
+                                    else if (b.IsQuoteApproved == false)
+                                    {
+                                        <span class="badge rounded-pill bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25" style="font-size:0.7rem;">
+                                            Quote Declined
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge rounded-pill bg-warning bg-opacity-25 text-dark" style="font-size:0.7rem;">
+                                            Awaiting Approval
+                                        </span>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="fw-bold sc-tabular">@basePriceText</div>
+                                }
+                            </td>
+                            <td><partial name="_StatusBadgePartial" model="b.Status" /></td>
+                            <td class="text-end pe-4">
+                                <div class="sc-action-group justify-content-end flex-wrap">
+                                    @if (canSendQuote && (svc.PricingType == PricingType.QuoteRequired || svc.PricingType == PricingType.StartingFrom || svc.PricingType == PricingType.PerVisit))
+                                    {
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-primary js-open-quote-modal"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#sendQuoteModal"
+                                                data-booking-id="@b.BookingId"
+                                                data-service-name="@svc.ServiceName"
+                                                data-current-quote="@(b.QuotedAmount?.ToString("0") ?? "")"
+                                                data-current-notes="@(b.QuoteNotes ?? "")">
+                                            <i class="bi bi-receipt" aria-hidden="true"></i>
+                                            <span>@(b.QuotedAmount.HasValue ? "Update Quote" : "Send Quote")</span>
+                                        </button>
+                                    }
+
+                                    @if (b.Status == BookingStatus.Pending)
                                     {
                                         <form asp-action="UpdateBookingStatus" method="post">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@b.BookingId" />
-                                            <input type="hidden" name="nextStatus" value="InProgress" />
-                                            <button type="submit" class="btn btn-sm btn-info text-dark">Start Job (In Progress)</button>
+                                            <input type="hidden" name="nextStatus" value="Confirmed" />
+                                            <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check2" aria-hidden="true"></i><span>Accept</span></button>
                                         </form>
+                                        <form asp-action="UpdateBookingStatus" method="post" onsubmit="return confirm('Reject Booking #@b.BookingId?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@b.BookingId" />
+                                            <input type="hidden" name="nextStatus" value="Rejected" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-x" aria-hidden="true"></i><span>Reject</span></button>
+                                        </form>
+                                    }
+                                    else if (b.Status == BookingStatus.Confirmed)
+                                    {
+                                        if (needsQuoteApproval)
+                                        {
+                                            <span class="badge rounded-pill bg-light text-muted border px-2 py-1 small" title="Send a quotation and wait for the customer to approve it before starting work.">
+                                                <i class="bi bi-hourglass-split me-1" aria-hidden="true"></i>Needs Approved Quote
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <form asp-action="UpdateBookingStatus" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@b.BookingId" />
+                                                <input type="hidden" name="nextStatus" value="InProgress" />
+                                                <button type="submit" class="btn btn-sm btn-info"><i class="bi bi-play-fill" aria-hidden="true"></i><span>Start Job</span></button>
+                                            </form>
+                                        }
                                     }
                                     else if (b.Status == BookingStatus.InProgress)
                                     {
@@ -91,19 +178,61 @@
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@b.BookingId" />
                                             <input type="hidden" name="nextStatus" value="Completed" />
-                                            <button type="submit" class="btn btn-sm btn-success">Mark Completed</button>
+                                            <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check2-all" aria-hidden="true"></i><span>Mark Completed</span></button>
                                         </form>
                                     }
                                     else
                                     {
                                         <span class="small text-muted">Closed</span>
                                     }
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
-    }
+    </div>
+}
+
+<!-- Send Quotation Modal -->
+<div class="modal fade" id="sendQuoteModal" tabindex="-1" aria-labelledby="sendQuoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <form asp-action="SendQuotation" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="bookingId" id="quoteBookingId" />
+                <div class="modal-header border-bottom">
+                    <div>
+                        <div class="sc-section-eyebrow mb-0">Transparent Estimate</div>
+                        <h5 class="modal-title fw-bold" id="sendQuoteModalLabel">Send Quotation</h5>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted mb-3">
+                        Provide a clear final amount in &#8377; INR for <strong id="quoteServiceLabel" class="text-dark"></strong>. The customer must approve this quotation before work begins.
+                    </p>
+                    <div class="form-floating mb-3">
+                        <input type="number" name="quotedAmount" id="quoteAmountInput" class="form-control sc-tabular" min="1" step="1" required placeholder="499" />
+                        <label for="quoteAmountInput">Quoted Total (&#8377; INR)</label>
+                    </div>
+                    <div class="form-floating">
+                        <textarea name="quoteNotes" id="quoteNotesInput" class="form-control" style="height: 100px;" maxlength="500" placeholder="Break down labor, materials, or inspection findings"></textarea>
+                        <label for="quoteNotesInput">Quotation Notes / Breakdown (Optional)</label>
+                    </div>
+                </div>
+                <div class="modal-footer border-top">
+                    <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-terracotta btn-sm px-4">
+                        <i class="bi bi-send me-1" aria-hidden="true"></i>Send Quotation
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/provider-bookings.js" asp-append-version="true"></script>
+}

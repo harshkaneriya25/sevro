@@ -1,76 +1,117 @@
-﻿@model List<Sevro.Models.ProviderService>
+@model List<Sevro.Models.ProviderService>
 @{
     ViewData["Title"] = "My Services";
     var isVerified = ViewBag.IsVerified is bool b && b;
 }
 
-<div class="container py-4">
-    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
-        <div>
-            <h1 class="h3 fw-bold mb-1">My Offered Services</h1>
-            <p class="text-muted mb-0">Manage your service menu, descriptions, and fixed prices in &#8377;.</p>
-        </div>
-        <a asp-action="CreateService" class="btn btn-terracotta">
-            <i class="bi bi-plus-lg me-1"></i> Add New Service
-        </a>
+<div class="sc-page-header sc-reveal">
+    <div>
+        <div class="sc-section-eyebrow"><i class="bi bi-tools" aria-hidden="true"></i> Service Menu</div>
+        <h1 class="h3 fw-bold mb-1">My Offered Services</h1>
+        <p class="text-muted small mb-0">Manage your services, transparent &#8377; INR pricing models, durations, and live availability.</p>
     </div>
-
-    @if (!isVerified)
-    {
-        <div class="alert alert-warning border-0 shadow-sm small mb-4">
-            <i class="bi bi-clock-history me-1"></i>
-            Your account is pending Admin verification. Your services will become visible to customers as soon as your profile is verified.
-        </div>
-    }
-
-    @if (!Model.Any())
-    {
-        <div class="sc-card p-5 text-center border-0 shadow-sm">
-            <i class="bi bi-tools display-5 text-muted"></i>
-            <h5 class="fw-bold mt-3">No services added yet</h5>
-            <p class="text-muted small">Create your first service listing to start receiving bookings.</p>
-            <a asp-action="CreateService" class="btn btn-terracotta btn-sm px-4">Add Your First Service</a>
-        </div>
-    }
-    else
-    {
-        <div class="sc-card border-0 shadow-sm p-4">
-            <div class="table-responsive">
-                <table class="table align-middle mb-0">
-                    <thead class="table-light small text-uppercase text-muted">
-                        <tr>
-                            <th>Service Name</th>
-                            <th>Category</th>
-                            <th>Fixed Price</th>
-                            <th>Bookings</th>
-                            <th class="text-end">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var s in Model)
-                        {
-                            <tr>
-                                <td>
-                                    <div class="fw-semibold">@s.ServiceName</div>
-                                    <small class="text-muted">@(string.IsNullOrWhiteSpace(s.Description) ? "No description" : (s.Description.Length > 90 ? s.Description.Substring(0, 90) + "..." : s.Description))</small>
-                                </td>
-                                <td><span class="badge bg-terracotta-soft">@s.Category.CategoryName</span></td>
-                                <td class="fw-bold">&#8377;@s.Price.ToString("N2")</td>
-                                <td>@s.Bookings.Count</td>
-                                <td class="text-end">
-                                    <div class="d-inline-flex gap-2">
-                                        <a asp-action="EditService" asp-route-id="@s.ProviderServiceId" class="btn btn-sm btn-outline-secondary">Edit</a>
-                                        <form asp-action="DeleteService" asp-route-id="@s.ProviderServiceId" method="post" onsubmit="return confirm('Delete this service?');">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    }
+    <a asp-action="CreateService" class="btn btn-terracotta sc-btn-sheen rounded-pill px-4 d-inline-flex align-items-center gap-1">
+        <i class="bi bi-plus-lg" aria-hidden="true"></i>
+        <span>Add New Service</span>
+    </a>
 </div>
+
+@if (!isVerified)
+{
+    <div class="alert alert-warning border-0 shadow-sm small mb-4 d-flex align-items-center gap-2">
+        <i class="bi bi-clock-history flex-shrink-0" aria-hidden="true"></i>
+        <span>Your account is pending Admin verification. Your services will become visible to customers as soon as your profile is verified.</span>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="sc-empty-state">
+        <div class="sc-empty-icon"><i class="bi bi-tools" aria-hidden="true"></i></div>
+        <h5 class="fw-bold">No services added yet</h5>
+        <p class="text-muted small mb-3">Pick from the standard Sevro rate card or create your own service listing to start receiving bookings.</p>
+        <a asp-action="CreateService" class="btn btn-terracotta btn-sm rounded-pill px-4">Add Your First Service</a>
+    </div>
+}
+else
+{
+    <div class="sc-card p-0 overflow-hidden sc-reveal">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="small text-uppercase text-muted">
+                    <tr>
+                        <th class="ps-4">Service</th>
+                        <th>Category</th>
+                        <th>Pricing</th>
+                        <th>Status</th>
+                        <th>Bookings</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody data-sc-paginate="8">
+                    @foreach (var s in Model)
+                    {
+                        var formatted = PricingFormatter.FormatPrice(
+                            s.PricingType == PricingType.QuoteRequired ? null : s.Price,
+                            s.PricingType,
+                            s.Unit);
+                        <tr class="@(!s.IsActive ? "opacity-75" : "")">
+                            <td class="ps-4">
+                                <div class="fw-semibold">@s.ServiceName</div>
+                                <small class="text-muted sc-line-clamp-2">@(string.IsNullOrWhiteSpace(s.Description) ? "No description provided" : s.Description)</small>
+                                @if (!string.IsNullOrWhiteSpace(s.EstimatedDuration))
+                                {
+                                    <div class="small text-muted mt-1"><i class="bi bi-clock me-1" aria-hidden="true"></i>@s.EstimatedDuration</div>
+                                }
+                            </td>
+                            <td><span class="badge rounded-pill bg-terracotta-soft px-3 py-1">@s.Category.CategoryName</span></td>
+                            <td>
+                                <div class="fw-bold sc-tabular">@formatted</div>
+                                <span class="badge rounded-pill @PricingFormatter.GetPricingBadgeClass(s.PricingType) mt-1" style="font-size:0.7rem;">
+                                    @PricingFormatter.GetPricingTypeLabel(s.PricingType)
+                                </span>
+                            </td>
+                            <td>
+                                @if (s.IsActive)
+                                {
+                                    <span class="sc-status-pill sc-status-confirmed">
+                                        <span class="sc-status-dot" aria-hidden="true"></span> Active
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="sc-status-pill sc-status-cancelled">
+                                        <span class="sc-status-dot" aria-hidden="true"></span> Paused
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill bg-light text-dark border sc-tabular px-3 py-1">@s.Bookings.Count</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="sc-action-group">
+                                    <form asp-action="ToggleServiceStatus" asp-route-id="@s.ProviderServiceId" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm @(s.IsActive ? "btn-outline-warning" : "btn-outline-success")" title="@(s.IsActive ? "Pause listing" : "Activate listing")">
+                                            <i class="bi @(s.IsActive ? "bi-pause-circle" : "bi-play-circle")" aria-hidden="true"></i>
+                                            <span>@(s.IsActive ? "Pause" : "Activate")</span>
+                                        </button>
+                                    </form>
+                                    <a asp-action="EditService" asp-route-id="@s.ProviderServiceId" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-pencil" aria-hidden="true"></i><span>Edit</span>
+                                    </a>
+                                    <form asp-action="DeleteService" asp-route-id="@s.ProviderServiceId" method="post" onsubmit="return confirm('Delete this service?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash" aria-hidden="true"></i><span>Delete</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

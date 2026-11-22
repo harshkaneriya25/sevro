@@ -1,42 +1,62 @@
-﻿@model Sevro.ViewModels.Customer.CustomerProfileViewModel
+@model Sevro.ViewModels.Customer.CustomerProfileViewModel
 @{
     ViewData["Title"] = "My Profile";
 }
 
-<div class="container py-4">
+<div class="container py-4 py-lg-5">
     <div class="row justify-content-center">
         <div class="col-lg-7">
-            <div class="sc-card p-4 p-md-5 border-0 shadow-sm">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h2 class="h4 fw-bold mb-1">My Profile</h2>
-                        <p class="text-muted small mb-0">Keep your contact details updated for service providers.</p>
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb small mb-0">
+                    <li class="breadcrumb-item"><a asp-action="Dashboard" class="text-decoration-none text-terracotta">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">My Profile</li>
+                </ol>
+            </nav>
+
+            <div class="sc-card sc-card-accent p-4 p-md-5 sc-reveal">
+                <div class="sc-form-header justify-content-between flex-wrap">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="sc-form-icon"><i class="bi bi-person-badge-fill" aria-hidden="true"></i></span>
+                        <div>
+                            <div class="sc-section-eyebrow mb-0">Customer Account</div>
+                            <h2 class="h4 fw-bold mb-0">My Profile</h2>
+                            <p class="text-muted small mb-0">Keep your contact details updated for service providers.</p>
+                        </div>
                     </div>
-                    <a asp-action="Dashboard" class="btn btn-sm btn-outline-secondary">Back to Dashboard</a>
+                    <a asp-action="Dashboard" class="btn btn-sm btn-outline-secondary rounded-pill px-3">Back to Dashboard</a>
                 </div>
 
                 <form asp-action="Profile" method="post" novalidate>
                     @Html.AntiForgeryToken()
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2"></div>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small" role="alert"></div>
+
+                    <div class="sc-form-section-title"><i class="bi bi-person-lines-fill" aria-hidden="true"></i> Contact Information</div>
 
                     <div class="form-floating mb-3">
                         <input asp-for="FullName" class="form-control" placeholder="Full Name" />
                         <label asp-for="FullName"></label>
-                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                        <span asp-validation-for="FullName"></span>
                     </div>
 
                     <div class="form-floating mb-3">
                         <input asp-for="Email" class="form-control" readonly disabled />
                         <label asp-for="Email"></label>
+                        <div class="form-text"><i class="bi bi-lock-fill me-1" aria-hidden="true"></i>Account email cannot be changed.</div>
                     </div>
 
                     <div class="form-floating mb-4">
-                        <input asp-for="PhoneNumber" class="form-control" placeholder="Phone Number" />
+                        <input asp-for="PhoneNumber" class="form-control" placeholder="Phone Number" inputmode="tel" />
                         <label asp-for="PhoneNumber"></label>
-                        <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        <span asp-validation-for="PhoneNumber"></span>
                     </div>
 
-                    <button type="submit" class="btn btn-terracotta px-4">Save Changes</button>
+                    <div class="d-flex flex-wrap gap-2 pt-2 border-top">
+                        <button type="submit" class="btn btn-terracotta sc-btn-sheen px-4 py-2 d-inline-flex align-items-center gap-2">
+                            <span>Save Changes</span>
+                            <i class="bi bi-check2-circle" aria-hidden="true"></i>
+                        </button>
+                        <a asp-action="Dashboard" class="btn btn-outline-secondary px-4 py-2">Cancel</a>
+                    </div>
                 </form>
             </div>
         </div>

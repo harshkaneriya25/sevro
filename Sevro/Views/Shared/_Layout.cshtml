@@ -1,14 +1,29 @@
-﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Identity
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 @{
-    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
-    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
     ApplicationUser? currentUser = null;
-    if (SignInManager.IsSignedIn(User))
+    var hasValidSession = SignInManager.IsSignedIn(User) && int.TryParse(UserManager.GetUserId(User), out _);
+    if (hasValidSession)
     {
         currentUser = await UserManager.GetUserAsync(User);
     }
+
+    var isPortalPage = hasValidSession
+        && (currentController == "Admin"
+            || currentController == "Provider"
+            || (currentController == "Customer" && currentAction != "Book"));
+
+    var userDisplayName = currentUser?.FullName ?? User.Identity?.Name ?? "Account";
+    var userEmail = currentUser?.Email ?? "";
+    var userInitials = string.Concat(
+        userDisplayName.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                       .Take(2)
+                       .Select(s => char.ToUpperInvariant(s[0]))
+    );
+    if (string.IsNullOrEmpty(userInitials)) userInitials = "U";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -17,7 +32,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Sevro</title>
 
-    <!-- Sevro Custom Favicon (from uploaded image) -->
+    <!-- Sevro Custom Favicon -->
     <link rel="icon" type="image/png" href="~/images/favicon.png" asp-append-version="true" />
     <link rel="shortcut icon" type="image/x-icon" href="~/favicon.ico" asp-append-version="true" />
     <link rel="apple-touch-icon" href="~/images/favicon.png" asp-append-version="true" />
@@ -25,97 +40,116 @@
     <!-- Fonts & Bootstrap 5.3 -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <!-- Modular Sevro Stylesheets -->
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/cards.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/catalog.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/forms.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/bookings.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/footer.css" asp-append-version="true" />
 </head>
-<body>
-    <header class="sticky-top">
-        <nav class="navbar navbar-expand-lg sc-navbar py-2">
-            <div class="container">
-                <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4 text-dark" asp-controller="Home" asp-action="Index">
-                    <img src="~/images/favicon.png" alt="Sevro Logo" class="sc-brand-icon" asp-append-version="true" />
-                    <span>Sev<span class="text-terracotta">ro</span></span>
-                </a>
+<body class="@(isPortalPage ? "sc-portal-body" : "")">
+    <header class="sticky-top sc-header">
+        <nav class="navbar navbar-expand-lg sc-navbar" id="mainSiteNavbar">
+            <div class="@(isPortalPage ? "container-fluid px-3 px-lg-4" : "container") sc-navbar-container">
+                <div class="d-flex align-items-center gap-2">
+                    @if (isPortalPage)
+                    {
+                        <button class="btn sc-sidebar-mobile-trigger d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#portalSidebarDrawer" aria-controls="portalSidebarDrawer" aria-label="Open dashboard menu">
+                            <i class="bi bi-layout-sidebar-inset" aria-hidden="true"></i>
+                        </button>
+                    }
+                    <a class="navbar-brand sc-brand d-flex align-items-center gap-2 fw-bold fs-4 text-dark me-0" asp-controller="Home" asp-action="Index">
+                        <span class="sc-brand-badge">
+                            <img src="~/images/favicon.png" alt="Sevro Logo" class="sc-brand-icon" asp-append-version="true" />
+                        </span>
+                        <span class="sc-brand-wordmark">Sev<span class="sc-brand-accent">ro</span></span>
+                    </a>
+                </div>
 
-                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+                <button class="navbar-toggler sc-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="sc-toggler-bar"></span>
+                    <span class="sc-toggler-bar"></span>
+                    <span class="sc-toggler-bar"></span>
                 </button>
 
-                <div class="collapse navbar-collapse" id="mainNavbar">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3 gap-lg-1">
+                <div class="collapse navbar-collapse sc-navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav sc-nav-dock my-3 my-lg-0" id="scNavDock">
+                        <li class="sc-nav-slider d-none d-lg-block" id="scNavSlider" aria-hidden="true"></li>
                         <li class="nav-item">
-                            <a class="nav-link @(currentController == "Home" && currentAction == "Index" ? "active" : "")" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link @(currentController == "Home" && currentAction == "Index" ? "active" : "")" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house-door sc-nav-icon" aria-hidden="true"></i><span>Home</span>
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link @(currentController == "Services" && currentAction == "Index" ? "active" : "")" asp-controller="Services" asp-action="Index">Services</a>
+                            <a class="nav-link @(currentController == "Services" && currentAction == "Index" ? "active" : "")" asp-controller="Services" asp-action="Index">
+                                <i class="bi bi-grid sc-nav-icon" aria-hidden="true"></i><span>Services</span>
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link @(currentController == "Services" && currentAction == "Providers" ? "active" : "")" asp-controller="Services" asp-action="Providers">Providers</a>
+                            <a class="nav-link @(currentController == "Services" && currentAction == "Providers" ? "active" : "")" asp-controller="Services" asp-action="Providers">
+                                <i class="bi bi-patch-check sc-nav-icon" aria-hidden="true"></i><span>Providers</span>
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link @(currentController == "Home" && currentAction == "About" ? "active" : "")" asp-controller="Home" asp-action="About">About Us</a>
+                            <a class="nav-link @(currentController == "Home" && currentAction == "About" ? "active" : "")" asp-controller="Home" asp-action="About">
+                                <i class="bi bi-info-circle sc-nav-icon" aria-hidden="true"></i><span>About Us</span>
+                            </a>
                         </li>
                     </ul>
 
-                    <div class="d-flex align-items-center gap-2">
-                        @if (SignInManager.IsSignedIn(User))
+                    <div class="sc-nav-actions d-flex flex-wrap align-items-center gap-2 ms-lg-auto pb-2 pb-lg-0">
+                        @if (hasValidSession)
                         {
                             var roleLabel = User.IsInRole("Admin") ? "Admin" : User.IsInRole("Provider") ? "Provider" : "Customer";
                             var dashboardController = roleLabel;
 
-                            <a class="btn btn-sm btn-outline-terracotta px-3" asp-controller="@dashboardController" asp-action="Dashboard">
-                                <i class="bi bi-speedometer2 me-1"></i> Dashboard
-                            </a>
-
                             <div class="dropdown">
-                                <button class="btn btn-sm btn-light border dropdown-toggle d-flex align-items-center gap-2 px-3 py-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-person-circle text-terracotta"></i>
-                                    <span class="fw-medium">@(currentUser?.FullName ?? User.Identity?.Name)</span>
+                                <button class="btn btn-sm btn-light sc-user-btn dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="sc-user-avatar" aria-hidden="true">@userInitials</span>
+                                    <span class="fw-semibold sc-user-name">@userDisplayName</span>
                                     <span class="badge rounded-pill bg-terracotta-soft">@roleLabel</span>
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
-                                    @if (User.IsInRole("Customer"))
-                                    {
-                                        <li><a class="dropdown-item" asp-controller="Customer" asp-action="Dashboard"><i class="bi bi-grid me-2"></i>Customer Dashboard</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Customer" asp-action="Bookings"><i class="bi bi-calendar-check me-2"></i>My Bookings</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Customer" asp-action="Addresses"><i class="bi bi-geo-alt me-2"></i>My Addresses</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Customer" asp-action="Reviews"><i class="bi bi-star me-2"></i>My Reviews</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Customer" asp-action="Profile"><i class="bi bi-person me-2"></i>My Profile</a></li>
-                                    }
-                                    else if (User.IsInRole("Provider"))
-                                    {
-                                        <li><a class="dropdown-item" asp-controller="Provider" asp-action="Dashboard"><i class="bi bi-grid me-2"></i>Provider Dashboard</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Provider" asp-action="Services"><i class="bi bi-tools me-2"></i>My Services</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Provider" asp-action="Bookings"><i class="bi bi-clipboard-check me-2"></i>Manage Bookings</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Provider" asp-action="Reviews"><i class="bi bi-star me-2"></i>Customer Reviews</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Provider" asp-action="Profile"><i class="bi bi-building me-2"></i>Business Profile</a></li>
-                                    }
-                                    else if (User.IsInRole("Admin"))
-                                    {
-                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard"><i class="bi bi-grid me-2"></i>Admin Dashboard</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Users"><i class="bi bi-people me-2"></i>Manage Users</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Categories"><i class="bi bi-tags me-2"></i>Manage Categories</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Providers"><i class="bi bi-patch-check me-2"></i>Verify Providers</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Bookings"><i class="bi bi-journal-text me-2"></i>Manage Bookings</a></li>
-                                    }
-                                    <li><hr class="dropdown-divider" /></li>
-                                    <li>
+                                <div class="dropdown-menu dropdown-menu-end sc-dropdown-animated sc-profile-dropdown mt-2">
+                                    <!-- Dropdown Identity Header -->
+                                    <div class="sc-dropdown-header">
+                                        <span class="sc-avatar-circle sc-avatar-sm flex-shrink-0">@userInitials</span>
+                                        <div class="min-w-0">
+                                            <div class="fw-bold text-truncate small" style="color: var(--color-secondary);">@userDisplayName</div>
+                                            <div class="text-muted text-truncate" style="font-size: 0.74rem;">@userEmail</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="sc-dropdown-section">
+                                        <a class="dropdown-item @(currentController == dashboardController && currentAction == "Dashboard" ? "active" : "")" asp-controller="@dashboardController" asp-action="Dashboard">
+                                            <i class="bi bi-speedometer2" aria-hidden="true"></i>@roleLabel Dashboard
+                                        </a>
+                                    </div>
+
+                                    <div class="sc-dropdown-footer">
                                         <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
                                             @Html.AntiForgeryToken()
                                             <button type="submit" class="dropdown-item text-danger">
-                                                <i class="bi bi-box-arrow-right me-2"></i>Sign Out
+                                                <i class="bi bi-box-arrow-right" aria-hidden="true"></i>Sign Out
                                             </button>
                                         </form>
-                                    </li>
-                                </ul>
+                                    </div>
+                                </div>
                             </div>
                         }
                         else
                         {
-                            <a class="btn btn-outline-secondary btn-sm px-3 py-2" asp-controller="Account" asp-action="Login">Login</a>
-                            <a class="btn btn-terracotta btn-sm px-3 py-2" asp-controller="Account" asp-action="Register">Get Started</a>
+                            <a class="btn btn-outline-secondary btn-sm sc-nav-login-btn px-3 py-2" asp-controller="Account" asp-action="Login">Login</a>
+                            <a class="btn btn-terracotta btn-sm sc-nav-cta px-3 py-2 d-inline-flex align-items-center gap-1" asp-controller="Account" asp-action="Register">
+                                <span>Get Started</span>
+                                <i class="bi bi-arrow-right sc-cta-arrow" aria-hidden="true"></i>
+                            </a>
                         }
                     </div>
                 </div>
@@ -123,53 +157,201 @@
         </nav>
     </header>
 
-    <main>
-        @if (TempData["Success"] != null)
-        {
-            <div class="container mt-3">
-                <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3 mb-0" role="alert">
-                    <i class="bi bi-check-circle-fill me-2"></i>@TempData["Success"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+    @if (isPortalPage)
+    {
+        <!-- Mobile Sidebar Offcanvas Drawer -->
+        <div class="offcanvas offcanvas-start sc-sidebar-offcanvas" tabindex="-1" id="portalSidebarDrawer" aria-labelledby="portalSidebarDrawerLabel">
+            <div class="offcanvas-header border-bottom">
+                <h6 class="offcanvas-title fw-bold d-flex align-items-center gap-2" id="portalSidebarDrawerLabel">
+                    <span class="sc-brand-badge" style="width:30px;height:30px;">
+                        <img src="~/images/favicon.png" alt="Sevro" style="width:20px;height:20px;object-fit:contain;" asp-append-version="true" />
+                    </span>
+                    <span>Sev<span class="sc-brand-accent">ro</span> Portal</span>
+                </h6>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
-        }
-        @if (TempData["Error"] != null)
-        {
-            <div class="container mt-3">
-                <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-3 mb-0" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["Error"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            </div>
-        }
-
-        @RenderBody()
-    </main>
-
-    <footer class="sc-footer mt-5 py-4">
-        <div class="container">
-            <div class="row gy-3 align-items-center">
-                <div class="col-md-5 d-flex align-items-center gap-2">
-                    <img src="~/images/favicon.png" alt="Sevro" class="sc-brand-icon" asp-append-version="true" />
-                    <div>
-                        <div class="fw-bold">Sev<span class="text-terracotta">ro</span></div>
-                        <small class="text-muted">Trusted Local Service Marketplace &bull; Pay directly on service</small>
-                    </div>
-                </div>
-                <div class="col-md-4 text-md-center">
-                    <a class="text-decoration-none text-muted me-3 small" asp-controller="Services" asp-action="Index">Browse Services</a>
-                    <a class="text-decoration-none text-muted me-3 small" asp-controller="Services" asp-action="Providers">Find Providers</a>
-                    <a class="text-decoration-none text-muted small" asp-controller="Home" asp-action="About">About Us</a>
-                </div>
-                <div class="col-md-3 text-md-end">
-                    <small class="text-muted">&copy; @DateTime.Now.Year Sevro (BCA TY Project)</small>
-                </div>
+            <div class="offcanvas-body p-3">
+                <partial name="_DashboardSidebarPartial" />
             </div>
         </div>
-    </footer>
+
+        <!-- 2-Column Dashboard Workspace Shell -->
+        <div class="sc-portal-shell container-fluid px-3 px-lg-4 py-4">
+            <div class="sc-portal-grid">
+                <aside class="sc-sidebar d-none d-lg-block">
+                    <partial name="_DashboardSidebarPartial" />
+                </aside>
+
+                <main class="sc-portal-main min-w-0">
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert sc-toast-alert sc-toast-success alert-dismissible fade show mb-4" role="alert">
+                            <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+                            <span>@TempData["Success"]</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert sc-toast-alert sc-toast-danger alert-dismissible fade show mb-4" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+                            <span>@TempData["Error"]</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    @RenderBody()
+                </main>
+            </div>
+        </div>
+
+        <!-- Sleek Compact Portal Footer -->
+        <footer class="sc-portal-footer py-3 mt-auto">
+            <div class="container-fluid px-3 px-lg-4 d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2 small">
+                <div class="text-muted">
+                    &copy; @DateTime.Now.Year <strong class="text-dark">Sevro</strong> &middot; Local Service Marketplace Portal
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <a asp-controller="Services" asp-action="Index" class="text-decoration-none text-muted">Catalog</a>
+                    <a asp-controller="Services" asp-action="Providers" class="text-decoration-none text-muted">Providers</a>
+                    <a asp-controller="Home" asp-action="About" class="text-decoration-none text-muted">About</a>
+                    <span class="sc-status-pill sc-status-completed py-1 px-2" style="font-size:0.72rem;">
+                        <span class="sc-status-dot" aria-hidden="true"></span> Online
+                    </span>
+                </div>
+            </div>
+        </footer>
+    }
+    else
+    {
+        <main>
+            @if (TempData["Success"] != null)
+            {
+                <div class="container mt-3">
+                    <div class="alert sc-toast-alert sc-toast-success alert-dismissible fade show mb-0" role="alert">
+                        <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+                        <span>@TempData["Success"]</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="container mt-3">
+                    <div class="alert sc-toast-alert sc-toast-danger alert-dismissible fade show mb-0" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+                        <span>@TempData["Error"]</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+            }
+
+            @RenderBody()
+        </main>
+
+        <footer class="sc-footer mt-5">
+            <div class="container py-5">
+                <div class="row gy-4 gx-lg-5">
+                    <!-- Brand & Trust Summary -->
+                    <div class="col-lg-4">
+                        <a class="d-inline-flex align-items-center gap-2 text-decoration-none mb-3" asp-controller="Home" asp-action="Index">
+                            <span class="sc-brand-badge">
+                                <img src="~/images/favicon.png" alt="Sevro" class="sc-brand-icon" asp-append-version="true" />
+                            </span>
+                            <span class="fs-4 fw-bold font-heading text-white">Sev<span class="sc-footer-accent">ro</span></span>
+                        </a>
+                        <p class="sc-footer-text small mb-3" style="max-width: 21rem;">
+                            Your trusted local service marketplace connecting homeowners with admin-verified electricians, plumbers, cleaners, painters, and repair specialists.
+                        </p>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="sc-footer-chip"><i class="bi bi-patch-check-fill" aria-hidden="true"></i> Admin Verified</span>
+                            <span class="sc-footer-chip"><i class="bi bi-currency-rupee" aria-hidden="true"></i> Fixed Pricing</span>
+                            <span class="sc-footer-chip"><i class="bi bi-cash-coin" aria-hidden="true"></i> Pay on Service</span>
+                        </div>
+                    </div>
+
+                    <!-- Explore Links -->
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <h6 class="sc-footer-heading">Explore</h6>
+                        <ul class="list-unstyled d-grid gap-2 mb-0 small">
+                            <li><a class="sc-footer-link text-decoration-none" asp-controller="Home" asp-action="Index"><i class="bi bi-chevron-right sc-footer-arrow" aria-hidden="true"></i>Home</a></li>
+                            <li><a class="sc-footer-link text-decoration-none" asp-controller="Services" asp-action="Index"><i class="bi bi-chevron-right sc-footer-arrow" aria-hidden="true"></i>Browse Services</a></li>
+                            <li><a class="sc-footer-link text-decoration-none" asp-controller="Services" asp-action="Providers"><i class="bi bi-chevron-right sc-footer-arrow" aria-hidden="true"></i>Find Providers</a></li>
+                            <li><a class="sc-footer-link text-decoration-none" asp-controller="Home" asp-action="About"><i class="bi bi-chevron-right sc-footer-arrow" aria-hidden="true"></i>About Us</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Popular Services -->
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <h6 class="sc-footer-heading">Popular Services</h6>
+                        <ul class="list-unstyled d-grid gap-2 mb-0 small">
+                            <li><a class="sc-footer-link text-decoration-none" asp-controller="Services" asp-action="Index" asp-route-search="Plumbing"><i class="bi bi-droplet-fill sc-footer-cat-icon" aria-hidden="true"></i>Plumbing &amp; Leak Repair</a></li>
+                            <li><a class="sc-footer-link text-decoration-none" asp-controller="Services" asp-action="Index" asp-route-search="Electrical"><i class="bi bi-lightning-charge-fill sc-footer-cat-icon" aria-hidden="true"></i>Electrical &amp; Wiring</a></li>
+                            <li><a class="sc-footer-link text-decoration-none" asp-controller="Services" asp-action="Index" asp-route-search="Cleaning"><i class="bi bi-stars sc-footer-cat-icon" aria-hidden="true"></i>Home Deep Cleaning</a></li>
+                            <li><a class="sc-footer-link text-decoration-none" asp-controller="Services" asp-action="Index" asp-route-search="Painting"><i class="bi bi-brush-fill sc-footer-cat-icon" aria-hidden="true"></i>Painting &amp; Maintenance</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Quick Action Card -->
+                    <div class="col-md-4 col-lg-3">
+                        <div class="sc-footer-cta-card p-3 p-lg-4 h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="small fw-semibold mb-1" style="color: #FDBA74;">
+                                    <i class="bi bi-lightning-fill me-1" aria-hidden="true"></i> Quick Start
+                                </div>
+                                <h6 class="text-white fw-bold mb-2">Ready to book or list services?</h6>
+                                <p class="sc-footer-text small mb-3">Zero middleman fees. Direct booking with transparent local rates.</p>
+                            </div>
+                            <div class="d-grid gap-2">
+                                @if (hasValidSession)
+                                {
+                                    var footerDash = User.IsInRole("Admin") ? "Admin" : User.IsInRole("Provider") ? "Provider" : "Customer";
+                                    <a class="btn btn-terracotta btn-sm sc-btn-sheen rounded-pill d-inline-flex align-items-center justify-content-center gap-1" asp-controller="@footerDash" asp-action="Dashboard">
+                                        <span>Open Dashboard</span>
+                                        <i class="bi bi-arrow-right sc-cta-arrow" aria-hidden="true"></i>
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a class="btn btn-terracotta btn-sm sc-btn-sheen rounded-pill d-inline-flex align-items-center justify-content-center gap-1" asp-controller="Account" asp-action="Register" asp-route-role="Provider">
+                                        <span>Join as Provider</span>
+                                        <i class="bi bi-arrow-right sc-cta-arrow" aria-hidden="true"></i>
+                                    </a>
+                                    <a class="btn btn-sm sc-footer-ghost-btn rounded-pill" asp-controller="Account" asp-action="Login">
+                                        Sign In to Account
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Legal & Back-to-Top Bar -->
+                <div class="sc-footer-bottom mt-5 pt-4 d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+                    <div class="small sc-footer-text">
+                        &copy; @DateTime.Now.Year <strong class="text-white">Sevro</strong> &mdash; Local Service Marketplace (BCA TY Project)
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="sc-footer-status small">
+                            <span class="sc-live-dot" aria-hidden="true"></span>
+                            <span>Verified Local Network</span>
+                        </span>
+                        <button type="button" class="sc-back-top" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })" aria-label="Back to top" title="Back to top">
+                            <i class="bi bi-arrow-up" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    }
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Modular Sevro Scripts -->
+    <script src="~/js/navbar.js" asp-append-version="true"></script>
+    <script src="~/js/forms.js" asp-append-version="true"></script>
+    <script src="~/js/catalog.js" asp-append-version="true"></script>
+    <script src="~/js/pagination.js" asp-append-version="true"></script>
+    <script src="~/js/reviews.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

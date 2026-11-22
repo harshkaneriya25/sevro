@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F1F5F9"/>
+      <stop offset="100%" stop-color="#E2E8F0"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#bg)"/>
+  <circle cx="526" cy="78" r="94" fill="#1D4ED8" opacity="0.09"/>
+  <circle cx="112" cy="294" r="74" fill="#C2410C" opacity="0.10"/>
+  <g transform="translate(222, 96)" fill="none" stroke="#0F172A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="24" y="14" width="148" height="96" rx="10" fill="#FFFFFF"/>
+    <rect x="38" y="28" width="120" height="68" rx="4" fill="#EFF6FF" stroke="none"/>
+    <path d="M74 62 L58 76 L74 90" stroke="#C2410C" stroke-width="5"/>
+    <path d="M122 62 L138 76 L122 90" stroke="#C2410C" stroke-width="5"/>
+    <line x1="104" y1="54" x2="92" y2="96" stroke="#1D4ED8" stroke-width="5"/>
+    <path d="M6 124 L190 124 L178 140 L18 140 Z" fill="#CBD5E1"/>
+  </g>
+  <text x="320" y="302" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="21" font-weight="600" fill="#0F172A">COMPUTER &amp; TECHNOLOGY</text>
+</svg>

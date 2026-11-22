@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Sevro.Models
 {
@@ -8,7 +8,7 @@ namespace Sevro.Models
         public int ProviderProfileId { get; set; }
 
         [Required]
-        public string UserId { get; set; } = string.Empty;
+        public int UserId { get; set; }
 
         [Required]
         [StringLength(150)]
@@ -23,6 +23,12 @@ namespace Sevro.Models
         [Required]
         [StringLength(100)]
         public string City { get; set; } = string.Empty;
+
+        [StringLength(300)]
+        public string? ServiceAreas { get; set; }
+
+        [StringLength(1000)]
+        public string? PortfolioPhotos { get; set; }
 
         public bool IsVerified { get; set; } = false;
 

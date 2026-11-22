@@ -1,130 +1,196 @@
-﻿@model List<Sevro.Models.Booking>
+@model List<Sevro.Models.Booking>
 @{
     ViewData["Title"] = "My Bookings";
     var currentStatus = ViewBag.CurrentStatus as string;
 }
 
-<div class="container py-4">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-        <div>
-            <h1 class="h3 fw-bold mb-1">My Bookings</h1>
-            <p class="text-muted mb-0">Track live job progress, cancel pending requests, and review completed services.</p>
-        </div>
-        <a asp-controller="Services" asp-action="Index" class="btn btn-terracotta">
-            <i class="bi bi-plus-lg me-1"></i> Book Another Service
-        </a>
+<div class="sc-page-header sc-reveal">
+    <div>
+        <div class="sc-section-eyebrow"><i class="bi bi-calendar-check" aria-hidden="true"></i> Order History</div>
+        <h1 class="h3 fw-bold mb-1">My Bookings</h1>
+        <p class="text-muted small mb-0">Track live job progress, approve quotations, cancel pending requests, and review completed services.</p>
     </div>
+    <a asp-controller="Services" asp-action="Index" class="btn btn-terracotta sc-btn-sheen rounded-pill px-4 d-inline-flex align-items-center gap-1">
+        <i class="bi bi-plus-lg" aria-hidden="true"></i>
+        <span>Book Another Service</span>
+    </a>
+</div>
 
-    <!-- Status Filter Pills -->
-    <div class="d-flex flex-wrap gap-2 mb-4">
-        <a asp-action="Bookings" class="btn btn-sm @(string.IsNullOrEmpty(currentStatus) ? "btn-terracotta" : "btn-outline-secondary")">All</a>
-        @foreach (var st in Enum.GetNames<BookingStatus>())
-        {
-            <a asp-action="Bookings" asp-route-status="@st" class="btn btn-sm @(string.Equals(currentStatus, st, StringComparison.OrdinalIgnoreCase) ? "btn-terracotta" : "btn-outline-secondary")">@st</a>
-        }
-    </div>
-
-    @if (!Model.Any())
+<!-- Status Filter Pills -->
+<div class="sc-pill-dock mb-4 sc-reveal">
+    <a asp-action="Bookings" class="btn btn-sm @(string.IsNullOrEmpty(currentStatus) ? "btn-terracotta" : "btn-outline-secondary")">All</a>
+    @foreach (var st in Enum.GetNames<BookingStatus>())
     {
-        <div class="sc-card p-5 text-center border-0 shadow-sm">
-            <i class="bi bi-calendar-x display-5 text-muted"></i>
-            <h5 class="fw-bold mt-3">No bookings found</h5>
-            <p class="text-muted small">Browse verified services and book your first appointment.</p>
-            <a asp-controller="Services" asp-action="Index" class="btn btn-terracotta btn-sm px-4">Browse Services</a>
-        </div>
-    }
-    else
-    {
-        <div class="vstack gap-3">
-            @foreach (var b in Model)
-            {
-                <div class="sc-card p-4 border-0 shadow-sm">
-                    <div class="row align-items-center gy-3">
-                        <div class="col-lg-5">
-                            <div class="d-flex align-items-center gap-2 mb-1">
-                                <span class="badge bg-light text-dark border">#@b.BookingId</span>
-                                <span class="badge bg-terracotta-soft">@b.ProviderService.Category.CategoryName</span>
-                                <partial name="_StatusBadgePartial" model="b.Status" />
-                            </div>
-                            <h5 class="fw-bold mb-1">@b.ProviderService.ServiceName</h5>
-                            <div class="small text-muted mb-1">
-                                <i class="bi bi-building me-1"></i>
-                                <a asp-controller="Services" asp-action="ProviderDetails" asp-route-id="@b.ProviderService.ProviderProfileId" class="text-decoration-none text-dark fw-medium">
-                                    @b.ProviderService.ProviderProfile.BusinessName
-                                </a>
-                                &bull; <i class="bi bi-telephone ms-1 me-1"></i>@b.ProviderService.ProviderProfile.User.PhoneNumber
-                            </div>
-                            <div class="small text-muted">
-                                <i class="bi bi-calendar-event me-1"></i>@b.BookingDate.ToString("dd MMM yyyy")
-                                &bull; <i class="bi bi-geo-alt ms-1 me-1"></i>@b.Address.Address, @b.Address.City (@b.Address.Pincode)
-                            </div>
-                        </div>
-
-                        <!-- Linear Progress Stepper -->
-                        <div class="col-lg-5">
-                            <partial name="_BookingStepperPartial" model="b.Status" />
-                        </div>
-
-                        <!-- Price & Contextual Actions -->
-                        <div class="col-lg-2 text-lg-end">
-                            <div class="fs-5 fw-bold mb-2">&#8377;@b.ProviderService.Price.ToString("N0")</div>
-
-                            @if (b.Status == BookingStatus.Pending)
-                            {
-                                <form asp-action="CancelBooking" asp-route-id="@b.BookingId" method="post" onsubmit="return confirm('Cancel Booking #@b.BookingId?');">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-sm btn-outline-danger w-100">Cancel Booking</button>
-                                </form>
-                            }
-                            else if (b.Status == BookingStatus.Completed && b.Review == null)
-                            {
-                                <button type="button"
-                                        class="btn btn-sm btn-terracotta w-100"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#reviewModal"
-                                        data-booking-id="@b.BookingId"
-                                        data-service-name="@b.ProviderService.ServiceName">
-                                    <i class="bi bi-star me-1"></i> Rate &amp; Review
-                                </button>
-                            }
-                            else if (b.Review != null)
-                            {
-                                <span class="badge bg-warning bg-opacity-25 text-dark px-2 py-1">
-                                    <span class="text-warning">&#9733;</span> Rated @b.Review.Rating/5
-                                </span>
-                            }
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
+        <a asp-action="Bookings" asp-route-status="@st" class="btn btn-sm @(string.Equals(currentStatus, st, StringComparison.OrdinalIgnoreCase) ? "btn-terracotta" : "btn-outline-secondary")">@st</a>
     }
 </div>
+
+@if (!Model.Any())
+{
+    <div class="sc-empty-state">
+        <div class="sc-empty-icon"><i class="bi bi-calendar-x" aria-hidden="true"></i></div>
+        <h5 class="fw-bold">No bookings found</h5>
+        <p class="text-muted small mb-3">Browse verified services and book your first appointment.</p>
+        <a asp-controller="Services" asp-action="Index" class="btn btn-terracotta btn-sm rounded-pill px-4">Browse Services</a>
+    </div>
+}
+else
+{
+    <div class="vstack gap-3" data-sc-paginate="6" data-sc-item=":scope > .sc-page-item">
+        @foreach (var b in Model)
+        {
+            var displayPrice = b.AgreedPrice.HasValue
+                ? $"₹{b.AgreedPrice.Value:N0}"
+                : PricingFormatter.FormatPrice(b.ProviderService.PricingType == PricingType.QuoteRequired ? null : b.ProviderService.Price, b.ProviderService.PricingType, b.ProviderService.Unit);
+
+            <div class="sc-card p-4 sc-page-item">
+                <div class="row align-items-center gy-3">
+                    <div class="col-xl-5">
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                            <span class="badge rounded-pill bg-light text-dark border sc-tabular">#@b.BookingId</span>
+                            <span class="badge rounded-pill bg-terracotta-soft">@b.ProviderService.Category.CategoryName</span>
+                            <partial name="_StatusBadgePartial" model="b.Status" />
+                        </div>
+                        <h5 class="h6 fw-bold mb-1">@b.ProviderService.ServiceName</h5>
+                        <div class="small text-muted mb-1">
+                            <i class="bi bi-building me-1 text-terracotta" aria-hidden="true"></i>
+                            <a asp-controller="Services" asp-action="ProviderDetails" asp-route-id="@b.ProviderService.ProviderProfileId" class="text-decoration-none text-dark fw-semibold">
+                                @b.ProviderService.ProviderProfile.BusinessName
+                            </a>
+                            &bull; <i class="bi bi-telephone ms-1 me-1" aria-hidden="true"></i>@b.ProviderService.ProviderProfile.User.PhoneNumber
+                        </div>
+                        <div class="small text-muted">
+                            <i class="bi bi-calendar-event me-1" aria-hidden="true"></i><span class="sc-tabular">@b.BookingDate.ToString("dd MMM yyyy")</span>
+                            @if (!string.IsNullOrWhiteSpace(b.PreferredTimeSlot))
+                            {
+                                <span> &bull; <i class="bi bi-clock me-1" aria-hidden="true"></i>@b.PreferredTimeSlot</span>
+                            }
+                        </div>
+                        <div class="small text-muted">
+                            <i class="bi bi-geo-alt me-1" aria-hidden="true"></i>@b.Address.Address, @b.Address.City (@b.Address.Pincode)
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(b.ProblemDescription))
+                        {
+                            <div class="small text-muted mt-1 fst-italic">"@b.ProblemDescription"</div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(b.IssuePhotoPath))
+                        {
+                            <div class="mt-2">
+                                <a href="@b.IssuePhotoPath" target="_blank" class="small text-terracotta text-decoration-none fw-semibold">
+                                    <i class="bi bi-image me-1" aria-hidden="true"></i>View Uploaded Issue Photo
+                                </a>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Linear Progress Stepper -->
+                    <div class="col-xl-5">
+                        <partial name="_BookingStepperPartial" model="b.Status" />
+
+                        <!-- Quotation Box (When provider sends a quote) -->
+                        @if (b.QuotedAmount.HasValue)
+                        {
+                            <div class="mt-3 p-3 rounded-3 border" style="background-color: var(--color-primary-soft); border-color: rgba(194,65,12,0.25) !important;">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small fw-bold text-terracotta"><i class="bi bi-file-earmark-text me-1" aria-hidden="true"></i>Provider Quotation</span>
+                                    <span class="fw-bold fs-6 sc-tabular text-dark">&#8377;@b.QuotedAmount.Value.ToString("N0")</span>
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(b.QuoteNotes))
+                                {
+                                    <div class="small text-muted mb-2">@b.QuoteNotes</div>
+                                }
+                                @if (b.IsQuoteApproved == null && (b.Status == BookingStatus.Pending || b.Status == BookingStatus.Confirmed))
+                                {
+                                    <div class="d-flex gap-2">
+                                        <form asp-action="RespondToQuotation" asp-route-id="@b.BookingId" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="approve" value="true" />
+                                            <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check2 me-1" aria-hidden="true"></i>Approve Quote</button>
+                                        </form>
+                                        <form asp-action="RespondToQuotation" asp-route-id="@b.BookingId" method="post" class="d-inline" onsubmit="return confirm('Decline quotation and cancel booking?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="approve" value="false" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Decline</button>
+                                        </form>
+                                    </div>
+                                }
+                                else if (b.IsQuoteApproved == true)
+                                {
+                                    <span class="sc-status-pill sc-status-completed" style="font-size:0.72rem;"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> Quote Approved</span>
+                                }
+                                else if (b.IsQuoteApproved == false)
+                                {
+                                    <span class="sc-status-pill sc-status-danger" style="font-size:0.72rem;"><i class="bi bi-x-circle-fill" aria-hidden="true"></i> Quote Declined</span>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Price & Contextual Actions -->
+                    <div class="col-xl-2 text-xl-end">
+                        <div class="fs-5 fw-bold mb-1 sc-tabular">@displayPrice</div>
+                        <div class="small text-muted mb-2">@PricingFormatter.GetPricingTypeLabel(b.ProviderService.PricingType)</div>
+
+                        @if (b.Status == BookingStatus.Pending)
+                        {
+                            <form asp-action="CancelBooking" asp-route-id="@b.BookingId" method="post" onsubmit="return confirm('Cancel Booking #@b.BookingId?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                    <i class="bi bi-x-circle me-1" aria-hidden="true"></i>Cancel
+                                </button>
+                            </form>
+                        }
+                        else if (b.Status == BookingStatus.Completed && b.Review == null)
+                        {
+                            <button type="button"
+                                    class="btn btn-sm btn-terracotta sc-btn-sheen w-100"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#reviewModal"
+                                    data-booking-id="@b.BookingId"
+                                    data-service-name="@b.ProviderService.ServiceName">
+                                <i class="bi bi-star-fill me-1" aria-hidden="true"></i>Rate &amp; Review
+                            </button>
+                        }
+                        else if (b.Review != null)
+                        {
+                            <span class="sc-status-pill sc-status-pending sc-tabular">
+                                <i class="bi bi-star-fill text-warning" aria-hidden="true"></i> Rated @b.Review.Rating/5
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
 
 <!-- Interactive 5-Star Review Modal -->
 <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow rounded-4">
+        <div class="modal-content overflow-hidden">
             <form asp-action="SubmitReview" method="post">
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="BookingId" id="reviewBookingId" />
                 <input type="hidden" name="Rating" id="reviewRatingInput" value="5" />
 
-                <div class="modal-header border-0 pb-0">
-                    <div>
-                        <h5 class="modal-title fw-bold" id="reviewModalLabel">Rate Your Experience</h5>
-                        <small class="text-muted" id="reviewServiceName">Service</small>
+                <div class="modal-header border-bottom pb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="sc-form-icon" style="width:38px;height:38px;font-size:1rem;"><i class="bi bi-star-fill" aria-hidden="true"></i></span>
+                        <div>
+                            <h5 class="modal-title h6 fw-bold mb-0" id="reviewModalLabel">Rate Your Experience</h5>
+                            <small class="text-muted" id="reviewServiceName">Service</small>
+                        </div>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <div class="modal-body text-center pt-3">
+                <div class="modal-body text-center pt-4">
                     <div class="sc-star-selector mb-2" role="radiogroup" aria-label="Star rating">
-                        <button type="button" class="sc-star-btn active" data-value="1" aria-label="1 star">&#9733;</button>
-                        <button type="button" class="sc-star-btn active" data-value="2" aria-label="2 stars">&#9733;</button>
-                        <button type="button" class="sc-star-btn active" data-value="3" aria-label="3 stars">&#9733;</button>
-                        <button type="button" class="sc-star-btn active" data-value="4" aria-label="4 stars">&#9733;</button>
-                        <button type="button" class="sc-star-btn active" data-value="5" aria-label="5 stars">&#9733;</button>
+                        <button type="button" class="sc-star-btn active" data-value="1" aria-label="1 star"><i class="bi bi-star-fill"></i></button>
+                        <button type="button" class="sc-star-btn active" data-value="2" aria-label="2 stars"><i class="bi bi-star-fill"></i></button>
+                        <button type="button" class="sc-star-btn active" data-value="3" aria-label="3 stars"><i class="bi bi-star-fill"></i></button>
+                        <button type="button" class="sc-star-btn active" data-value="4" aria-label="4 stars"><i class="bi bi-star-fill"></i></button>
+                        <button type="button" class="sc-star-btn active" data-value="5" aria-label="5 stars"><i class="bi bi-star-fill"></i></button>
                     </div>
                     <div class="small fw-semibold text-terracotta mb-3" id="reviewRatingLabel">5 / 5 — Excellent</div>
 
@@ -134,9 +200,9 @@
                     </div>
                 </div>
 
-                <div class="modal-footer border-0 pt-0">
+                <div class="modal-footer border-top pt-3">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-terracotta px-4">Submit Review</button>
+                    <button type="submit" class="btn btn-terracotta sc-btn-sheen px-4">Submit Review</button>
                 </div>
             </form>
         </div>

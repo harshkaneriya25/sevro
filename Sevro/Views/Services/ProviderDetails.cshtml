@@ -1,6 +1,9 @@
-﻿@model Sevro.ViewModels.Catalog.ProviderDetailsViewModel
+@model Sevro.ViewModels.Catalog.ProviderDetailsViewModel
 @{
     ViewData["Title"] = Model.Profile.BusinessName;
+    var portfolioPhotos = string.IsNullOrWhiteSpace(Model.Profile.PortfolioPhotos)
+        ? new List<string>()
+        : Model.Profile.PortfolioPhotos.Split('|', StringSplitOptions.RemoveEmptyEntries).ToList();
 }
 
 <div class="container py-4">
@@ -29,9 +32,13 @@
                     </span>
                 </div>
                 <p class="text-muted mb-3">@Model.Profile.Description</p>
-                <div class="d-flex flex-wrap gap-4 small text-muted">
+                <div class="d-flex flex-wrap gap-3 gap-md-4 small text-muted">
                     <span><i class="bi bi-person me-1 text-terracotta"></i>Managed by <strong class="text-dark">@Model.Profile.User.FullName</strong></span>
                     <span><i class="bi bi-geo-alt me-1 text-terracotta"></i>@Model.Profile.City</span>
+                    @if (!string.IsNullOrWhiteSpace(Model.Profile.ServiceAreas))
+                    {
+                        <span><i class="bi bi-pin-map me-1 text-terracotta"></i>Areas: <strong class="text-dark">@Model.Profile.ServiceAreas</strong></span>
+                    }
                     <span><i class="bi bi-briefcase me-1 text-terracotta"></i>@Model.Profile.ExperienceYears years experience</span>
                     <span><i class="bi bi-telephone me-1 text-terracotta"></i>@Model.Profile.User.PhoneNumber</span>
                 </div>
@@ -39,7 +46,7 @@
 
             <div class="col-lg-4 text-lg-end">
                 <div class="d-inline-block bg-light rounded-3 p-3 text-center">
-                    <div class="fs-2 fw-bold text-dark">
+                    <div class="fs-2 fw-bold text-dark sc-tabular">
                         <span class="text-warning">&#9733;</span> @(Model.ReviewCount > 0 ? Model.AverageRating.ToString("0.0") : "New")
                     </div>
                     <div class="small text-muted">@Model.ReviewCount verified @(Model.ReviewCount == 1 ? "review" : "reviews") &bull; @Model.CompletedJobsCount completed jobs</div>
@@ -49,11 +56,17 @@
     </div>
 
     <!-- Provider Service Menu -->
-    <h3 class="h4 fw-bold mb-3">Service Menu</h3>
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
+        <div>
+            <h3 class="h4 fw-bold mb-0">Service Menu &amp; Transparent Rates</h3>
+            <p class="text-muted small mb-0">All prices shown clearly in &#8377; INR with zero hidden fees.</p>
+        </div>
+    </div>
+
     @if (!Model.Services.Any())
     {
         <div class="sc-card p-4 text-center text-muted mb-5">
-            This provider hasn't added any services yet.
+            This provider hasn't added any active services yet.
         </div>
     }
     else
@@ -65,18 +78,25 @@
                     <div class="card sc-service-card h-100">
                         <img src="@svc.ThumbnailUrl" alt="@svc.CategoryName" class="sc-card-thumb" />
                         <div class="card-body d-flex flex-column">
-                            <span class="badge bg-terracotta-soft align-self-start mb-2">@svc.CategoryName</span>
+                            <div class="d-flex flex-wrap gap-1 mb-2">
+                                <span class="badge bg-terracotta-soft">@svc.CategoryName</span>
+                                <span class="badge @svc.PricingBadgeClass">@svc.PricingTypeLabel</span>
+                            </div>
                             <h5 class="fw-bold mb-1">@svc.ServiceName</h5>
-                            <p class="small text-muted mb-3">@svc.Description</p>
+                            <p class="small text-muted mb-2">@svc.Description</p>
+                            @if (!string.IsNullOrWhiteSpace(svc.EstimatedDuration))
+                            {
+                                <div class="small text-muted mb-3"><i class="bi bi-clock me-1 text-terracotta" aria-hidden="true"></i>Est. @svc.EstimatedDuration</div>
+                            }
                             <div class="mt-auto">
                                 <div class="d-flex justify-content-between align-items-center mb-3 pt-2 border-top">
-                                    <span class="small text-muted">Fixed Price</span>
-                                    <span class="fs-5 fw-bold text-dark">&#8377;@svc.Price.ToString("N0")</span>
+                                    <span class="small text-muted">@svc.PricingTypeLabel</span>
+                                    <span class="fs-5 fw-bold text-dark sc-tabular">@svc.FormattedPrice</span>
                                 </div>
                                 @if (Model.Profile.IsAvailable)
                                 {
                                     <a asp-controller="Customer" asp-action="Book" asp-route-id="@svc.ProviderServiceId" class="btn btn-terracotta w-100">
-                                        Book Service
+                                        @(svc.PricingType == PricingType.QuoteRequired ? "Request Quote" : "Book Service")
                                     </a>
                                 }
                                 else
@@ -86,6 +106,21 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            }
+        </div>
+    }
+
+    @if (portfolioPhotos.Any())
+    {
+        <h3 class="h4 fw-bold mb-3">Past Work Portfolio</h3>
+        <div class="row row-cols-2 row-cols-md-4 g-3 mb-5">
+            @foreach (var photo in portfolioPhotos)
+            {
+                <div class="col">
+                    <a href="@photo" target="_blank" rel="noopener" class="d-block sc-card p-1 overflow-hidden" style="aspect-ratio: 4 / 3;">
+                        <img src="@photo" alt="@Model.Profile.BusinessName work photo" class="w-100 h-100 rounded-2" style="object-fit: cover;" />
+                    </a>
                 </div>
             }
         </div>

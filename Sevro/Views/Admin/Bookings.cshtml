@@ -1,93 +1,111 @@
-﻿@model List<Sevro.Models.Booking>
+@model List<Sevro.Models.Booking>
 @{
     ViewData["Title"] = "Manage All Bookings";
     var currentStatus = ViewBag.CurrentStatus as string;
 }
 
-<div class="container py-4">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-        <div>
-            <h1 class="h3 fw-bold mb-1">All Platform Bookings</h1>
-            <p class="text-muted mb-0">Monitor every booking across customers and providers.</p>
-        </div>
-        <a asp-action="Dashboard" class="btn btn-outline-secondary btn-sm">Back to Dashboard</a>
+<div class="sc-page-header sc-reveal">
+    <div>
+        <div class="sc-section-eyebrow"><i class="bi bi-journal-check" aria-hidden="true"></i> Operations</div>
+        <h1 class="h3 fw-bold mb-1">All Platform Bookings</h1>
+        <p class="text-muted small mb-0">Monitor every booking across customers and providers.</p>
     </div>
+    <span class="sc-status-pill sc-status-confirmed bg-white border shadow-sm px-3 py-2">
+        <span class="sc-status-dot" aria-hidden="true"></span>
+        <strong class="sc-tabular">@Model.Count</strong> @(Model.Count == 1 ? "booking" : "bookings")
+    </span>
+</div>
 
-    <div class="d-flex flex-wrap gap-2 mb-4">
-        <a asp-action="Bookings" class="btn btn-sm @(string.IsNullOrEmpty(currentStatus) ? "btn-terracotta" : "btn-outline-secondary")">All</a>
-        @foreach (var st in Enum.GetNames<BookingStatus>())
-        {
-            <a asp-action="Bookings" asp-route-status="@st" class="btn btn-sm @(string.Equals(currentStatus, st, StringComparison.OrdinalIgnoreCase) ? "btn-terracotta" : "btn-outline-secondary")">@st</a>
-        }
-    </div>
-
-    @if (!Model.Any())
+<div class="sc-pill-dock mb-4 sc-reveal">
+    <a asp-action="Bookings" class="btn btn-sm @(string.IsNullOrEmpty(currentStatus) ? "btn-terracotta" : "btn-outline-secondary")">All</a>
+    @foreach (var st in Enum.GetNames<BookingStatus>())
     {
-        <div class="sc-card p-5 text-center border-0 shadow-sm text-muted">
-            No bookings match this filter.
-        </div>
+        <a asp-action="Bookings" asp-route-status="@st" class="btn btn-sm @(string.Equals(currentStatus, st, StringComparison.OrdinalIgnoreCase) ? "btn-terracotta" : "btn-outline-secondary")">@st</a>
     }
-    else
-    {
-        <div class="sc-card border-0 shadow-sm p-4">
-            <div class="table-responsive">
-                <table class="table align-middle mb-0">
-                    <thead class="table-light small text-uppercase text-muted">
+</div>
+
+@if (!Model.Any())
+{
+    <div class="sc-empty-state">
+        <div class="sc-empty-icon"><i class="bi bi-calendar-x" aria-hidden="true"></i></div>
+        <h5 class="fw-bold">No bookings match this filter</h5>
+        <p class="text-muted small mb-0">Try switching to a different status tab above.</p>
+    </div>
+}
+else
+{
+    <div class="sc-card p-0 overflow-hidden sc-reveal">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="small text-uppercase text-muted">
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Service &amp; Provider</th>
+                        <th>Customer</th>
+                        <th>Service Date</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th>Review</th>
+                        <th class="text-end pe-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody data-sc-paginate="8">
+                    @foreach (var b in Model)
+                    {
+                        var svc = b.ProviderService;
+                        var priceText = b.QuotedAmount.HasValue
+                            ? $"₹{b.QuotedAmount.Value:N0} (Quoted)"
+                            : PricingFormatter.FormatPrice(b.AgreedPrice ?? (svc.PricingType == PricingType.QuoteRequired ? null : svc.Price), svc.PricingType, svc.Unit);
                         <tr>
-                            <th>ID</th>
-                            <th>Service &amp; Provider</th>
-                            <th>Customer</th>
-                            <th>Service Date</th>
-                            <th>Price</th>
-                            <th>Status</th>
-                            <th>Review</th>
-                            <th class="text-end">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var b in Model)
-                        {
-                            <tr>
-                                <td class="fw-semibold">#@b.BookingId</td>
-                                <td>
-                                    <div class="fw-semibold">@b.ProviderService.ServiceName</div>
-                                    <small class="text-muted">@b.ProviderService.ProviderProfile.BusinessName &bull; @b.ProviderService.Category.CategoryName</small>
-                                </td>
-                                <td>
-                                    <div class="fw-medium">@b.Customer.FullName</div>
-                                    <small class="text-muted">@b.Address.City (@b.Address.Pincode)</small>
-                                </td>
-                                <td class="small">@b.BookingDate.ToString("dd MMM yyyy")</td>
-                                <td class="fw-semibold">&#8377;@b.ProviderService.Price.ToString("N0")</td>
-                                <td><partial name="_StatusBadgePartial" model="b.Status" /></td>
-                                <td class="small">
-                                    @if (b.Review != null)
-                                    {
-                                        <span class="text-warning">&#9733;</span> @b.Review.Rating<span>/5</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">&mdash;</span>
-                                    }
-                                </td>
-                                <td class="text-end">
+                            <td class="ps-4 fw-semibold sc-tabular">#@b.BookingId</td>
+                            <td>
+                                <div class="fw-semibold">@svc.ServiceName</div>
+                                <small class="text-muted">@svc.ProviderProfile.BusinessName &bull; @svc.Category.CategoryName</small>
+                            </td>
+                            <td>
+                                <div class="fw-medium">@b.Customer.FullName</div>
+                                <small class="text-muted">@b.Address.City (@b.Address.Pincode)</small>
+                            </td>
+                            <td class="small sc-tabular">
+                                <div>@b.BookingDate.ToString("dd MMM yyyy")</div>
+                                @if (!string.IsNullOrWhiteSpace(b.PreferredTimeSlot))
+                                {
+                                    <div class="text-muted" style="font-size:0.74rem;">@b.PreferredTimeSlot</div>
+                                }
+                            </td>
+                            <td class="fw-semibold sc-tabular">@priceText</td>
+                            <td><partial name="_StatusBadgePartial" model="b.Status" /></td>
+                            <td class="small sc-tabular">
+                                @if (b.Review != null)
+                                {
+                                    <span class="fw-semibold"><i class="bi bi-star-fill text-warning me-1" aria-hidden="true"></i>@b.Review.Rating/5</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">&mdash;</span>
+                                }
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="sc-action-group">
                                     @if (b.Status == BookingStatus.Pending || b.Status == BookingStatus.Confirmed || b.Status == BookingStatus.InProgress)
                                     {
                                         <form asp-action="CancelBooking" asp-route-id="@b.BookingId" method="post" onsubmit="return confirm('Cancel Booking #@b.BookingId as Admin?');">
                                             @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-x-circle" aria-hidden="true"></i><span>Cancel</span>
+                                            </button>
                                         </form>
                                     }
                                     else
                                     {
                                         <span class="small text-muted">Closed</span>
                                     }
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
-    }
-</div>
+    </div>
+}

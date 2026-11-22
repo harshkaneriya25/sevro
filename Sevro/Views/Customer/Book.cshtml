@@ -1,36 +1,48 @@
-﻿@model Sevro.ViewModels.Customer.CreateBookingViewModel
+@model Sevro.ViewModels.Customer.CreateBookingViewModel
 @using Sevro.ViewModels.Catalog
 @{
     ViewData["Title"] = "Book Service";
     var svc = Model.Service!;
+    var isQuote = svc.PricingType == PricingType.QuoteRequired;
+    var formattedPrice = PricingFormatter.FormatPrice(isQuote ? null : svc.Price, svc.PricingType, svc.Unit);
 }
 
 <div class="container py-4">
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb small">
             <li class="breadcrumb-item"><a asp-controller="Services" asp-action="Index" class="text-decoration-none text-terracotta">Services</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Book Service</li>
+            <li class="breadcrumb-item active" aria-current="page">@(isQuote ? "Request Quotation" : "Book Service")</li>
         </ol>
     </nav>
 
-    <h1 class="h3 fw-bold mb-4">Confirm Your Service Booking</h1>
+    <h1 class="h3 fw-bold mb-4">@(isQuote ? "Request a Free Quotation" : "Confirm Your Service Booking")</h1>
 
     <!-- Two-Column Checkout Layout -->
     <div class="row g-4">
-        <!-- Left Column: Service Summary -->
+        <!-- Left Column: Service Summary & Transparent Price Breakdown -->
         <div class="col-lg-5">
-            <div class="sc-card border-0 shadow-sm overflow-hidden">
+            <div class="sc-card overflow-hidden">
                 <img src="@ServiceCardViewModel.GetCategoryThumbnail(svc.Category.CategoryName)" alt="@svc.Category.CategoryName" class="sc-card-thumb" />
                 <div class="p-4">
-                    <span class="badge bg-terracotta-soft mb-2">@svc.Category.CategoryName</span>
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                        <span class="badge rounded-pill bg-terracotta-soft">@svc.Category.CategoryName</span>
+                        <span class="sc-status-pill @PricingFormatter.GetPricingBadgeClass(svc.PricingType)">
+                            <span class="sc-status-dot" aria-hidden="true"></span>
+                            @PricingFormatter.GetPricingTypeLabel(svc.PricingType)
+                        </span>
+                    </div>
                     <h4 class="fw-bold mb-1">@svc.ServiceName</h4>
                     <div class="small text-muted mb-3">
                         by <strong class="text-dark">@svc.ProviderProfile.BusinessName</strong>
                         @if (svc.ProviderProfile.IsVerified)
                         {
-                            <i class="bi bi-patch-check-fill text-primary ms-1"></i>
+                            <i class="bi bi-patch-check-fill text-primary ms-1" title="Verified Provider"></i>
                         }
                         &bull; @svc.ProviderProfile.City
+                        @if (!string.IsNullOrWhiteSpace(svc.EstimatedDuration))
+                        {
+                            <span> &bull; <i class="bi bi-clock me-1" aria-hidden="true"></i>@svc.EstimatedDuration</span>
+                        }
                     </div>
 
                     @if (!string.IsNullOrWhiteSpace(svc.Description))
@@ -38,43 +50,58 @@
                         <p class="small text-muted mb-3">@svc.Description</p>
                     }
 
-                    <div class="d-flex justify-content-between align-items-center py-3 border-top border-bottom mb-3">
-                        <span class="small fw-semibold">
-                            <span class="text-warning">&#9733;</span>
-                            @(Model.ProviderReviewCount > 0 ? Model.ProviderAverageRating.ToString("0.0") : "New")
-                            <span class="text-muted fw-normal">(@Model.ProviderReviewCount reviews)</span>
-                        </span>
-                        <span class="fs-4 fw-bold text-dark">&#8377;@svc.Price.ToString("N0")</span>
+                    <!-- Transparent Price Breakdown -->
+                    <div class="p-3 rounded-3 border mb-3" style="background-color: var(--color-background);">
+                        <div class="small fw-bold text-uppercase text-muted mb-2">Price Breakdown</div>
+                        <div class="d-flex justify-content-between align-items-center small mb-1">
+                            <span>Pricing Model</span>
+                            <span class="fw-semibold">@PricingFormatter.GetPricingTypeLabel(svc.PricingType) (@(svc.Unit ?? "Per job"))</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center small mb-1">
+                            <span>Platform / Hidden Fees</span>
+                            <span class="text-success fw-semibold">&#8377;0 (Free)</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-2 mt-2 border-top">
+                            <span class="fw-bold">@(isQuote ? "Estimated Charge" : "Displayed Service Price")</span>
+                            <span class="fs-4 fw-bold text-dark sc-tabular">@formattedPrice</span>
+                        </div>
                     </div>
 
                     <div class="alert alert-light border small mb-0">
-                        <i class="bi bi-cash-coin text-terracotta me-1"></i>
-                        <strong>Direct Payment on Service:</strong> No online payment required now. Settle directly with the provider after work completion.
+                        <i class="bi @(isQuote ? "bi-file-earmark-check" : "bi-cash-coin") text-terracotta me-1" aria-hidden="true"></i>
+                        @PricingFormatter.GetPricingExplanation(svc.PricingType, svc.Unit)
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Right Column: Saved Address Selector + Date Selection -->
+        <!-- Right Column: Address + Date + Time Slot + Description + Optional Photo -->
         <div class="col-lg-7">
-            <div class="sc-card p-4 p-md-5 border-0 shadow-sm">
-                <h5 class="fw-bold mb-3">Booking Details</h5>
+            <div class="sc-card sc-card-accent p-4 p-md-5 sc-reveal">
+                <div class="sc-form-header">
+                    <span class="sc-form-icon"><i class="bi bi-calendar-check-fill" aria-hidden="true"></i></span>
+                    <div>
+                        <div class="sc-section-eyebrow mb-0">Booking Details</div>
+                        <h5 class="fw-bold mb-0">Schedule &amp; Describe Your Need</h5>
+                        <p class="text-muted small mb-0">Choose your visit address, date, time slot, and add optional details or a photo.</p>
+                    </div>
+                </div>
 
                 @if (!Model.SavedAddresses.Any())
                 {
                     <div class="alert alert-warning border-0">
-                        <h6 class="fw-bold"><i class="bi bi-geo-alt me-1"></i> No Saved Service Address Found</h6>
+                        <h6 class="fw-bold"><i class="bi bi-geo-alt me-1" aria-hidden="true"></i> No Saved Service Address Found</h6>
                         <p class="small mb-3">You need at least one saved address to complete a booking.</p>
                         <a asp-action="AddAddress" asp-route-returnUrl="@Url.Action("Book", "Customer", new { id = svc.ProviderServiceId })" class="btn btn-terracotta btn-sm">Add a Service Address</a>
                     </div>
                 }
                 else
                 {
-                    <form asp-action="Book" method="post" novalidate>
+                    <form asp-action="Book" method="post" enctype="multipart/form-data" novalidate>
                         @Html.AntiForgeryToken()
                         <input type="hidden" asp-for="ProviderServiceId" />
 
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2"></div>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger small" role="alert"></div>
 
                         <!-- Saved Address Selection -->
                         <div class="mb-4">
@@ -86,7 +113,7 @@
                             <div class="vstack gap-2">
                                 @foreach (var addr in Model.SavedAddresses)
                                 {
-                                    <label class="border rounded-3 p-3 d-flex align-items-start gap-3 bg-light bg-opacity-50" style="cursor:pointer;">
+                                    <label class="sc-address-option p-3 d-flex align-items-start gap-3">
                                         <input type="radio" class="form-check-input mt-1" name="AddressId" value="@addr.AddressId" @(Model.AddressId == addr.AddressId ? "checked" : "") />
                                         <div>
                                             <div class="fw-semibold">@addr.Address</div>
@@ -95,20 +122,51 @@
                                     </label>
                                 }
                             </div>
-                            <span asp-validation-for="AddressId" class="text-danger small d-block mt-1"></span>
+                            <span asp-validation-for="AddressId"></span>
                         </div>
 
-                        <!-- Preferred Date Selection (Date only) -->
+                        <!-- Date & Time Slot -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="BookingDate" type="date" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                                    <label asp-for="BookingDate"></label>
+                                    <span asp-validation-for="BookingDate"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <select asp-for="PreferredTimeSlot" class="form-select">
+                                        @foreach (var slot in Sevro.ViewModels.Customer.CreateBookingViewModel.TimeSlots)
+                                        {
+                                            <option value="@slot">@slot</option>
+                                        }
+                                    </select>
+                                    <label asp-for="PreferredTimeSlot"></label>
+                                    <span asp-validation-for="PreferredTimeSlot"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Problem Description -->
+                        <div class="form-floating mb-3">
+                            <textarea asp-for="ProblemDescription" class="form-control" style="height: 105px;" placeholder="Describe the issue, room size, appliance brand, or special instructions"></textarea>
+                            <label asp-for="ProblemDescription"></label>
+                            <span asp-validation-for="ProblemDescription"></span>
+                            <div class="form-text">Helpful details allow the provider to bring the right tools or give an accurate quote.</div>
+                        </div>
+
+                        <!-- Optional Issue Photo -->
                         <div class="mb-4">
-                            <label asp-for="BookingDate" class="form-label fw-semibold"></label>
-                            <input asp-for="BookingDate" type="date" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
-                            <div class="form-text">Select your preferred service date. The provider will confirm your request.</div>
-                            <span asp-validation-for="BookingDate" class="text-danger small"></span>
+                            <label asp-for="IssuePhoto" class="form-label small fw-semibold mb-1"></label>
+                            <input asp-for="IssuePhoto" type="file" accept=".png,.jpg,.jpeg,.webp" class="form-control" />
+                            <div class="form-text">Optional photo of the repair area (JPG, PNG, WebP — max 5MB).</div>
                         </div>
 
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-terracotta px-4 py-2 fw-semibold">
-                                <i class="bi bi-check2-circle me-1"></i> Confirm Booking Request
+                        <div class="d-flex flex-wrap gap-2 pt-2 border-top">
+                            <button type="submit" class="btn btn-terracotta sc-btn-sheen px-4 py-2 fw-semibold d-inline-flex align-items-center gap-2">
+                                <i class="bi bi-check2-circle" aria-hidden="true"></i>
+                                <span>@(isQuote ? "Submit Free Quote Request" : $"Confirm Booking ({formattedPrice})")</span>
                             </button>
                             <a asp-controller="Services" asp-action="Index" class="btn btn-outline-secondary px-4 py-2">Cancel</a>
                         </div>

@@ -1,16 +1,17 @@
-﻿@model Sevro.ViewModels.Catalog.ProviderSearchViewModel
+@model Sevro.ViewModels.Catalog.ProviderSearchViewModel
 @{
     ViewData["Title"] = "Find Service Providers";
 }
 
 <div class="container py-4">
-    <div class="mb-4">
+    <div class="mb-4 sc-reveal">
+        <div class="sc-section-eyebrow"><i class="bi bi-patch-check-fill" aria-hidden="true"></i> Directory</div>
         <h1 class="h2 fw-bold mb-1">Verified Local Providers</h1>
         <p class="text-muted mb-0">Browse admin-verified local businesses, view their experience, and explore their complete service menus.</p>
     </div>
 
     <!-- Search & Filter Bar -->
-    <form asp-action="Providers" method="get" class="sc-card p-3 mb-4 border-0 shadow-sm">
+    <form asp-action="Providers" method="get" class="sc-card sc-card-accent p-3 mb-4 sc-reveal">
         <div class="row g-3 align-items-center">
             <div class="col-md-5">
                 <input type="text" name="search" value="@Model.Search" class="form-control" placeholder="Search by business name or keyword..." />
@@ -46,7 +47,7 @@
     }
     else
     {
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" data-sc-paginate="9">
             @foreach (var p in Model.Providers)
             {
                 <div class="col">
@@ -64,25 +65,26 @@
                                     <i class="bi bi-geo-alt me-1"></i>@p.City &bull; @p.ExperienceYears @(p.ExperienceYears == 1 ? "yr" : "yrs") exp
                                 </div>
                             </div>
-                            <span class="badge rounded-pill @(p.IsAvailable ? "bg-success" : "bg-secondary")">
+                            <span class="sc-status-pill @(p.IsAvailable ? "sc-status-completed" : "sc-status-muted")">
+                                <span class="sc-status-dot" aria-hidden="true"></span>
                                 @(p.IsAvailable ? "Available" : "Unavailable")
                             </span>
                         </div>
 
-                        <p class="small text-muted my-2">
-                            @(string.IsNullOrWhiteSpace(p.Description) ? "Verified local service professional on Sevro." : (p.Description.Length > 120 ? p.Description.Substring(0, 120) + "..." : p.Description))
+                        <p class="small text-muted my-2 sc-line-clamp-2">
+                            @(string.IsNullOrWhiteSpace(p.Description) ? "Verified local service professional on Sevro." : p.Description)
                         </p>
 
                         <div class="d-flex flex-wrap gap-1 mb-3">
                             @foreach (var cat in p.Categories)
                             {
-                                <span class="badge rounded-pill bg-terracotta-soft fw-normal">@cat</span>
+                                <span class="badge rounded-pill bg-terracotta-soft fw-medium">@cat</span>
                             }
                         </div>
 
                         <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
-                            <div class="small fw-semibold">
-                                <span class="text-warning">&#9733;</span>
+                            <div class="small fw-semibold sc-tabular">
+                                <i class="bi bi-star-fill text-warning me-1" aria-hidden="true"></i>
                                 @(p.ReviewCount > 0 ? p.AverageRating.ToString("0.0") : "New")
                                 <span class="text-muted fw-normal">(@p.ReviewCount) &bull; @p.ServiceCount @(p.ServiceCount == 1 ? "service" : "services")</span>
                             </div>

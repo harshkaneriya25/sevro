@@ -1,0 +1,147 @@
+/* ==========================================================================
+   Attractive Dark Slate + Terracotta Footer & Back-to-Top Control
+   ========================================================================== */
+.sc-footer {
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(640px 320px at 95% 0%, rgba(194, 65, 12, 0.22), transparent 65%),
+        radial-gradient(520px 260px at 5% 100%, rgba(29, 78, 216, 0.14), transparent 62%),
+        linear-gradient(180deg, #0F172A 0%, #0B1120 100%);
+    color: #E2E8F0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sc-footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #C2410C 0%, #EA580C 50%, #F59E0B 100%);
+}
+
+.sc-footer-accent {
+    color: #FB923C;
+}
+
+.sc-footer-text {
+    color: #94A3B8;
+    line-height: 1.6;
+}
+
+.sc-footer-heading {
+    color: #FFFFFF;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+}
+
+.sc-footer-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.28rem 0.68rem;
+    border-radius: var(--radius-pill);
+    background-color: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #E2E8F0;
+    font-size: 0.74rem;
+    font-weight: 500;
+}
+
+.sc-footer-chip i {
+    color: #FB923C;
+}
+
+.sc-footer-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: #CBD5E1;
+    font-weight: 500;
+    transition: color 180ms ease, transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sc-footer-arrow {
+    font-size: 0.68rem;
+    color: #FB923C;
+    opacity: 0.75;
+    transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), opacity 180ms ease;
+}
+
+.sc-footer-cat-icon {
+    font-size: 0.82rem;
+    color: #FB923C;
+    opacity: 0.85;
+}
+
+.sc-footer-link:hover {
+    color: #FFFFFF;
+    transform: translateX(4px);
+}
+
+.sc-footer-link:hover .sc-footer-arrow {
+    opacity: 1;
+    transform: translateX(2px);
+}
+
+.sc-footer-cta-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    backdrop-filter: blur(8px);
+}
+
+.sc-footer-ghost-btn {
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #FFFFFF;
+    font-weight: 600;
+}
+
+.sc-footer-ghost-btn:hover,
+.sc-footer-ghost-btn:focus-visible {
+    background-color: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.32);
+    color: #FFFFFF;
+}
+
+.sc-footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.sc-footer-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.3rem 0.78rem;
+    border-radius: var(--radius-pill);
+    background-color: rgba(22, 163, 74, 0.14);
+    border: 1px solid rgba(22, 163, 74, 0.30);
+    color: #86EFAC;
+    font-weight: 500;
+}
+
+.sc-back-top {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #FFFFFF;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 180ms ease, border-color 180ms ease, transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sc-back-top:hover {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+}

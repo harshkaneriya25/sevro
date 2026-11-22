@@ -1,4 +1,4 @@
-﻿@model Sevro.ViewModels.Catalog.ServiceCatalogViewModel
+@model Sevro.ViewModels.Catalog.ServiceCatalogViewModel
 @{
     ViewData["Title"] = "Services Catalog";
 
@@ -8,7 +8,9 @@
         string? city = null,
         bool? availableOnly = null,
         List<string>? priceRanges = null,
-        string? sortBy = null)
+        string? pricingType = null,
+        string? sortBy = null,
+        string? viewTab = null)
     {
         var qs = new List<string>();
         if (!string.IsNullOrWhiteSpace(search)) qs.Add($"search={Uri.EscapeDataString(search)}");
@@ -19,99 +21,128 @@
         {
             foreach (var pr in priceRanges) qs.Add($"priceRanges={Uri.EscapeDataString(pr)}");
         }
+        if (!string.IsNullOrWhiteSpace(pricingType)) qs.Add($"pricingType={Uri.EscapeDataString(pricingType)}");
         if (!string.IsNullOrWhiteSpace(sortBy) && sortBy != "rating") qs.Add($"sortBy={Uri.EscapeDataString(sortBy)}");
+        if (!string.IsNullOrWhiteSpace(viewTab)) qs.Add($"viewTab={Uri.EscapeDataString(viewTab)}");
         return qs.Any() ? $"/Services?{string.Join("&", qs)}" : "/Services";
     }
 }
 
 <div class="container py-4">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 gap-3 sc-reveal">
         <div>
+            <div class="sc-section-eyebrow"><i class="bi bi-grid-fill" aria-hidden="true"></i> @Model.Categories.Count Categories &middot; Affordable INR Rates</div>
             <h1 class="h2 fw-bold mb-1">Local Services Catalog</h1>
-            <p class="text-muted mb-0">Compare fixed-price offerings from admin-verified local service providers.</p>
+            <p class="text-muted mb-0">Compare transparent per-job pricing across all @Model.Categories.Count categories and book admin-verified local professionals.</p>
         </div>
-        <span class="badge rounded-pill bg-white border text-dark px-3 py-2 shadow-sm">
-            Showing <strong>@Model.Services.Count</strong> @(Model.Services.Count == 1 ? "service" : "services")
-        </span>
+
+        <!-- View Mode Switcher: Provider Listings vs Standard Rate Card -->
+        <div class="sc-pill-dock">
+            <a href="@BuildFilterUrl(Model.Search, Model.CategoryId, Model.City, Model.AvailableOnly, Model.PriceRanges, Model.PricingTypeFilter, Model.SortBy, "providers")"
+               class="btn btn-sm @(Model.ViewTab == "providers" ? "btn-terracotta" : "btn-outline-secondary")">
+                <i class="bi bi-patch-check me-1" aria-hidden="true"></i>Verified Providers (<span class="sc-tabular">@Model.Services.Count</span>)
+            </a>
+            <a href="@BuildFilterUrl(Model.Search, Model.CategoryId, Model.City, Model.AvailableOnly, Model.PriceRanges, Model.PricingTypeFilter, Model.SortBy, "ratecard")"
+               class="btn btn-sm @(Model.ViewTab == "ratecard" ? "btn-terracotta" : "btn-outline-secondary")">
+                <i class="bi bi-list-ul me-1" aria-hidden="true"></i>Standard Rate Card (<span class="sc-tabular">@Model.CatalogServices.Count</span>)
+            </a>
+        </div>
     </div>
 
     <form id="catalogFilterForm" asp-controller="Services" asp-action="Index" method="get">
+        <input type="hidden" name="viewTab" value="@Model.ViewTab" />
         <div class="row g-4">
-            <!-- Left Sticky Filter Rail (col-md-3) -->
+            <!-- Left Sticky Filter Rail -->
             <aside class="col-md-3">
-                <div class="sc-filter-rail p-3 shadow-sm">
-                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-                        <h6 class="fw-bold mb-0"><i class="bi bi-sliders me-1 text-terracotta"></i> Filters</h6>
-                        @if (Model.HasActiveFilters)
-                        {
-                            <a asp-action="Index" class="small text-terracotta text-decoration-none fw-semibold">Reset</a>
-                        }
-                    </div>
-
-                    <!-- Available Now Toggle Switch -->
-                    <div class="form-check form-switch mb-3 pb-3 border-bottom">
-                        <input class="form-check-input js-auto-submit" type="checkbox" role="switch" id="availableOnlySwitch" name="availableOnly" value="true" @(Model.AvailableOnly ? "checked" : "") />
-                        <label class="form-check-label fw-medium" for="availableOnlySwitch">Available Now</label>
-                    </div>
-
-                    <!-- Category Radio List -->
-                    <div class="mb-3 pb-3 border-bottom">
-                        <div class="fw-semibold small text-uppercase text-muted mb-2">Category</div>
-                        <div class="form-check mb-1">
-                            <input class="form-check-input js-auto-submit" type="radio" name="categoryId" id="catAll" value="" @(!Model.CategoryId.HasValue ? "checked" : "") />
-                            <label class="form-check-label small" for="catAll">All Categories</label>
-                        </div>
-                        @foreach (var cat in Model.Categories)
-                        {
-                            <div class="form-check mb-1">
-                                <input class="form-check-input js-auto-submit" type="radio" name="categoryId" id="cat_@cat.CategoryId" value="@cat.CategoryId" @(Model.CategoryId == cat.CategoryId ? "checked" : "") />
-                                <label class="form-check-label small" for="cat_@cat.CategoryId">@cat.CategoryName</label>
-                            </div>
-                        }
-                    </div>
-
-                    <!-- Price Range Checkboxes -->
-                    <div class="mb-3 pb-3 border-bottom">
-                        <div class="fw-semibold small text-uppercase text-muted mb-2">Price Range (&#8377;)</div>
-                        <div class="form-check mb-1">
-                            <input class="form-check-input js-auto-submit" type="checkbox" name="priceRanges" value="under500" id="prUnder500" @(Model.PriceRanges.Contains("under500") ? "checked" : "") />
-                            <label class="form-check-label small" for="prUnder500">Under &#8377;500</label>
-                        </div>
-                        <div class="form-check mb-1">
-                            <input class="form-check-input js-auto-submit" type="checkbox" name="priceRanges" value="500to1500" id="pr500to1500" @(Model.PriceRanges.Contains("500to1500") ? "checked" : "") />
-                            <label class="form-check-label small" for="pr500to1500">&#8377;500 &ndash; &#8377;1,500</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input js-auto-submit" type="checkbox" name="priceRanges" value="above1500" id="prAbove1500" @(Model.PriceRanges.Contains("above1500") ? "checked" : "") />
-                            <label class="form-check-label small" for="prAbove1500">Above &#8377;1,500</label>
-                        </div>
-                    </div>
-
-                    <!-- City Dropdown -->
-                    <div class="mb-3">
-                        <label class="fw-semibold small text-uppercase text-muted mb-2 d-block" for="cityFilter">City</label>
-                        <select class="form-select form-select-sm js-auto-submit" id="cityFilter" name="city">
-                            <option value="">All Cities</option>
-                            @foreach (var c in Model.Cities)
+                <div class="d-md-none mb-2">
+                    <button class="btn btn-outline-secondary w-100 d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#mobileFilterCollapse" aria-expanded="false" aria-controls="mobileFilterCollapse">
+                        <span><i class="bi bi-sliders me-2 text-terracotta" aria-hidden="true"></i>Filter Services</span>
+                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div class="collapse d-md-block" id="mobileFilterCollapse">
+                    <div class="sc-filter-rail p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                            <h6 class="fw-bold mb-0"><i class="bi bi-sliders me-1 text-terracotta" aria-hidden="true"></i> Filters</h6>
+                            @if (Model.HasActiveFilters)
                             {
-                                <option value="@c" selected="@(Model.City == c)">@c</option>
+                                <a asp-action="Index" asp-route-viewTab="@Model.ViewTab" class="small text-terracotta text-decoration-none fw-semibold">Reset</a>
                             }
-                        </select>
-                    </div>
+                        </div>
 
-                    <button type="submit" class="btn btn-terracotta btn-sm w-100">Apply Filters</button>
+                        <!-- Available Now Toggle Switch -->
+                        <div class="form-check form-switch mb-3 pb-3 border-bottom">
+                            <input class="form-check-input js-auto-submit" type="checkbox" role="switch" id="availableOnlySwitch" name="availableOnly" value="true" @(Model.AvailableOnly ? "checked" : "") />
+                            <label class="form-check-label fw-medium small" for="availableOnlySwitch">Available Now</label>
+                        </div>
+
+                        <!-- Category Select (clean for 30 categories) -->
+                        <div class="mb-3 pb-3 border-bottom">
+                            <label class="fw-semibold small text-uppercase text-muted mb-2 d-block" for="categoryFilter">Category (@Model.Categories.Count)</label>
+                            <select class="form-select form-select-sm js-auto-submit" id="categoryFilter" name="categoryId">
+                                <option value="">All Categories</option>
+                                @foreach (var cat in Model.Categories)
+                                {
+                                    <option value="@cat.CategoryId" selected="@(Model.CategoryId == cat.CategoryId)">@cat.CategoryName</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Pricing Type Filter -->
+                        <div class="mb-3 pb-3 border-bottom">
+                            <label class="fw-semibold small text-uppercase text-muted mb-2 d-block" for="pricingTypeFilter">Pricing Type</label>
+                            <select class="form-select form-select-sm js-auto-submit" id="pricingTypeFilter" name="pricingType">
+                                <option value="">All Pricing Types</option>
+                                @foreach (var pt in Enum.GetValues<PricingType>())
+                                {
+                                    <option value="@pt" selected="@(string.Equals(Model.PricingTypeFilter, pt.ToString(), StringComparison.OrdinalIgnoreCase))">@PricingFormatter.GetPricingTypeLabel(pt)</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Price Range Checkboxes -->
+                        <div class="mb-3 pb-3 border-bottom">
+                            <div class="fw-semibold small text-uppercase text-muted mb-2">Price Range (&#8377;)</div>
+                            <div class="form-check mb-1">
+                                <input class="form-check-input js-auto-submit" type="checkbox" name="priceRanges" value="under500" id="prUnder500" @(Model.PriceRanges.Contains("under500") ? "checked" : "") />
+                                <label class="form-check-label small" for="prUnder500">Under &#8377;500</label>
+                            </div>
+                            <div class="form-check mb-1">
+                                <input class="form-check-input js-auto-submit" type="checkbox" name="priceRanges" value="500to1500" id="pr500to1500" @(Model.PriceRanges.Contains("500to1500") ? "checked" : "") />
+                                <label class="form-check-label small" for="pr500to1500">&#8377;500 &ndash; &#8377;1,500</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input js-auto-submit" type="checkbox" name="priceRanges" value="above1500" id="prAbove1500" @(Model.PriceRanges.Contains("above1500") ? "checked" : "") />
+                                <label class="form-check-label small" for="prAbove1500">Above &#8377;1,500 / Quote</label>
+                            </div>
+                        </div>
+
+                        <!-- City Dropdown -->
+                        <div class="mb-3">
+                            <label class="fw-semibold small text-uppercase text-muted mb-2 d-block" for="cityFilter">City</label>
+                            <select class="form-select form-select-sm js-auto-submit" id="cityFilter" name="city">
+                                <option value="">All Cities</option>
+                                @foreach (var c in Model.Cities)
+                                {
+                                    <option value="@c" selected="@(Model.City == c)">@c</option>
+                                }
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-terracotta btn-sm w-100">Apply Filters</button>
+                    </div>
                 </div>
             </aside>
 
-            <!-- Main Catalog Area (col-md-9) -->
+            <!-- Main Catalog Area -->
             <div class="col-md-9">
                 <!-- Search Bar + Sort Dropdown -->
-                <div class="sc-card p-3 mb-3 border-0 shadow-sm">
+                <div class="sc-card sc-card-accent p-3 mb-3">
                     <div class="row g-2 align-items-center">
                         <div class="col-md-8">
                             <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-                                <input type="text" name="search" value="@Model.Search" class="form-control border-start-0" placeholder="Search services, providers, or categories..." />
+                                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search" aria-hidden="true"></i></span>
+                                <input type="text" name="search" value="@Model.Search" class="form-control border-start-0" placeholder="Search services, categories, or providers..." />
                                 <button type="submit" class="btn btn-terracotta px-3">Search</button>
                             </div>
                         </div>
@@ -119,7 +150,7 @@
                             <div class="input-group">
                                 <span class="input-group-text bg-white text-muted small">Sort</span>
                                 <select name="sortBy" class="form-select js-auto-submit">
-                                    <option value="rating" selected="@(Model.SortBy == "rating")">Highest Rating</option>
+                                    <option value="rating" selected="@(Model.SortBy == "rating")">Recommended</option>
                                     <option value="price_asc" selected="@(Model.SortBy == "price_asc")">Price: Low to High</option>
                                     <option value="price_desc" selected="@(Model.SortBy == "price_desc")">Price: High to Low</option>
                                 </select>
@@ -135,26 +166,32 @@
 
                             @if (!string.IsNullOrWhiteSpace(Model.Search))
                             {
-                                <a class="sc-filter-tag" href="@BuildFilterUrl(null, Model.CategoryId, Model.City, Model.AvailableOnly, Model.PriceRanges, Model.SortBy)">
-                                    Search: "@Model.Search" <i class="bi bi-x"></i>
+                                <a class="sc-filter-tag" href="@BuildFilterUrl(null, Model.CategoryId, Model.City, Model.AvailableOnly, Model.PriceRanges, Model.PricingTypeFilter, Model.SortBy, Model.ViewTab)">
+                                    Search: "@Model.Search" <i class="bi bi-x" aria-hidden="true"></i>
                                 </a>
                             }
                             @if (Model.AvailableOnly)
                             {
-                                <a class="sc-filter-tag" href="@BuildFilterUrl(Model.Search, Model.CategoryId, Model.City, false, Model.PriceRanges, Model.SortBy)">
-                                    Available Now <i class="bi bi-x"></i>
+                                <a class="sc-filter-tag" href="@BuildFilterUrl(Model.Search, Model.CategoryId, Model.City, false, Model.PriceRanges, Model.PricingTypeFilter, Model.SortBy, Model.ViewTab)">
+                                    Available Now <i class="bi bi-x" aria-hidden="true"></i>
                                 </a>
                             }
                             @if (Model.CategoryId.HasValue && Model.SelectedCategoryName != null)
                             {
-                                <a class="sc-filter-tag" href="@BuildFilterUrl(Model.Search, null, Model.City, Model.AvailableOnly, Model.PriceRanges, Model.SortBy)">
-                                    Category: @Model.SelectedCategoryName <i class="bi bi-x"></i>
+                                <a class="sc-filter-tag" href="@BuildFilterUrl(Model.Search, null, Model.City, Model.AvailableOnly, Model.PriceRanges, Model.PricingTypeFilter, Model.SortBy, Model.ViewTab)">
+                                    @Model.SelectedCategoryName <i class="bi bi-x" aria-hidden="true"></i>
+                                </a>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.PricingTypeFilter))
+                            {
+                                <a class="sc-filter-tag" href="@BuildFilterUrl(Model.Search, Model.CategoryId, Model.City, Model.AvailableOnly, Model.PriceRanges, null, Model.SortBy, Model.ViewTab)">
+                                    Type: @Model.PricingTypeFilter <i class="bi bi-x" aria-hidden="true"></i>
                                 </a>
                             }
                             @if (!string.IsNullOrWhiteSpace(Model.City))
                             {
-                                <a class="sc-filter-tag" href="@BuildFilterUrl(Model.Search, Model.CategoryId, null, Model.AvailableOnly, Model.PriceRanges, Model.SortBy)">
-                                    City: @Model.City <i class="bi bi-x"></i>
+                                <a class="sc-filter-tag" href="@BuildFilterUrl(Model.Search, Model.CategoryId, null, Model.AvailableOnly, Model.PriceRanges, Model.PricingTypeFilter, Model.SortBy, Model.ViewTab)">
+                                    City: @Model.City <i class="bi bi-x" aria-hidden="true"></i>
                                 </a>
                             }
                             @foreach (var pr in Model.PriceRanges)
@@ -167,88 +204,195 @@
                                     _ => pr
                                 };
                                 var remaining = Model.PriceRanges.Where(x => x != pr).ToList();
-                                <a class="sc-filter-tag" href="@BuildFilterUrl(Model.Search, Model.CategoryId, Model.City, Model.AvailableOnly, remaining, Model.SortBy)">
-                                    @prLabel <i class="bi bi-x"></i>
+                                <a class="sc-filter-tag" href="@BuildFilterUrl(Model.Search, Model.CategoryId, Model.City, Model.AvailableOnly, remaining, Model.PricingTypeFilter, Model.SortBy, Model.ViewTab)">
+                                    @prLabel <i class="bi bi-x" aria-hidden="true"></i>
                                 </a>
                             }
                         </div>
                     }
                 </div>
 
-                <!-- 3-Column Service Card Grid -->
-                @if (!Model.Services.Any())
+                @if (Model.ViewTab == "providers")
                 {
-                    <div class="sc-card p-5 text-center border-0 shadow-sm">
-                        <i class="bi bi-search display-5 text-muted"></i>
-                        <h5 class="fw-bold mt-3">No matching services found</h5>
-                        <p class="text-muted small">Try clearing one or more filters or searching a different keyword.</p>
-                        <a asp-action="Index" class="btn btn-outline-terracotta btn-sm px-4">Clear All Filters</a>
-                    </div>
-                }
-                else
-                {
-                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                        @foreach (var svc in Model.Services)
-                        {
-                            <div class="col">
-                                <div class="card sc-service-card h-100">
-                                    <div class="position-relative">
-                                        <img src="@svc.ThumbnailUrl" alt="@svc.CategoryName" class="sc-card-thumb" />
-                                        <span class="badge bg-white text-dark shadow-sm position-absolute top-0 start-0 m-2">@svc.CategoryName</span>
-                                        @if (svc.IsAvailable)
-                                        {
-                                            <span class="badge bg-success position-absolute top-0 end-0 m-2">Available</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary position-absolute top-0 end-0 m-2">Unavailable</span>
-                                        }
-                                    </div>
+                    <!-- Verified Provider Listings -->
+                    @if (!Model.Services.Any())
+                    {
+                        <div class="sc-empty-state">
+                            <div class="sc-empty-icon"><i class="bi bi-search" aria-hidden="true"></i></div>
+                            <h5 class="fw-bold">No verified provider listings match yet</h5>
+                            <p class="text-muted small mb-3">You can still browse all @Model.Categories.Count categories and affordable INR rates in our Standard Rate Card.</p>
+                            <div class="d-flex justify-content-center flex-wrap gap-2">
+                                <a href="@BuildFilterUrl(Model.Search, Model.CategoryId, Model.City, Model.AvailableOnly, Model.PriceRanges, Model.PricingTypeFilter, Model.SortBy, "ratecard")" class="btn btn-terracotta btn-sm rounded-pill px-4">
+                                    View Standard Rate Card (@Model.CatalogServices.Count)
+                                </a>
+                                <a asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-pill px-4">Clear All Filters</a>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-4" data-sc-paginate="9">
+                            @foreach (var svc in Model.Services)
+                            {
+                                <div class="col">
+                                    <div class="card sc-service-card h-100">
+                                        <div class="position-relative sc-card-thumb-wrap">
+                                            <img src="@svc.ThumbnailUrl" alt="@svc.CategoryName" class="sc-card-thumb" loading="lazy" />
+                                            <div class="sc-card-overlay">
+                                                @if (svc.IsAvailable)
+                                                {
+                                                    <span class="sc-status-pill sc-status-completed bg-white shadow-sm">
+                                                        <span class="sc-status-dot" aria-hidden="true"></span> Available
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="sc-status-pill sc-status-muted bg-white shadow-sm">
+                                                        <span class="sc-status-dot" aria-hidden="true"></span> Unavailable
+                                                    </span>
+                                                }
+                                            </div>
+                                        </div>
 
-                                    <div class="card-body d-flex flex-column">
-                                        <h6 class="card-title fw-bold mb-1">@svc.ServiceName</h6>
-                                        <a asp-action="ProviderDetails" asp-route-id="@svc.ProviderProfileId" class="text-decoration-none text-muted small mb-2 d-inline-flex align-items-center gap-1">
-                                            <span>@svc.BusinessName</span>
-                                            @if (svc.IsVerified)
-                                            {
-                                                <i class="bi bi-patch-check-fill text-primary" title="Verified Provider"></i>
-                                            }
-                                        </a>
-                                        <div class="small text-muted mb-2"><i class="bi bi-geo-alt me-1"></i>@svc.City</div>
-
-                                        @if (!string.IsNullOrWhiteSpace(svc.Description))
-                                        {
-                                            <p class="small text-muted mb-3">
-                                                @(svc.Description.Length > 85 ? svc.Description.Substring(0, 85) + "..." : svc.Description)
-                                            </p>
-                                        }
-
-                                        <div class="mt-auto">
-                                            <div class="d-flex justify-content-between align-items-center mb-3 pt-2 border-top">
-                                                <span class="small fw-semibold">
-                                                    <span class="text-warning">&#9733;</span>
-                                                    @(svc.ReviewCount > 0 ? svc.AverageRating.ToString("0.0") : "New")
-                                                    <span class="text-muted fw-normal">(@svc.ReviewCount)</span>
+                                        <div class="card-body d-flex flex-column p-3">
+                                            <div class="d-flex flex-wrap align-items-center gap-1 mb-2">
+                                                <span class="badge rounded-pill bg-terracotta-soft sc-card-cat-badge" title="@svc.CategoryName">
+                                                    <i class="bi @svc.CategoryIconClass me-1" aria-hidden="true"></i>@svc.CategoryName
                                                 </span>
-                                                <span class="fs-5 fw-bold text-dark">&#8377;@svc.Price.ToString("N0")</span>
+                                                <span class="badge rounded-pill bg-light text-dark border" style="font-size:0.68rem;">@svc.PricingTypeLabel</span>
                                             </div>
 
-                                            @if (svc.IsAvailable)
+                                            <h6 class="card-title fw-bold mb-1 sc-line-clamp-2">@svc.ServiceName</h6>
+
+                                            <a asp-action="ProviderDetails" asp-route-id="@svc.ProviderProfileId" class="text-decoration-none text-muted small mb-1 d-inline-flex align-items-center gap-1 min-w-0">
+                                                <span class="text-truncate">@svc.BusinessName</span>
+                                                @if (svc.IsVerified)
+                                                {
+                                                    <i class="bi bi-patch-check-fill text-primary flex-shrink-0" title="Verified Provider"></i>
+                                                }
+                                            </a>
+                                            <div class="small text-muted mb-2">
+                                                <i class="bi bi-geo-alt me-1" aria-hidden="true"></i>@svc.City
+                                                @if (!string.IsNullOrWhiteSpace(svc.EstimatedDuration))
+                                                {
+                                                    <span> &bull; <i class="bi bi-clock me-1" aria-hidden="true"></i>@svc.EstimatedDuration</span>
+                                                }
+                                            </div>
+
+                                            @if (!string.IsNullOrWhiteSpace(svc.Description))
                                             {
-                                                <a asp-controller="Customer" asp-action="Book" asp-route-id="@svc.ProviderServiceId" class="btn btn-terracotta w-100">
-                                                    Book Service
-                                                </a>
+                                                <p class="small text-muted mb-3 sc-line-clamp-2">@svc.Description</p>
                                             }
-                                            else
-                                            {
-                                                <button type="button" class="btn btn-secondary w-100" disabled>Unavailable</button>
-                                            }
+
+                                            <div class="mt-auto">
+                                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pt-2 border-top">
+                                                    <span class="small fw-semibold sc-tabular">
+                                                        <i class="bi bi-star-fill text-warning me-1" aria-hidden="true"></i>
+                                                        @(svc.ReviewCount > 0 ? svc.AverageRating.ToString("0.0") : "New")
+                                                        <span class="text-muted fw-normal">(@svc.ReviewCount)</span>
+                                                    </span>
+                                                    <span class="fs-5 fw-bold text-dark sc-tabular">@svc.FormattedPrice</span>
+                                                </div>
+
+                                                @if (svc.IsAvailable)
+                                                {
+                                                    <a asp-controller="Customer" asp-action="Book" asp-route-id="@svc.ProviderServiceId" class="btn btn-terracotta sc-btn-sheen w-100">
+                                                        @(svc.PricingType == PricingType.QuoteRequired ? "Request Quote" : "Book Service")
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <button type="button" class="btn btn-outline-secondary w-100" disabled>Unavailable</button>
+                                                }
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        }
-                    </div>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <!-- Master Standard Rate Card (Database-Driven) -->
+                    @if (!Model.CatalogServices.Any())
+                    {
+                        <div class="sc-empty-state">
+                            <div class="sc-empty-icon"><i class="bi bi-list-ul" aria-hidden="true"></i></div>
+                            <h5 class="fw-bold">No matching catalog services</h5>
+                            <p class="text-muted small mb-3">Try clearing filters or searching another keyword.</p>
+                            <a asp-action="Index" asp-route-viewTab="ratecard" class="btn btn-outline-terracotta btn-sm rounded-pill px-4">Reset Filters</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-4" data-sc-paginate="12">
+                            @foreach (var item in Model.CatalogServices)
+                            {
+                                <div class="col">
+                                    <div class="card sc-service-card h-100">
+                                        <div class="position-relative sc-card-thumb-wrap">
+                                            <img src="@item.ThumbnailUrl" alt="@item.CategoryName" class="sc-card-thumb" loading="lazy" />
+                                            <div class="sc-card-overlay">
+                                                <span class="sc-status-pill @item.PricingBadgeClass bg-white shadow-sm" style="font-size:0.7rem;">
+                                                    <span class="sc-status-dot" aria-hidden="true"></span>@item.PricingTypeLabel
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="card-body d-flex flex-column p-3">
+                                            <div class="mb-2">
+                                                <span class="badge rounded-pill bg-terracotta-soft sc-card-cat-badge" title="@item.CategoryName">
+                                                    <i class="bi @item.CategoryIconClass me-1" aria-hidden="true"></i>@item.CategoryName
+                                                </span>
+                                            </div>
+
+                                            <div class="d-flex align-items-start gap-1 mb-1">
+                                                <h6 class="fw-bold mb-0 sc-line-clamp-2">@item.Name</h6>
+                                                @if (item.IsPopular)
+                                                {
+                                                    <i class="bi bi-star-fill text-warning small flex-shrink-0 mt-1" title="Popular Service"></i>
+                                                }
+                                            </div>
+
+                                            <p class="small text-muted mb-2 sc-line-clamp-2">@item.Description</p>
+
+                                            <div class="small text-muted mb-3">
+                                                @if (!string.IsNullOrWhiteSpace(item.EstimatedDuration))
+                                                {
+                                                    <span><i class="bi bi-clock me-1" aria-hidden="true"></i>@item.EstimatedDuration</span>
+                                                    <span> &bull; </span>
+                                                }
+                                                <span><i class="bi bi-people me-1" aria-hidden="true"></i>@item.AvailableProvidersCount @(item.AvailableProvidersCount == 1 ? "pro" : "pros") ready</span>
+                                            </div>
+
+                                            <div class="mt-auto pt-3 border-top sc-service-card-footer">
+                                                <div class="fs-5 fw-bold text-dark sc-tabular">@item.FormattedPrice</div>
+                                                @if (item.DefaultProviderServiceId.HasValue)
+                                                {
+                                                    <a asp-controller="Customer" asp-action="Book" asp-route-id="@item.DefaultProviderServiceId" class="btn btn-terracotta btn-sm sc-btn-sheen px-3 flex-shrink-0">
+                                                        @(item.PricingType == PricingType.QuoteRequired ? "Get Quote" : "Book Now")
+                                                    </a>
+                                                }
+                                                else if (User.IsInRole("Provider"))
+                                                {
+                                                    <a asp-controller="Provider" asp-action="CreateService" asp-route-catalogServiceId="@item.CatalogServiceId" class="btn btn-outline-terracotta btn-sm px-3 flex-shrink-0">
+                                                        Offer Service
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <a asp-controller="Services" asp-action="Providers" class="btn btn-outline-secondary btn-sm px-3 flex-shrink-0">
+                                                        Find Pros
+                                                    </a>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
                 }
             </div>
         </div>

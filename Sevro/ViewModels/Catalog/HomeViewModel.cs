@@ -1,4 +1,4 @@
-﻿using Sevro.Models;
+using Sevro.Models;
 
 namespace Sevro.ViewModels.Catalog
 {
@@ -6,8 +6,11 @@ namespace Sevro.ViewModels.Catalog
     {
         public List<ServiceCategory> Categories { get; set; } = new();
         public List<ServiceCardViewModel> FeaturedServices { get; set; } = new();
+        public List<CatalogRateItemViewModel> PopularCatalogServices { get; set; } = new();
         public int TotalVerifiedProviders { get; set; }
         public int TotalServices { get; set; }
+        public int TotalCatalogServices { get; set; }
+        public int TotalCategories { get; set; }
         public int TotalCompletedBookings { get; set; }
     }
 }

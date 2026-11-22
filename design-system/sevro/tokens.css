@@ -1,0 +1,143 @@
+/* ==========================================================================
+   Sevro Design System Tokens
+   Compatible with Bootstrap 5.3 & Sevro/wwwroot/css/site.css
+   Source of truth: design-system/sevro/tokens.json & MASTER.md
+   ========================================================================== */
+
+:root {
+  /* 1. Brand & Semantic Palette */
+  --color-primary: #C2410C;            /* Burnt Terracotta-Orange (5.18:1 on #FFF) */
+  --color-primary-hover: #9A3412;      /* Deep Terracotta Hover (7.31:1 AAA on #FFF) */
+  --color-primary-soft: #FFF4ED;       /* Warm Soft Tint (4.79:1 with --color-primary) */
+  --color-primary-border: #FDBA74;     /* Soft Warm Border */
+  --color-on-primary: #FFFFFF;
+
+  --color-secondary: #0F172A;          /* Slate Ink Authority (17.85:1 AAA on #FFF) */
+  --color-secondary-hover: #1E293B;
+  --color-on-secondary: #FFFFFF;
+
+  --color-accent: #1D4ED8;             /* Verified Trust Blue (6.69:1 on #FFF) */
+  --color-accent-soft: #EFF6FF;
+  --color-on-accent: #FFFFFF;
+
+  /* 2. Surfaces, Typography & Borders */
+  --color-background: #F8F7F4;         /* Clean Warm Alabaster Canvas */
+  --color-foreground: #18181B;         /* Zinc 900 Primary Ink */
+  --color-card: #FFFFFF;               /* Pure Crisp White Card Surface */
+  --color-card-foreground: #18181B;
+  --color-muted: #F1F0EC;              /* Soft Neutral Container */
+  --color-muted-foreground: #52525B;   /* Zinc 600 Secondary Text (7.61:1 on #FFF) */
+  --color-border: #E4E4E7;             /* Crisp 1px Hairline Border */
+  --color-border-strong: #D4D4D8;      /* Hover / Emphasized Border */
+  --color-ring: #C2410C;               /* Focus Ring Accent */
+
+  /* 3. Semantic & 6-State Booking Lifecycle Tokens */
+  --color-pending: #B45309;
+  --color-pending-bg: #FEF3C7;
+  --color-pending-dot: #F59E0B;
+
+  --color-confirmed: #1D4ED8;
+  --color-confirmed-bg: #EFF6FF;
+  --color-confirmed-dot: #2563EB;
+
+  --color-inprogress: #0E7490;
+  --color-inprogress-bg: #ECFEFF;
+  --color-inprogress-dot: #0891B2;
+
+  --color-completed: #15803D;
+  --color-completed-bg: #F0FDF4;
+  --color-completed-dot: #16A34A;
+
+  --color-destructive: #DC2626;
+  --color-destructive-text: #B91C1C;
+  --color-destructive-bg: #FEF2F2;
+  --color-on-destructive: #FFFFFF;
+
+  --color-rating: #F59E0B;
+
+  /* 4. Typography */
+  --font-heading: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* 5. Spacing Scale (8px Rhythm, Standard Density 5/10) */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  /* 6. Radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 9999px;
+
+  /* 7. Restrained Modern Elevation */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 16px 40px rgba(15, 23, 42, 0.12);
+  --shadow-focus: 0 0 0 3px rgba(194, 65, 12, 0.22);
+
+  /* 8. Motion (Subtle 3/10) */
+  --motion-fast: 150ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-base: 200ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-slow: 320ms cubic-bezier(0.2, 0, 0, 1);
+
+  /* ========================================================================
+     Bootstrap 5.3 Native Token Mapping
+     Drop this file before or at the top of Sevro/wwwroot/css/site.css
+     ======================================================================== */
+  --bs-primary: var(--color-primary);
+  --bs-primary-rgb: 194, 65, 12;
+  --bs-secondary: var(--color-secondary);
+  --bs-secondary-rgb: 15, 23, 42;
+  --bs-success: var(--color-completed);
+  --bs-success-rgb: 21, 128, 61;
+  --bs-info: var(--color-inprogress);
+  --bs-info-rgb: 14, 116, 144;
+  --bs-warning: var(--color-pending);
+  --bs-warning-rgb: 180, 83, 9;
+  --bs-danger: var(--color-destructive);
+  --bs-danger-rgb: 220, 38, 38;
+
+  --bs-body-font-family: var(--font-body);
+  --bs-body-color: var(--color-foreground);
+  --bs-body-color-rgb: 24, 24, 27;
+  --bs-body-bg: var(--color-background);
+  --bs-body-bg-rgb: 248, 247, 244;
+  --bs-secondary-color: var(--color-muted-foreground);
+  --bs-border-color: var(--color-border);
+  --bs-border-radius: var(--radius-sm);
+  --bs-border-radius-lg: var(--radius-md);
+  --bs-border-radius-xl: var(--radius-lg);
+  --bs-link-color: var(--color-primary);
+  --bs-link-hover-color: var(--color-primary-hover);
+  --bs-focus-ring-color: rgba(194, 65, 12, 0.25);
+
+  /* ========================================================================
+     Sevro site.css Backward-Compatible Aliases (--sc-*)
+     Keeps all existing .sc-* and .btn-terracotta classes working seamlessly
+     ======================================================================== */
+  --sc-canvas: var(--color-background);
+  --sc-surface: var(--color-card);
+  --sc-primary: var(--color-primary);
+  --sc-primary-hover: var(--color-primary-hover);
+  --sc-primary-soft: var(--color-primary-soft);
+  --sc-text: var(--color-foreground);
+  --sc-muted: var(--color-muted-foreground);
+  --sc-border: var(--color-border);
+}
+
+/* Reduced-motion safeguard */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

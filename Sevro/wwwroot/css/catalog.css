@@ -1,0 +1,105 @@
+/* ==========================================================================
+   Sticky Filter Rail, Active Filter Tags & 6-State Status Pills
+   ========================================================================== */
+.sc-filter-rail {
+    background-color: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xs);
+}
+
+@media (min-width: 768px) {
+    .sc-filter-rail {
+        position: sticky;
+        top: 84px;
+    }
+}
+
+.sc-filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.34rem 0.78rem;
+    font-size: 0.82rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-primary-soft);
+    color: var(--color-primary);
+    border: 1px solid rgba(194, 65, 12, 0.22);
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color var(--motion-fast), color var(--motion-fast), border-color var(--motion-fast);
+}
+
+.sc-filter-tag:hover {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #FFFFFF;
+}
+
+/* Modern Status Pills (6-State Lifecycle & Availability) */
+.sc-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.38rem;
+    padding: 0.3rem 0.72rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border-radius: var(--radius-pill);
+    line-height: 1.25;
+    white-space: nowrap;
+}
+
+.sc-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.sc-status-pending {
+    background-color: var(--color-pending-bg);
+    color: var(--color-pending);
+}
+.sc-status-pending .sc-status-dot { background-color: var(--color-pending-dot); }
+
+.sc-status-confirmed {
+    background-color: var(--color-confirmed-bg);
+    color: var(--color-confirmed);
+}
+.sc-status-confirmed .sc-status-dot { background-color: var(--color-confirmed-dot); }
+
+.sc-status-inprogress {
+    background-color: var(--color-inprogress-bg);
+    color: var(--color-inprogress);
+}
+.sc-status-inprogress .sc-status-dot { background-color: var(--color-inprogress-dot); }
+
+.sc-status-completed {
+    background-color: var(--color-completed-bg);
+    color: var(--color-completed);
+}
+.sc-status-completed .sc-status-dot { background-color: var(--color-completed-dot); }
+
+.sc-status-danger {
+    background-color: var(--color-destructive-bg);
+    color: var(--color-destructive-text);
+}
+.sc-status-danger .sc-status-dot { background-color: var(--color-destructive); }
+
+.sc-status-muted {
+    background-color: var(--color-muted);
+    color: var(--color-muted-foreground);
+}
+.sc-status-muted .sc-status-dot { background-color: #A1A1AA; }
+
+.sc-card-badge-glass {
+    background-color: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(6px);
+    color: var(--color-secondary);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    font-weight: 600;
+    font-size: 0.75rem;
+    padding: 0.3rem 0.68rem;
+    border-radius: var(--radius-pill);
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+}

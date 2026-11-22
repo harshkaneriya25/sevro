@@ -1,0 +1,250 @@
+@model Sevro.ViewModels.Admin.AdminCatalogIndexViewModel
+@using Sevro.Helpers
+@using Sevro.Models.Enums
+@{
+    ViewData["Title"] = "Master Service Catalog";
+}
+
+<div class="sc-page-header sc-reveal">
+    <div>
+        <div class="sc-section-eyebrow"><i class="bi bi-list-check" aria-hidden="true"></i> Pricing &amp; Services</div>
+        <h1 class="h3 fw-bold mb-1">Master Service Catalog</h1>
+        <p class="text-muted small mb-0">Manage all @Model.Categories.Count categories, affordable INR prices, pricing models, duration, and popular services.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" data-bs-toggle="collapse" data-bs-target="#bulkPriceCollapse" aria-expanded="false">
+            <i class="bi bi-sliders me-1" aria-hidden="true"></i> Bulk Price Update
+        </button>
+        <a asp-action="CreateService" asp-route-categoryId="@Model.CategoryId" class="btn btn-terracotta btn-sm sc-btn-sheen rounded-pill px-4 d-inline-flex align-items-center gap-1">
+            <i class="bi bi-plus-lg" aria-hidden="true"></i>
+            <span>Add Service</span>
+        </a>
+    </div>
+</div>
+
+<!-- 4 Summary Metrics -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3">
+        <div class="sc-metric-tile h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="small text-muted fw-medium">Total Services</div>
+                    <div class="fs-2 fw-bold mt-1 sc-tabular">@Model.TotalCatalogServices</div>
+                </div>
+                <span class="sc-metric-icon bg-terracotta-soft"><i class="bi bi-grid-3x3-gap-fill" aria-hidden="true"></i></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="sc-metric-tile h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="small text-muted fw-medium">Active</div>
+                    <div class="fs-2 fw-bold mt-1 text-success sc-tabular">@Model.ActiveServicesCount</div>
+                </div>
+                <span class="sc-metric-icon bg-success bg-opacity-10 text-success"><i class="bi bi-check-circle-fill" aria-hidden="true"></i></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="sc-metric-tile h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="small text-muted fw-medium">Popular</div>
+                    <div class="fs-2 fw-bold mt-1 text-warning sc-tabular">@Model.PopularServicesCount</div>
+                </div>
+                <span class="sc-metric-icon bg-warning bg-opacity-10 text-warning"><i class="bi bi-star-fill" aria-hidden="true"></i></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="sc-metric-tile h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="small text-muted fw-medium">Quote-Based</div>
+                    <div class="fs-2 fw-bold mt-1 text-primary sc-tabular">@Model.QuoteServicesCount</div>
+                </div>
+                <span class="sc-metric-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-file-earmark-text-fill" aria-hidden="true"></i></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Collapsible Bulk Price Update Panel -->
+<div class="collapse mb-4" id="bulkPriceCollapse">
+    <form asp-action="BulkUpdatePrices" method="post" class="sc-card sc-card-accent p-3" onsubmit="return confirm('Apply this bulk price adjustment to all matching priced services?');">
+        @Html.AntiForgeryToken()
+        <div class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small fw-semibold mb-1" for="bulkCat">Target Category</label>
+                <select id="bulkCat" name="categoryId" class="form-select form-select-sm">
+                    <option value="">All Categories</option>
+                    @foreach (var c in Model.Categories)
+                    {
+                        <option value="@c.CategoryId" selected="@(Model.CategoryId == c.CategoryId)">@c.CategoryName</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold mb-1" for="bulkMode">Adjustment Mode</label>
+                <select id="bulkMode" name="mode" class="form-select form-select-sm">
+                    <option value="flat">Flat Amount (± ₹ INR)</option>
+                    <option value="percent">Percentage (± %)</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold mb-1" for="bulkAmount">Amount (e.g. 50 or -10)</label>
+                <input id="bulkAmount" name="amount" type="number" step="1" required class="form-control form-control-sm" placeholder="e.g., 20 or -10" />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-terracotta btn-sm w-100">Apply Bulk</button>
+            </div>
+        </div>
+        <div class="form-text mt-2">Applies only to priced services (Quote-Required services remain unchanged; minimum floor ₹10).</div>
+    </form>
+</div>
+
+<!-- Search & Filter Bar -->
+<form asp-action="Services" method="get" class="sc-card sc-card-accent p-3 mb-4">
+    <div class="row g-2 align-items-center">
+        <div class="col-lg-3">
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="bi bi-search" aria-hidden="true"></i></span>
+                <input type="text" name="search" value="@Model.Search" class="form-control border-start-0" placeholder="Search service or category..." />
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-3">
+            <select name="categoryId" class="form-select form-select-sm">
+                <option value="">All @Model.Categories.Count Categories</option>
+                @foreach (var cat in Model.Categories)
+                {
+                    <option value="@cat.CategoryId" selected="@(Model.CategoryId == cat.CategoryId)">@cat.CategoryName</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <select name="pricingType" class="form-select form-select-sm">
+                <option value="">All Pricing Types</option>
+                @foreach (var pt in Enum.GetValues<PricingType>())
+                {
+                    <option value="@pt" selected="@(string.Equals(Model.PricingType, pt.ToString(), StringComparison.OrdinalIgnoreCase))">@PricingFormatter.GetPricingTypeLabel(pt)</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <select name="status" class="form-select form-select-sm">
+                <option value="">All Status</option>
+                <option value="active" selected="@(Model.StatusFilter == "active")">Active Only</option>
+                <option value="inactive" selected="@(Model.StatusFilter == "inactive")">Inactive Only</option>
+                <option value="popular" selected="@(Model.StatusFilter == "popular")">Popular Only</option>
+            </select>
+        </div>
+        <div class="col-6 col-lg-1">
+            <button type="submit" class="btn btn-terracotta btn-sm w-100">Go</button>
+        </div>
+        <div class="col-6 col-lg-1">
+            <a asp-action="Services" class="btn btn-outline-secondary btn-sm w-100">Reset</a>
+        </div>
+    </div>
+</form>
+
+@if (!Model.Items.Any())
+{
+    <div class="sc-empty-state">
+        <div class="sc-empty-icon"><i class="bi bi-list-check" aria-hidden="true"></i></div>
+        <h5 class="fw-bold">No matching catalog services</h5>
+        <p class="text-muted small mb-3">Try clearing your filters or create a new catalog service.</p>
+        <a asp-action="Services" class="btn btn-outline-terracotta btn-sm rounded-pill px-4">Reset Filters</a>
+    </div>
+}
+else
+{
+    <div class="sc-card p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="small text-uppercase text-muted">
+                    <tr>
+                        <th class="ps-4">Service &amp; Category</th>
+                        <th>Price (₹)</th>
+                        <th>Pricing Type</th>
+                        <th>Unit / Duration</th>
+                        <th>Providers</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody data-sc-paginate="12">
+                    @foreach (var row in Model.Items)
+                    {
+                        var s = row.Service;
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fw-semibold">@s.Name</span>
+                                    @if (s.IsPopular)
+                                    {
+                                        <span class="badge rounded-pill bg-warning bg-opacity-25 text-dark" style="font-size:0.68rem;">
+                                            <i class="bi bi-star-fill text-warning me-1" aria-hidden="true"></i>Popular
+                                        </span>
+                                    }
+                                </div>
+                                <small class="text-muted"><i class="bi @s.Category.IconClass text-terracotta me-1" aria-hidden="true"></i>@s.Category.CategoryName</small>
+                            </td>
+                            <td class="fw-bold sc-tabular text-nowrap">
+                                @PricingFormatter.FormatPrice(s.Price, s.PricingType, s.Unit)
+                            </td>
+                            <td>
+                                <span class="sc-status-pill @PricingFormatter.GetPricingBadgeClass(s.PricingType)">
+                                    <span class="sc-status-dot" aria-hidden="true"></span>
+                                    @PricingFormatter.GetPricingTypeLabel(s.PricingType)
+                                </span>
+                            </td>
+                            <td class="small text-muted">
+                                <div>@(s.Unit ?? "Per job")</div>
+                                @if (!string.IsNullOrWhiteSpace(s.EstimatedDuration))
+                                {
+                                    <div style="font-size:0.74rem;"><i class="bi bi-clock me-1" aria-hidden="true"></i>@s.EstimatedDuration</div>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill bg-light text-dark border sc-tabular px-3 py-1">
+                                    @row.VerifiedProviderCount
+                                </span>
+                            </td>
+                            <td>
+                                <form asp-action="ToggleServiceStatus" asp-route-id="@s.CatalogServiceId" asp-route-categoryId="@Model.CategoryId" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="border-0 bg-transparent p-0" title="Toggle Active/Inactive">
+                                        <span class="sc-status-pill @(s.IsActive ? "sc-status-completed" : "sc-status-muted")">
+                                            <span class="sc-status-dot" aria-hidden="true"></span>
+                                            @(s.IsActive ? "Active" : "Inactive")
+                                        </span>
+                                    </button>
+                                </form>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="sc-action-group">
+                                    <form asp-action="ToggleServicePopular" asp-route-id="@s.CatalogServiceId" asp-route-categoryId="@Model.CategoryId" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm @(s.IsPopular ? "btn-warning text-dark" : "btn-outline-secondary")" title="Toggle Popular">
+                                            <i class="bi @(s.IsPopular ? "bi-star-fill" : "bi-star")" aria-hidden="true"></i>
+                                        </button>
+                                    </form>
+                                    <a asp-action="EditService" asp-route-id="@s.CatalogServiceId" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-pencil" aria-hidden="true"></i><span>Edit</span>
+                                    </a>
+                                    <form asp-action="DeleteService" asp-route-id="@s.CatalogServiceId" method="post" class="d-inline" onsubmit="return confirm('Delete @s.Name from catalog?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                            <i class="bi bi-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

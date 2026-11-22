@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#EFF6FF"/>
+      <stop offset="100%" stop-color="#DBEAFE"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#bg)"/>
+  <circle cx="530" cy="76" r="92" fill="#1D4ED8" opacity="0.09"/>
+  <circle cx="110" cy="296" r="78" fill="#C2410C" opacity="0.08"/>
+  <g transform="translate(210, 96)" fill="none" stroke="#0F172A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="10" y="14" width="200" height="84" rx="14" fill="#FFFFFF"/>
+    <line x1="34" y1="68" x2="186" y2="68" stroke="#C2410C" stroke-width="6"/>
+    <circle cx="176" cy="40" r="6" fill="#16A34A" stroke="none"/>
+    <path d="M54 114 C48 128 60 136 54 150" stroke="#1D4ED8" stroke-width="5"/>
+    <path d="M110 114 C104 128 116 136 110 150" stroke="#1D4ED8" stroke-width="5"/>
+    <path d="M166 114 C160 128 172 136 166 150" stroke="#1D4ED8" stroke-width="5"/>
+  </g>
+  <text x="320" y="302" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="21" font-weight="600" fill="#0F172A">AC &amp; APPLIANCE REPAIR</text>
+</svg>

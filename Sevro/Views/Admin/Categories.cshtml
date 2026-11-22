@@ -1,45 +1,102 @@
-﻿@model List<Sevro.Models.ServiceCategory>
+@model List<Sevro.Models.ServiceCategory>
 @{
     ViewData["Title"] = "Manage Service Categories";
 }
 
-<div class="container py-4">
-    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
-        <div>
-            <h1 class="h3 fw-bold mb-1">Service Categories</h1>
-            <p class="text-muted mb-0">Add, edit, or remove service categories used across the Sevro catalog.</p>
-        </div>
-        <a asp-action="CreateCategory" class="btn btn-terracotta">
-            <i class="bi bi-plus-lg me-1"></i> Add Category
+<div class="sc-page-header sc-reveal">
+    <div>
+        <div class="sc-section-eyebrow"><i class="bi bi-tags-fill" aria-hidden="true"></i> Catalog Taxonomy</div>
+        <h1 class="h3 fw-bold mb-1">Service Categories (@Model.Count)</h1>
+        <p class="text-muted small mb-0">Create, edit, upload icons, and activate/deactivate categories across the marketplace.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a asp-action="Services" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            <i class="bi bi-list-check me-1" aria-hidden="true"></i> View Catalog Services
+        </a>
+        <a asp-action="CreateCategory" class="btn btn-terracotta btn-sm sc-btn-sheen rounded-pill px-4 d-inline-flex align-items-center gap-1">
+            <i class="bi bi-plus-lg" aria-hidden="true"></i>
+            <span>Add Category</span>
         </a>
     </div>
+</div>
 
-    <div class="sc-card border-0 shadow-sm p-4">
+@if (!Model.Any())
+{
+    <div class="sc-empty-state">
+        <div class="sc-empty-icon"><i class="bi bi-tags" aria-hidden="true"></i></div>
+        <h5 class="fw-bold">No categories created yet</h5>
+        <p class="text-muted small mb-3">Create categories like Electrical Services, Plumbing Services, or Home Cleaning.</p>
+        <a asp-action="CreateCategory" class="btn btn-terracotta btn-sm rounded-pill px-4">Create First Category</a>
+    </div>
+}
+else
+{
+    <div class="sc-card p-0 overflow-hidden sc-reveal">
         <div class="table-responsive">
             <table class="table align-middle mb-0">
-                <thead class="table-light small text-uppercase text-muted">
+                <thead class="small text-uppercase text-muted">
                     <tr>
-                        <th>ID</th>
-                        <th>Category Name</th>
+                        <th class="ps-4">Category</th>
                         <th>Description</th>
-                        <th>Linked Services</th>
-                        <th class="text-end">Actions</th>
+                        <th>Catalog Services</th>
+                        <th>Provider Listings</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody data-sc-paginate="10">
                     @foreach (var cat in Model)
                     {
                         <tr>
-                            <td class="text-muted">#@cat.CategoryId</td>
-                            <td class="fw-bold">@cat.CategoryName</td>
-                            <td class="small text-muted">@(cat.Description ?? "—")</td>
-                            <td><span class="badge bg-light text-dark border">@cat.ProviderServices.Count</span></td>
-                            <td class="text-end">
-                                <div class="d-inline-flex gap-2">
-                                    <a asp-action="EditCategory" asp-route-id="@cat.CategoryId" class="btn btn-sm btn-outline-secondary">Edit</a>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    @if (!string.IsNullOrWhiteSpace(cat.ImagePath))
+                                    {
+                                        <img src="@cat.ImagePath" alt="@cat.CategoryName" class="rounded-3 border" style="width:38px;height:38px;object-fit:cover;" />
+                                    }
+                                    else
+                                    {
+                                        <span class="sc-row-avatar"><i class="bi @cat.IconClass" aria-hidden="true"></i></span>
+                                    }
+                                    <div>
+                                        <div class="fw-bold">@cat.CategoryName</div>
+                                        <small class="text-muted">Order #@cat.DisplayOrder</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="small text-muted sc-line-clamp-2" style="max-width: 280px;">@(cat.Description ?? "—")</td>
+                            <td>
+                                <a asp-action="Services" asp-route-categoryId="@cat.CategoryId" class="text-decoration-none">
+                                    <span class="sc-status-pill sc-status-confirmed sc-tabular">
+                                        <span class="sc-status-dot" aria-hidden="true"></span>
+                                        @cat.CatalogServices.Count services
+                                    </span>
+                                </a>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill bg-light text-dark border sc-tabular px-3 py-1">@cat.ProviderServices.Count</span>
+                            </td>
+                            <td>
+                                <form asp-action="ToggleCategoryStatus" asp-route-id="@cat.CategoryId" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="border-0 bg-transparent p-0" title="Click to toggle active status">
+                                        <span class="sc-status-pill @(cat.IsActive ? "sc-status-completed" : "sc-status-muted")">
+                                            <span class="sc-status-dot" aria-hidden="true"></span>
+                                            @(cat.IsActive ? "Active" : "Inactive")
+                                        </span>
+                                    </button>
+                                </form>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="sc-action-group">
+                                    <a asp-action="EditCategory" asp-route-id="@cat.CategoryId" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-pencil" aria-hidden="true"></i><span>Edit</span>
+                                    </a>
                                     <form asp-action="DeleteCategory" asp-route-id="@cat.CategoryId" method="post" onsubmit="return confirm('Delete this service category?');">
                                         @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash" aria-hidden="true"></i>
+                                        </button>
                                     </form>
                                 </div>
                             </td>
@@ -49,4 +106,4 @@
             </table>
         </div>
     </div>
-</div>
+}

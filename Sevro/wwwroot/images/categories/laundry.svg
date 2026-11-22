@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F0F9FF"/>
+      <stop offset="100%" stop-color="#E0F2FE"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#bg)"/>
+  <circle cx="528" cy="78" r="90" fill="#0284C7" opacity="0.10"/>
+  <circle cx="108" cy="294" r="76" fill="#C2410C" opacity="0.09"/>
+  <g transform="translate(242, 92)" fill="none" stroke="#0F172A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M44 26 L78 44 L112 26 L142 54 L120 76 L112 70 V142 H44 V70 L36 76 L14 54 Z" fill="#FFFFFF"/>
+    <path d="M58 26 C64 40 92 40 98 26" stroke="#C2410C" stroke-width="5"/>
+    <line x1="60" y1="96" x2="96" y2="96" stroke="#0284C7" stroke-width="5"/>
+  </g>
+  <text x="320" y="302" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="21" font-weight="600" fill="#0F172A">LAUNDRY &amp; DRY CLEANING</text>
+</svg>

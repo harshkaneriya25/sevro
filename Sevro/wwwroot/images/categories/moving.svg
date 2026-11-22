@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFF7ED"/>
+      <stop offset="100%" stop-color="#FFEDD5"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#bg)"/>
+  <circle cx="528" cy="76" r="92" fill="#C2410C" opacity="0.12"/>
+  <circle cx="110" cy="294" r="76" fill="#0F172A" opacity="0.06"/>
+  <g transform="translate(216, 98)" fill="none" stroke="#0F172A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="12" y="28" width="114" height="84" rx="8" fill="#FFFFFF"/>
+    <path d="M126 52 H166 L192 78 V112 H126 Z" fill="#C2410C"/>
+    <rect x="140" y="64" width="28" height="20" rx="3" fill="#FFFFFF" stroke="none"/>
+    <circle cx="50" cy="118" r="18" fill="#0F172A"/>
+    <circle cx="50" cy="118" r="7" fill="#FFFFFF" stroke="none"/>
+    <circle cx="158" cy="118" r="18" fill="#0F172A"/>
+    <circle cx="158" cy="118" r="7" fill="#FFFFFF" stroke="none"/>
+  </g>
+  <text x="320" y="302" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="600" fill="#0F172A">MOVING &amp; SHIFTING</text>
+</svg>

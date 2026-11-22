@@ -1,48 +1,47 @@
-﻿@model List<Sevro.Models.Review>
+@model List<Sevro.Models.Review>
 @{
     ViewData["Title"] = "My Reviews";
 }
 
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 fw-bold mb-1">My Reviews</h1>
-            <p class="text-muted mb-0">Ratings and feedback you have shared for completed bookings.</p>
-        </div>
-        <a asp-action="Bookings" class="btn btn-outline-terracotta btn-sm">Back to My Bookings</a>
+<div class="sc-page-header sc-reveal">
+    <div>
+        <div class="sc-section-eyebrow"><i class="bi bi-star-fill" aria-hidden="true"></i> Feedback</div>
+        <h1 class="h3 fw-bold mb-1">My Reviews</h1>
+        <p class="text-muted small mb-0">Ratings and feedback you have shared for completed bookings.</p>
     </div>
-
-    @if (!Model.Any())
-    {
-        <div class="sc-card p-5 text-center border-0 shadow-sm">
-            <i class="bi bi-star display-5 text-muted"></i>
-            <h5 class="fw-bold mt-3">No reviews published yet</h5>
-            <p class="text-muted small">Once a booking is marked Completed, you can leave a 1&ndash;5 star review from My Bookings.</p>
-            <a asp-action="Bookings" class="btn btn-terracotta btn-sm px-4">View My Bookings</a>
-        </div>
-    }
-    else
-    {
-        <div class="row g-3">
-            @foreach (var rev in Model)
-            {
-                <div class="col-md-6">
-                    <div class="sc-card p-4 border-0 shadow-sm h-100">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <div>
-                                <span class="badge bg-terracotta-soft mb-1">@rev.Booking.ProviderService.Category.CategoryName</span>
-                                <h6 class="fw-bold mb-0">@rev.Booking.ProviderService.ServiceName</h6>
-                                <small class="text-muted">@rev.Booking.ProviderService.ProviderProfile.BusinessName &bull; Booking #@rev.BookingId</small>
-                            </div>
-                            <span class="badge bg-warning bg-opacity-25 text-dark fw-semibold px-2 py-1">
-                                <span class="text-warning">&#9733;</span> @rev.Rating / 5
-                            </span>
-                        </div>
-                        <p class="text-muted small mb-2">@(string.IsNullOrWhiteSpace(rev.Comment) ? "No written comment provided." : rev.Comment)</p>
-                        <small class="text-muted">Posted on @rev.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</small>
-                    </div>
-                </div>
-            }
-        </div>
-    }
+    <a asp-action="Bookings" class="btn btn-outline-terracotta btn-sm rounded-pill px-3">Back to My Bookings</a>
 </div>
+
+@if (!Model.Any())
+{
+    <div class="sc-empty-state">
+        <div class="sc-empty-icon"><i class="bi bi-star" aria-hidden="true"></i></div>
+        <h5 class="fw-bold">No reviews published yet</h5>
+        <p class="text-muted small mb-3">Once a booking is marked Completed, you can leave a 1&ndash;5 star review from My Bookings.</p>
+        <a asp-action="Bookings" class="btn btn-terracotta btn-sm rounded-pill px-4">View My Bookings</a>
+    </div>
+}
+else
+{
+    <div class="row g-3" data-sc-paginate="6">
+        @foreach (var rev in Model)
+        {
+            <div class="col-md-6">
+                <div class="sc-card p-4 h-100 d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                        <div>
+                            <span class="badge rounded-pill bg-terracotta-soft mb-1">@rev.Booking.ProviderService.Category.CategoryName</span>
+                            <h6 class="fw-bold mb-0">@rev.Booking.ProviderService.ServiceName</h6>
+                            <small class="text-muted">@rev.Booking.ProviderService.ProviderProfile.BusinessName &bull; #@rev.BookingId</small>
+                        </div>
+                        <span class="sc-status-pill sc-status-pending sc-tabular">
+                            <i class="bi bi-star-fill text-warning" aria-hidden="true"></i> @rev.Rating / 5
+                        </span>
+                    </div>
+                    <p class="text-muted small mb-3 flex-grow-1">@(string.IsNullOrWhiteSpace(rev.Comment) ? "No written comment provided." : rev.Comment)</p>
+                    <small class="text-muted sc-tabular"><i class="bi bi-calendar3 me-1" aria-hidden="true"></i>Posted on @rev.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</small>
+                </div>
+            </div>
+        }
+    </div>
+}

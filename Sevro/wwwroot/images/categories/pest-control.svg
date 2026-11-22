@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ECFDF5"/>
+      <stop offset="100%" stop-color="#D1FAE5"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#bg)"/>
+  <circle cx="530" cy="78" r="92" fill="#15803D" opacity="0.11"/>
+  <circle cx="110" cy="294" r="76" fill="#C2410C" opacity="0.09"/>
+  <g transform="translate(248, 88)" fill="none" stroke="#0F172A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M72 14 L132 38 V86 C132 124 104 150 72 162 C40 150 12 124 12 86 V38 Z" fill="#FFFFFF"/>
+    <path d="M46 86 L64 104 L100 66" stroke="#15803D" stroke-width="8"/>
+  </g>
+  <text x="320" y="302" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="600" fill="#0F172A">PEST CONTROL</text>
+</svg>

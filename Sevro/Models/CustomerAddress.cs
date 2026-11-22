@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Sevro.Models
 {
@@ -8,7 +8,7 @@ namespace Sevro.Models
         public int AddressId { get; set; }
 
         [Required]
-        public string CustomerId { get; set; } = string.Empty;
+        public int CustomerId { get; set; }
 
         [Required]
         [StringLength(300)]

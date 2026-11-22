@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Sevro.Models;
 
 namespace Sevro.Data
@@ -7,7 +7,7 @@ namespace Sevro.Data
     {
         public static async Task SeedAsync(IServiceProvider serviceProvider)
         {
-            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
             // 1. Seed Core Roles (Admin, Customer, Provider)
@@ -16,7 +16,7 @@ namespace Sevro.Data
             {
                 if (!await roleManager.RoleExistsAsync(role))
                 {
-                    await roleManager.CreateAsync(new IdentityRole(role));
+                    await roleManager.CreateAsync(new IdentityRole<int>(role));
                 }
             }
 
@@ -40,6 +40,10 @@ namespace Sevro.Data
                     await userManager.AddToRoleAsync(admin, "Admin");
                 }
             }
+
+            // 3. Seed 30 Categories & Full Affordable INR Service Catalog (Idempotent)
+            var dbContext = serviceProvider.GetRequiredService<ApplicationDbContext>();
+            await CatalogSeeder.SeedAsync(dbContext);
         }
     }
 }

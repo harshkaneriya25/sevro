@@ -1,43 +1,45 @@
-﻿@{
+@{
     ViewData["Title"] = "About Us";
 }
 
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-9">
-            <div class="sc-card p-4 p-md-5 border-0 shadow-sm">
-                <div class="d-flex align-items-center gap-3 mb-4">
-                    <img src="~/images/favicon.png" alt="Sevro" style="width: 56px; height: 56px; object-fit: contain;" asp-append-version="true" />
+            <div class="sc-card sc-card-accent p-4 p-md-5 sc-reveal">
+                <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-3 mb-4">
+                    <span class="sc-brand-badge flex-shrink-0" style="width:58px;height:58px;border-radius:16px;">
+                        <img src="~/images/favicon.png" alt="Sevro" style="width:38px;height:38px;object-fit:contain;" asp-append-version="true" />
+                    </span>
                     <div>
-                        <span class="badge rounded-pill bg-terracotta-soft mb-1">About Sevro</span>
-                        <h1 class="fw-bold h2 mb-0">Connecting Neighborhoods with Verified Local Talent</h1>
+                        <span class="badge rounded-pill bg-terracotta-soft mb-1 px-3 py-1">About Sevro</span>
+                        <h1 class="fw-bold h2 mb-0">Connecting Neighborhoods with <span class="sc-gradient-text">Verified Local Talent</span></h1>
                     </div>
                 </div>
 
                 <p class="text-muted fs-6 lh-lg">
-                    <strong>Sevro – Local Service Marketplace</strong> is a practical, database-driven web platform built to bridge the gap between local homeowners and verified skilled professionals such as electricians, plumbers, cleaners, painters, and mechanics.
+                    <strong>Sevro &ndash; Local Service Marketplace</strong> is a practical, database-driven web platform built to bridge the gap between local homeowners and verified skilled professionals such as electricians, plumbers, cleaners, painters, and mechanics.
                 </p>
 
                 <div class="row g-4 my-3">
-                    <div class="col-md-4">
-                        <div class="p-3 rounded-3 bg-light h-100">
-                            <i class="bi bi-patch-check-fill text-terracotta fs-3"></i>
-                            <h5 class="fw-bold mt-2">Admin-Verified Providers</h5>
+                    <div class="col-md-4 sc-reveal" style="--sc-delay: 60ms;">
+                        <div class="sc-feature-card h-100">
+                            <div class="sc-feature-icon"><i class="bi bi-patch-check-fill" aria-hidden="true"></i></div>
+                            <h5 class="fw-bold h6">Admin-Verified Providers</h5>
                             <p class="small text-muted mb-0">Every service provider profile is reviewed and verified by our administrators before appearing in the public catalog.</p>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="p-3 rounded-3 bg-light h-100">
-                            <i class="bi bi-currency-rupee text-terracotta fs-3"></i>
-                            <h5 class="fw-bold mt-2">Upfront Fixed Pricing</h5>
+                    <div class="col-md-4 sc-reveal" style="--sc-delay: 120ms;">
+                        <div class="sc-feature-card h-100">
+                            <div class="sc-feature-icon"><i class="bi bi-currency-rupee" aria-hidden="true"></i></div>
+                            <h5 class="fw-bold h6">Upfront Fixed Pricing</h5>
                             <p class="small text-muted mb-0">No hidden bidding or surprise quotes. View exact service prices upfront and pay directly on completion.</p>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="p-3 rounded-3 bg-light h-100">
-                            <i class="bi bi-star-fill text-terracotta fs-3"></i>
-                            <h5 class="fw-bold mt-2">Authentic Reviews</h5>
-                            <p class="small text-muted mb-0">Only customers with completed bookings can publish a 1–5 star rating, ensuring trustworthy provider reputations.</p>
+                    <div class="col-md-4 sc-reveal" style="--sc-delay: 180ms;">
+                        <div class="sc-feature-card h-100">
+                            <div class="sc-feature-icon"><i class="bi bi-star-fill" aria-hidden="true"></i></div>
+                            <h5 class="fw-bold h6">Authentic Reviews</h5>
+                            <p class="small text-muted mb-0">Only customers with completed bookings can publish a 1&ndash;5 star rating, ensuring trustworthy provider reputations.</p>
                         </div>
                     </div>
                 </div>
@@ -48,7 +50,10 @@
                     <div class="small text-muted">
                         Built with ASP.NET Core MVC, Entity Framework Core, MySQL (XAMPP), ASP.NET Core Identity, and Bootstrap 5.3.
                     </div>
-                    <a asp-controller="Services" asp-action="Index" class="btn btn-terracotta px-4">Explore Services</a>
+                    <a asp-controller="Services" asp-action="Index" class="btn btn-terracotta sc-btn-sheen rounded-pill px-4 d-inline-flex align-items-center gap-2">
+                        <span>Explore Services</span>
+                        <i class="bi bi-arrow-right sc-cta-arrow" aria-hidden="true"></i>
+                    </a>
                 </div>
             </div>
         </div>

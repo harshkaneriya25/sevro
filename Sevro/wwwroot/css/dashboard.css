@@ -1,0 +1,359 @@
+/* ==========================================================================
+   Dashboard Portal Workspace, Sidebar, Profile Dropdown, Tables & Pagination
+   ========================================================================== */
+.sc-portal-shell {
+    flex: 1 0 auto;
+    max-width: 1480px;
+}
+
+.sc-portal-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+@media (min-width: 992px) {
+    .sc-portal-grid {
+        grid-template-columns: 264px minmax(0, 1fr);
+        gap: 1.75rem;
+    }
+}
+
+/* Remove extra container double-padding inside portal pages */
+.sc-portal-main > .container {
+    max-width: 100%;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 0 !important;
+}
+
+.sc-sidebar {
+    position: sticky;
+    top: 80px;
+    background-color: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    padding: 0.85rem;
+    box-shadow: var(--shadow-xs);
+    overflow: visible;
+}
+
+.sc-sidebar-mobile-trigger {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 10px;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-card);
+    color: var(--color-secondary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+}
+
+.sc-sidebar-mobile-trigger:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background-color: var(--color-primary-soft);
+}
+
+.sc-sidebar-offcanvas {
+    width: 290px !important;
+    background-color: var(--color-card);
+}
+
+.sc-sidebar-profile {
+    background: linear-gradient(145deg, #FAF9F6 0%, #FFF4ED 100%);
+    border: 1px solid rgba(194, 65, 12, 0.14);
+    border-radius: 14px;
+    padding: 0.72rem 0.8rem;
+}
+
+.sc-avatar-circle {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #C2410C 0%, #EA580C 100%);
+    color: #FFFFFF;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.92rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(194, 65, 12, 0.22);
+}
+
+.sc-avatar-sm {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+}
+
+.sc-row-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background-color: var(--color-primary-soft);
+    color: var(--color-primary);
+    border: 1px solid rgba(194, 65, 12, 0.16);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sc-sidebar-section-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-muted-foreground);
+    padding: 0 0.65rem;
+    margin-bottom: 0.35rem;
+}
+
+.sc-sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.sc-sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.48rem 0.72rem;
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--color-muted-foreground);
+    font-size: 0.87rem;
+    font-weight: 500;
+    transition: background-color 160ms ease, color 160ms ease, transform 180ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 160ms ease;
+}
+
+.sc-sidebar-link i {
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+    opacity: 0.82;
+    transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1), color 160ms ease;
+}
+
+.sc-sidebar-link:hover {
+    background-color: var(--color-background);
+    color: var(--color-secondary);
+    transform: translateX(3px);
+}
+
+.sc-sidebar-link:hover i {
+    color: var(--color-primary);
+    opacity: 1;
+}
+
+.sc-sidebar-link.active {
+    background: linear-gradient(135deg, #C2410C 0%, #EA580C 100%);
+    color: #FFFFFF;
+    font-weight: 600;
+    box-shadow: 0 6px 14px rgba(194, 65, 12, 0.24);
+}
+
+.sc-sidebar-link.active i {
+    color: #FFFFFF;
+    opacity: 1;
+}
+
+.sc-sidebar-logout {
+    color: var(--color-destructive-text);
+}
+
+.sc-sidebar-logout:hover {
+    background-color: var(--color-destructive-bg);
+    color: var(--color-destructive-text);
+}
+
+.sc-sidebar-logout:hover i {
+    color: var(--color-destructive);
+}
+
+
+
+/* Toast-Style TempData Alerts */
+.sc-toast-alert {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    border-radius: 14px;
+    border: 1px solid transparent;
+    padding: 0.85rem 1.1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    box-shadow: var(--shadow-sm);
+}
+
+.sc-toast-success {
+    background-color: var(--color-completed-bg);
+    border-color: rgba(21, 128, 61, 0.24);
+    color: #14532D;
+}
+
+.sc-toast-success i {
+    color: var(--color-completed-dot);
+    font-size: 1.1rem;
+}
+
+.sc-toast-danger {
+    background-color: var(--color-destructive-bg);
+    border-color: rgba(220, 38, 38, 0.24);
+    color: #991B1B;
+}
+
+.sc-toast-danger i {
+    color: var(--color-destructive);
+    font-size: 1.1rem;
+}
+
+/* Compact Portal Footer */
+.sc-portal-footer {
+    background-color: var(--color-card);
+    border-top: 1px solid var(--color-border);
+}
+
+.sc-portal-footer a:hover {
+    color: var(--color-primary) !important;
+}
+
+/* Portal Page Header & Empty States */
+.sc-page-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.sc-empty-state {
+    background-color: var(--color-card);
+    border: 1px dashed var(--color-border-strong);
+    border-radius: 16px;
+    padding: 3rem 1.5rem;
+    text-align: center;
+}
+
+.sc-empty-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 1rem;
+    border-radius: 18px;
+    background: linear-gradient(145deg, #FFFFFF 0%, #FFF4ED 100%);
+    border: 1px solid rgba(194, 65, 12, 0.2);
+    color: var(--color-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.65rem;
+}
+
+/* Consistent Table Action Buttons */
+.sc-action-group {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.4rem;
+}
+
+.sc-action-group .btn {
+    padding: 0.34rem 0.72rem;
+    font-size: 0.8rem;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.32rem;
+}
+
+/* Sleek Table & Grid Pagination Bar */
+.sc-pagination-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.85rem;
+    padding: 0.9rem 1.25rem;
+    border-top: 1px solid var(--color-border);
+    background-color: #FAFAF8;
+    border-bottom-left-radius: 14px;
+    border-bottom-right-radius: 14px;
+}
+
+.sc-pagination-bar.sc-pagination-standalone {
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    background-color: var(--color-card);
+    margin-top: 1.25rem;
+    box-shadow: var(--shadow-xs);
+}
+
+.sc-page-info {
+    font-size: 0.82rem;
+    color: var(--color-muted-foreground);
+    font-variant-numeric: tabular-nums;
+}
+
+.sc-page-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.sc-page-btn {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 0.6rem;
+    border-radius: 9px;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-card);
+    color: var(--color-foreground);
+    font-size: 0.82rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.sc-page-btn:hover:not(:disabled):not(.active) {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background-color: var(--color-primary-soft);
+}
+
+.sc-page-btn.active {
+    background: linear-gradient(135deg, #C2410C 0%, #EA580C 100%);
+    border-color: transparent;
+    color: #FFFFFF;
+    box-shadow: 0 3px 8px rgba(194, 65, 12, 0.24);
+}
+
+.sc-page-btn:disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
+}
+
+.sc-page-size {
+    height: 34px;
+    padding: 0 1.8rem 0 0.65rem;
+    font-size: 0.8rem;
+    border-radius: 9px;
+    width: auto;
+}
+
+

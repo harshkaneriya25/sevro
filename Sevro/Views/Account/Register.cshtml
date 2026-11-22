@@ -1,4 +1,4 @@
-﻿@model Sevro.ViewModels.Account.RegisterViewModel
+@model Sevro.ViewModels.Account.RegisterViewModel
 @{
     ViewData["Title"] = "Register";
     var isProvider = Model.Role == "Provider";
@@ -7,13 +7,15 @@
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-10 col-xl-9">
-            <div class="sc-auth-split row g-0">
+            <div class="sc-auth-split row g-0 sc-reveal">
                 <!-- Left Brand Graphic Panel -->
                 <div class="col-md-5 sc-auth-brand-panel p-4 p-lg-5 d-flex flex-column justify-content-between">
                     <div>
                         <div class="d-flex align-items-center gap-2 mb-4">
-                            <img src="~/images/favicon.png" alt="Sevro" class="bg-white rounded-2 p-1" style="width:42px;height:42px;object-fit:contain;" asp-append-version="true" />
-                            <span class="fs-4 fw-bold">Sevro</span>
+                            <span class="sc-brand-badge" style="width:42px;height:42px;">
+                                <img src="~/images/favicon.png" alt="Sevro" class="sc-brand-icon" asp-append-version="true" />
+                            </span>
+                            <span class="fs-4 fw-bold font-heading">Sevro</span>
                         </div>
                         <h3 class="fw-bold mb-3">Join Our Local Service Community</h3>
                         <p class="opacity-75 small lh-base">
@@ -43,7 +45,7 @@
                     <p class="text-muted small mb-3">Choose how you would like to use Sevro.</p>
 
                     <!-- Role Tabs -->
-                    <ul class="nav nav-pills nav-fill bg-light p-1 rounded-3 mb-4">
+                    <ul class="nav nav-pills nav-fill sc-role-tabs mb-4">
                         <li class="nav-item">
                             <button type="button" class="nav-link fw-semibold @(!isProvider ? "active" : "")" data-role-tab="Customer">
                                 <i class="bi bi-person me-1"></i> Customer
@@ -144,8 +146,9 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-terracotta w-100 py-2 fw-semibold mt-4">
-                            Create Account
+                        <button type="submit" class="btn btn-terracotta sc-btn-sheen w-100 py-2 fw-semibold mt-4 d-inline-flex align-items-center justify-content-center gap-2">
+                            <span>Create Account</span>
+                            <i class="bi bi-arrow-right sc-cta-arrow" aria-hidden="true"></i>
                         </button>
                     </form>
 

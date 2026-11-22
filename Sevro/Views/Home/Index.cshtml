@@ -1,81 +1,91 @@
-﻿@model Sevro.ViewModels.Catalog.HomeViewModel
+@model Sevro.ViewModels.Catalog.HomeViewModel
 @{
     ViewData["Title"] = "Find Trusted Local Service Professionals";
+    var topCategories = Model.Categories.Take(12).ToList();
 }
 
 <!-- Hero Section -->
 <section class="sc-hero py-5">
     <div class="container py-lg-4">
         <div class="row align-items-center gy-4">
-            <div class="col-lg-7">
-                <span class="badge rounded-pill bg-terracotta-soft px-3 py-2 mb-3 fw-semibold">
-                    <i class="bi bi-patch-check-fill me-1"></i> Verified Local Professionals
+            <div class="col-lg-7 sc-reveal">
+                <span class="badge rounded-pill bg-terracotta-soft px-3 py-2 mb-3 fw-semibold d-inline-flex align-items-center gap-2">
+                    <span class="sc-live-dot" aria-hidden="true"></span>
+                    <span>@Model.TotalCategories Categories &middot; @Model.TotalCatalogServices+ Affordable Services</span>
                 </span>
                 <h1 class="display-5 fw-bold lh-sm mb-3">
-                    Reliable Home &amp; Local Services, Booked in Minutes.
+                    Reliable Home &amp; Local Services, <span class="sc-gradient-text">Booked in Minutes.</span>
                 </h1>
-                <p class="lead text-muted mb-4">
-                    Connect directly with admin-verified electricians, plumbers, cleaners, painters, and mechanics in your city. Transparent fixed prices &mdash; pay directly after service completion.
+                <p class="lead text-muted mb-4" style="max-width: 39rem;">
+                    Connect directly with admin-verified electricians, plumbers, cleaners, technicians, tutors, and mechanics in your city. Transparent per-job INR pricing &mdash; pay directly after service completion.
                 </p>
 
-                <form asp-controller="Services" asp-action="Index" method="get" class="bg-white p-2 rounded-3 shadow-sm border d-flex flex-column flex-sm-row gap-2 mb-4">
+                <form asp-controller="Services" asp-action="Index" method="get" class="sc-hero-search d-flex flex-column flex-sm-row gap-2 mb-4">
                     <div class="input-group">
                         <span class="input-group-text bg-transparent border-0 text-muted">
-                            <i class="bi bi-search"></i>
+                            <i class="bi bi-search" aria-hidden="true"></i>
                         </span>
-                        <input type="text" name="search" class="form-control border-0 shadow-none" placeholder="Search plumbing, switchboard repair, painting..." />
+                        <input type="text" name="search" class="form-control" aria-label="Search services" placeholder="Search fan repair, AC servicing, plumbing, tuition, cleaning..." />
                     </div>
-                    <button type="submit" class="btn btn-terracotta px-4 py-2 text-nowrap">
-                        Search Services
+                    <button type="submit" class="btn btn-terracotta sc-btn-sheen px-4 py-2 text-nowrap d-inline-flex align-items-center justify-content-center gap-2">
+                        <span>Search Services</span>
+                        <i class="bi bi-arrow-right sc-cta-arrow" aria-hidden="true"></i>
                     </button>
                 </form>
 
-                <div class="d-flex flex-wrap gap-4 text-muted small">
-                    <div>
-                        <span class="fw-bold text-dark fs-5">@Model.TotalVerifiedProviders+</span>
-                        <div>Verified Providers</div>
+                <div class="sc-kpi-strip">
+                    <div class="sc-kpi-pill">
+                        <div class="fw-bold text-dark fs-4 sc-tabular">@Model.TotalCategories</div>
+                        <div class="small text-muted">Service Categories</div>
                     </div>
-                    <div class="vr"></div>
-                    <div>
-                        <span class="fw-bold text-dark fs-5">@Model.TotalServices+</span>
-                        <div>Fixed-Price Services</div>
+                    <div class="sc-kpi-pill">
+                        <div class="fw-bold text-dark fs-4 sc-tabular">@Model.TotalCatalogServices+</div>
+                        <div class="small text-muted">Standard Rate Services</div>
                     </div>
-                    <div class="vr"></div>
-                    <div>
-                        <span class="fw-bold text-dark fs-5">@Model.TotalCompletedBookings+</span>
-                        <div>Completed Jobs</div>
+                    <div class="sc-kpi-pill">
+                        <div class="fw-bold text-dark fs-4 sc-tabular">@Model.TotalVerifiedProviders+</div>
+                        <div class="small text-muted">Verified Providers</div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-5">
-                <div class="sc-card p-4 border-0 shadow-sm">
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <img src="~/images/favicon.png" alt="Sevro" style="width: 52px; height: 52px; object-fit: contain;" asp-append-version="true" />
-                        <div>
-                            <h5 class="fw-bold mb-0">How Sevro Works</h5>
-                            <small class="text-muted">Simple 3-step local booking</small>
+            <div class="col-lg-5 sc-reveal" style="--sc-delay: 100ms;">
+                <div class="sc-how-card p-4">
+                    <div class="d-flex align-items-center justify-content-between gap-2 mb-3 pb-3 border-bottom">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="sc-brand-badge" style="width:44px;height:44px;">
+                                <img src="~/images/favicon.png" alt="Sevro" class="sc-brand-icon" asp-append-version="true" />
+                            </span>
+                            <div>
+                                <h5 class="fw-bold mb-0">How Sevro Works</h5>
+                                <small class="text-muted">Simple 3-step local booking</small>
+                            </div>
                         </div>
+                        <span class="sc-status-pill sc-status-completed">
+                            <span class="sc-status-dot" aria-hidden="true"></span> Pay on Service
+                        </span>
                     </div>
-                    <div class="d-flex gap-3 mb-3">
-                        <span class="badge rounded-circle bg-terracotta d-flex align-items-center justify-content-center" style="width:28px;height:28px;">1</span>
-                        <div>
-                            <div class="fw-semibold">Browse Verified Services</div>
-                            <small class="text-muted">Filter by category, city, price, and live availability.</small>
+                    <div class="vstack gap-2">
+                        <div class="sc-how-step d-flex gap-3 align-items-start">
+                            <span class="sc-how-num">1</span>
+                            <div>
+                                <div class="fw-semibold">Pick a Service &amp; Clear INR Price</div>
+                                <small class="text-muted">Fixed per-job rates from ₹99, starting prices, or free quotes for complex jobs.</small>
+                            </div>
                         </div>
-                    </div>
-                    <div class="d-flex gap-3 mb-3">
-                        <span class="badge rounded-circle bg-terracotta d-flex align-items-center justify-content-center" style="width:28px;height:28px;">2</span>
-                        <div>
-                            <div class="fw-semibold">Pick Date &amp; Saved Address</div>
-                            <small class="text-muted">Book in one click with transparent fixed pricing.</small>
+                        <div class="sc-how-step d-flex gap-3 align-items-start">
+                            <span class="sc-how-num">2</span>
+                            <div>
+                                <div class="fw-semibold">Select Address, Date &amp; Time Slot</div>
+                                <small class="text-muted">Describe your issue, attach an optional photo, and confirm with zero hidden fees.</small>
+                            </div>
                         </div>
-                    </div>
-                    <div class="d-flex gap-3">
-                        <span class="badge rounded-circle bg-terracotta d-flex align-items-center justify-content-center" style="width:28px;height:28px;">3</span>
-                        <div>
-                            <div class="fw-semibold">Track Progress &amp; Review</div>
-                            <small class="text-muted">Follow live status updates and rate completed jobs.</small>
+                        <div class="sc-how-step d-flex gap-3 align-items-start">
+                            <span class="sc-how-num">3</span>
+                            <div>
+                                <div class="fw-semibold">Track Progress &amp; Review</div>
+                                <small class="text-muted">Approve quotations for custom jobs, follow live status, and rate completed work.</small>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -86,15 +96,19 @@
 
 <!-- Browse by Category -->
 <section class="container py-5">
-    <div class="d-flex justify-content-between align-items-end mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4 sc-reveal">
         <div>
+            <div class="sc-section-eyebrow"><i class="bi bi-grid-fill" aria-hidden="true"></i> @Model.TotalCategories Categories</div>
             <h2 class="fw-bold mb-1">Browse by Category</h2>
-            <p class="text-muted mb-0">Explore local specialists across essential home &amp; maintenance categories.</p>
+            <p class="text-muted mb-0">Explore local specialists across home repair, appliances, cleaning, tutoring, vehicle care, and more.</p>
         </div>
-        <a asp-controller="Services" asp-action="Index" class="btn btn-outline-terracotta btn-sm">View All Services</a>
+        <a asp-controller="Services" asp-action="Index" asp-route-viewTab="ratecard" class="btn btn-outline-terracotta btn-sm rounded-pill px-3 sc-link-arrow d-inline-flex align-items-center gap-1">
+            <span>View All @Model.TotalCategories Categories</span>
+            <i class="bi bi-arrow-right sc-cta-arrow" aria-hidden="true"></i>
+        </a>
     </div>
 
-    @if (!Model.Categories.Any())
+    @if (!topCategories.Any())
     {
         <div class="sc-card p-4 text-center text-muted small">
             No service categories added yet. Admin can create categories from the Admin Dashboard.
@@ -103,68 +117,141 @@
     else
     {
         <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-3">
-            @foreach (var cat in Model.Categories)
+            @{ var catIdx = 0; }
+            @foreach (var cat in topCategories)
             {
-                var icon = cat.CategoryName.ToLowerInvariant() switch
-                {
-                    "plumbing" => "bi-droplet-fill",
-                    "electrical" => "bi-lightning-charge-fill",
-                    "cleaning" => "bi-stars",
-                    "painting" => "bi-brush-fill",
-                    "mechanics" => "bi-wrench-adjustable-circle-fill",
-                    "repairing" => "bi-tools",
-                    _ => "bi-grid-fill"
-                };
-                <div class="col">
+                <div class="col sc-reveal" style="--sc-delay: @(catIdx * 35)ms;">
                     <a asp-controller="Services" asp-action="Index" asp-route-categoryId="@cat.CategoryId" class="sc-category-tile d-block p-3 text-center h-100">
-                        <div class="fs-2 text-terracotta mb-2"><i class="bi @icon"></i></div>
-                        <div class="fw-semibold">@cat.CategoryName</div>
+                        @if (!string.IsNullOrWhiteSpace(cat.ImagePath))
+                        {
+                            <img src="@cat.ImagePath" alt="@cat.CategoryName" class="rounded-3 mb-2" style="width:52px;height:52px;object-fit:cover;" />
+                        }
+                        else
+                        {
+                            <div class="sc-cat-icon"><i class="bi @cat.IconClass" aria-hidden="true"></i></div>
+                        }
+                        <div class="fw-semibold small">@cat.CategoryName</div>
                     </a>
                 </div>
+                catIdx++;
             }
         </div>
     }
 </section>
 
-<!-- Featured Services -->
-<section class="container pb-5">
-    <div class="d-flex justify-content-between align-items-end mb-4">
-        <div>
-            <h2 class="fw-bold mb-1">Top-Rated Local Services</h2>
-            <p class="text-muted mb-0">Offered by admin-verified service providers with upfront pricing.</p>
+<!-- Popular Affordable Rate Card (Database-Driven Master Catalog) -->
+@if (Model.PopularCatalogServices.Any())
+{
+    <section class="container pb-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4 sc-reveal">
+            <div>
+                <div class="sc-section-eyebrow"><i class="bi bi-currency-rupee" aria-hidden="true"></i> Transparent INR Rates</div>
+                <h2 class="fw-bold mb-1">Popular Affordable Services</h2>
+                <p class="text-muted mb-0">Everyday local services with upfront per-job pricing — no hidden charges.</p>
+            </div>
+            <a asp-controller="Services" asp-action="Index" asp-route-viewTab="ratecard" class="btn btn-link text-terracotta text-decoration-none fw-semibold sc-link-arrow d-inline-flex align-items-center gap-1 px-0">
+                <span>Explore Full Rate Card (@Model.TotalCatalogServices+)</span>
+                <i class="bi bi-arrow-right sc-cta-arrow" aria-hidden="true"></i>
+            </a>
         </div>
-        <a asp-controller="Services" asp-action="Providers" class="btn btn-link text-terracotta text-decoration-none fw-semibold">
-            Explore Providers <i class="bi bi-arrow-right"></i>
-        </a>
-    </div>
 
-    @if (!Model.FeaturedServices.Any())
-    {
-        <div class="sc-card p-5 text-center text-muted">
-            No services listed yet. Register as a Service Provider to add your first service!
-        </div>
-    }
-    else
-    {
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var item in Model.PopularCatalogServices)
+            {
+                <div class="col sc-reveal">
+                    <div class="card sc-service-card h-100">
+                        <div class="position-relative sc-card-thumb-wrap">
+                            <img src="@item.ThumbnailUrl" alt="@item.CategoryName" class="sc-card-thumb" loading="lazy" />
+                            <div class="sc-card-overlay">
+                                <span class="sc-status-pill @item.PricingBadgeClass bg-white shadow-sm" style="font-size:0.72rem;">
+                                    <span class="sc-status-dot" aria-hidden="true"></span>@item.PricingTypeLabel
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-body p-3 d-flex flex-column">
+                            <div class="mb-2">
+                                <span class="badge rounded-pill bg-terracotta-soft sc-card-cat-badge" title="@item.CategoryName">
+                                    <i class="bi @item.CategoryIconClass me-1" aria-hidden="true"></i>@item.CategoryName
+                                </span>
+                            </div>
+                            <h3 class="h6 fw-bold mb-1 sc-line-clamp-2">@item.Name</h3>
+                            <p class="small text-muted mb-3 sc-line-clamp-2">@item.Description</p>
+                            <div class="mt-auto pt-3 border-top sc-service-card-footer">
+                                <div>
+                                    <div class="fs-5 fw-bold text-dark sc-tabular">@item.FormattedPrice</div>
+                                    @if (!string.IsNullOrWhiteSpace(item.EstimatedDuration))
+                                    {
+                                        <div class="text-muted" style="font-size:0.74rem;"><i class="bi bi-clock me-1" aria-hidden="true"></i>@item.EstimatedDuration</div>
+                                    }
+                                </div>
+                                @if (item.DefaultProviderServiceId.HasValue)
+                                {
+                                    <a asp-controller="Customer" asp-action="Book" asp-route-id="@item.DefaultProviderServiceId" class="btn btn-terracotta btn-sm sc-btn-sheen px-3 flex-shrink-0">
+                                        @(item.PricingType == PricingType.QuoteRequired ? "Request Quote" : "Book Now")
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a asp-controller="Services" asp-action="Index" asp-route-categoryId="@item.CategoryId" class="btn btn-outline-terracotta btn-sm px-3 flex-shrink-0">
+                                        Browse Pros
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+}
+
+<!-- Featured Provider Services -->
+@if (Model.FeaturedServices.Any())
+{
+    <section class="container pb-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4 sc-reveal">
+            <div>
+                <div class="sc-section-eyebrow"><i class="bi bi-patch-check-fill" aria-hidden="true"></i> Verified Providers</div>
+                <h2 class="fw-bold mb-1">Top-Rated Local Provider Listings</h2>
+                <p class="text-muted mb-0">Book directly with verified local professionals available in your city.</p>
+            </div>
+            <a asp-controller="Services" asp-action="Providers" class="btn btn-link text-terracotta text-decoration-none fw-semibold sc-link-arrow d-inline-flex align-items-center gap-1 px-0">
+                <span>Explore Providers</span>
+                <i class="bi bi-arrow-right sc-cta-arrow" aria-hidden="true"></i>
+            </a>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @{ var svcIdx = 0; }
             @foreach (var svc in Model.FeaturedServices)
             {
-                <div class="col">
+                <div class="col sc-reveal" style="--sc-delay: @(svcIdx * 60)ms;">
                     <div class="card sc-service-card h-100">
-                        <div class="position-relative">
-                            <img src="@svc.ThumbnailUrl" alt="@svc.CategoryName" class="sc-card-thumb" />
-                            <span class="badge bg-white text-dark shadow-sm position-absolute top-0 start-0 m-3">@svc.CategoryName</span>
-                            @if (svc.IsAvailable)
-                            {
-                                <span class="badge bg-success position-absolute top-0 end-0 m-3">Available</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary position-absolute top-0 end-0 m-3">Unavailable</span>
-                            }
+                        <div class="position-relative sc-card-thumb-wrap">
+                            <img src="@svc.ThumbnailUrl" alt="@svc.CategoryName" class="sc-card-thumb" loading="lazy" />
+                            <div class="sc-card-overlay">
+                                @if (svc.IsAvailable)
+                                {
+                                    <span class="sc-status-pill sc-status-completed bg-white shadow-sm">
+                                        <span class="sc-status-dot" aria-hidden="true"></span> Available
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="sc-status-pill sc-status-muted bg-white shadow-sm">
+                                        <span class="sc-status-dot" aria-hidden="true"></span> Unavailable
+                                    </span>
+                                }
+                            </div>
                         </div>
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title fw-bold mb-1">@svc.ServiceName</h5>
+                        <div class="card-body d-flex flex-column p-3">
+                            <div class="d-flex flex-wrap align-items-center gap-1 mb-2">
+                                <span class="badge rounded-pill bg-terracotta-soft sc-card-cat-badge" title="@svc.CategoryName">
+                                    <i class="bi @svc.CategoryIconClass me-1" aria-hidden="true"></i>@svc.CategoryName
+                                </span>
+                                <span class="badge rounded-pill bg-light text-dark border" style="font-size:0.7rem;">@svc.PricingTypeLabel</span>
+                            </div>
+                            <h5 class="card-title h6 fw-bold mb-1 sc-line-clamp-2">@svc.ServiceName</h5>
                             <a asp-controller="Services" asp-action="ProviderDetails" asp-route-id="@svc.ProviderProfileId" class="text-decoration-none text-muted small mb-2 d-inline-flex align-items-center gap-1">
                                 <span>@svc.BusinessName</span>
                                 @if (svc.IsVerified)
@@ -173,42 +260,48 @@
                                 }
                                 <span>&bull; @svc.City</span>
                             </a>
-                            <div class="d-flex justify-content-between align-items-center mb-3 mt-auto pt-2">
-                                <span class="small fw-semibold">
-                                    <span class="text-warning">&#9733;</span>
+                            <div class="d-flex justify-content-between align-items-center mb-3 mt-auto pt-3 border-top">
+                                <span class="small fw-semibold sc-tabular">
+                                    <i class="bi bi-star-fill text-warning me-1" aria-hidden="true"></i>
                                     @(svc.ReviewCount > 0 ? svc.AverageRating.ToString("0.0") : "New")
-                                    <span class="text-muted fw-normal">(@svc.ReviewCount @(svc.ReviewCount == 1 ? "review" : "reviews"))</span>
+                                    <span class="text-muted fw-normal">(@svc.ReviewCount)</span>
                                 </span>
-                                <span class="fs-5 fw-bold text-dark">&#8377;@svc.Price.ToString("N0")</span>
+                                <span class="fs-5 fw-bold text-dark sc-tabular">@svc.FormattedPrice</span>
                             </div>
 
                             @if (svc.IsAvailable)
                             {
-                                <a asp-controller="Customer" asp-action="Book" asp-route-id="@svc.ProviderServiceId" class="btn btn-terracotta w-100">
-                                    Book Service
+                                <a asp-controller="Customer" asp-action="Book" asp-route-id="@svc.ProviderServiceId" class="btn btn-terracotta sc-btn-sheen w-100 d-inline-flex align-items-center justify-content-center gap-1">
+                                    <span>@(svc.PricingType == PricingType.QuoteRequired ? "Request Quote" : "Book Service")</span>
+                                    <i class="bi bi-arrow-right sc-cta-arrow" aria-hidden="true"></i>
                                 </a>
                             }
                             else
                             {
-                                <button class="btn btn-secondary w-100" disabled>Currently Unavailable</button>
+                                <button class="btn btn-outline-secondary w-100" disabled>Currently Unavailable</button>
                             }
                         </div>
                     </div>
                 </div>
+                svcIdx++;
             }
         </div>
-    }
-</section>
+    </section>
+}
 
 <!-- Provider CTA -->
-<section class="container pb-4">
-    <div class="sc-auth-brand-panel rounded-4 p-4 p-md-5 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+<section class="container pb-4 sc-reveal">
+    <div class="sc-cta-banner p-4 p-md-5 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
         <div>
-            <h3 class="fw-bold mb-1">Are you a skilled local professional?</h3>
-            <p class="mb-0 opacity-75">Create your free Sevro business profile, list your services with fixed pricing, and receive direct local bookings.</p>
+            <span class="badge rounded-pill mb-2 px-3 py-1 fw-semibold" style="background: rgba(255,255,255,0.14); color: #FDBA74;">
+                <i class="bi bi-briefcase-fill me-1" aria-hidden="true"></i> For Local Professionals
+            </span>
+            <h3 class="fw-bold mb-2">Are you a skilled local professional?</h3>
+            <p class="mb-0 opacity-75" style="max-width: 38rem;">Pick services from our @Model.TotalCategories-category standard catalog, customize your local INR pricing, and receive direct bookings with zero commission.</p>
         </div>
-        <a asp-controller="Account" asp-action="Register" asp-route-role="Provider" class="btn btn-light fw-semibold px-4 py-2 text-nowrap">
-            Join as a Provider
+        <a asp-controller="Account" asp-action="Register" asp-route-role="Provider" class="btn sc-cta-banner-btn sc-link-arrow text-nowrap d-inline-flex align-items-center gap-2">
+            <span>Join as a Provider</span>
+            <i class="bi bi-arrow-right sc-cta-arrow" aria-hidden="true"></i>
         </a>
     </div>
 </section>

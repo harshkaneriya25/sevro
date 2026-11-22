@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>Sevro — Design System Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="./tokens.css" />
+  <style>
+    /* Fallback inline tokens in case preview.html is moved standalone */
+    :root {
+      --color-primary: #C2410C;
+      --color-primary-hover: #9A3412;
+      --color-primary-soft: #FFF4ED;
+      --color-primary-border: #FDBA74;
+      --color-secondary: #0F172A;
+      --color-secondary-hover: #1E293B;
+      --color-accent: #1D4ED8;
+      --color-accent-soft: #EFF6FF;
+      --color-background: #F8F7F4;
+      --color-foreground: #18181B;
+      --color-card: #FFFFFF;
+      --color-muted: #F1F0EC;
+      --color-muted-foreground: #52525B;
+      --color-border: #E4E4E7;
+      --color-border-strong: #D4D4D8;
+      --color-pending: #B45309;
+      --color-pending-bg: #FEF3C7;
+      --color-pending-dot: #F59E0B;
+      --color-confirmed: #1D4ED8;
+      --color-confirmed-bg: #EFF6FF;
+      --color-confirmed-dot: #2563EB;
+      --color-inprogress: #0E7490;
+      --color-inprogress-bg: #ECFEFF;
+      --color-inprogress-dot: #0891B2;
+      --color-completed: #15803D;
+      --color-completed-bg: #F0FDF4;
+      --color-completed-dot: #16A34A;
+      --color-destructive: #DC2626;
+      --color-destructive-text: #B91C1C;
+      --color-destructive-bg: #FEF2F2;
+      --color-rating: #F59E0B;
+      --font-heading: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+      --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+      --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.05);
+      --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+      --shadow-focus: 0 0 0 3px rgba(194, 65, 12, 0.22);
+    }
+
+    body {
+      background-color: var(--color-background);
+      color: var(--color-foreground);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, h4, h5, h6, .font-heading {
+      font-family: var(--font-heading);
+      letter-spacing: -0.02em;
+      color: var(--color-secondary);
+    }
+
+    .tabular { font-variant-numeric: tabular-nums; }
+
+    /* Focus visibility */
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+      box-shadow: var(--shadow-focus);
+    }
+
+    /* Frosted Modern Navbar */
+    .sc-navbar {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .sc-navbar .nav-link {
+      color: var(--color-muted-foreground);
+      font-weight: 500;
+      font-size: 0.92rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      transition: background-color 160ms ease, color 160ms ease;
+    }
+    .sc-navbar .nav-link:hover,
+    .sc-navbar .nav-link.active {
+      color: var(--color-primary);
+      background-color: var(--color-primary-soft);
+    }
+
+    /* Brand mark (inline SVG matching Sevro house-pin logo) */
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: var(--color-primary-soft);
+      border: 1px solid rgba(194, 65, 12, 0.16);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Buttons */
+    .btn-terracotta {
+      background-color: var(--color-primary);
+      border: 1px solid var(--color-primary);
+      color: #FFFFFF;
+      font-weight: 600;
+      border-radius: 10px;
+      padding: 0.58rem 1.2rem;
+      transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+    }
+    .btn-terracotta:hover, .btn-terracotta.is-hover {
+      background-color: var(--color-primary-hover);
+      border-color: var(--color-primary-hover);
+      color: #FFFFFF;
+      box-shadow: 0 6px 16px rgba(194, 65, 12, 0.24);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline-terracotta {
+      background-color: transparent;
+      border: 1.5px solid var(--color-primary);
+      color: var(--color-primary);
+      font-weight: 600;
+      border-radius: 10px;
+      padding: 0.55rem 1.15rem;
+      transition: background-color 160ms ease, color 160ms ease;
+    }
+    .btn-outline-terracotta:hover {
+      background-color: var(--color-primary);
+      color: #FFFFFF;
+    }
+
+    .btn-ink {
+      background-color: var(--color-secondary);
+      border: 1px solid var(--color-secondary);
+      color: #FFFFFF;
+      font-weight: 600;
+      border-radius: 10px;
+      padding: 0.58rem 1.2rem;
+      transition: background-color 160ms ease, transform 160ms ease;
+    }
+    .btn-ink:hover {
+      background-color: var(--color-secondary-hover);
+      color: #FFFFFF;
+      transform: translateY(-1px);
+    }
+
+    .btn-soft {
+      background-color: var(--color-card);
+      border: 1px solid var(--color-border);
+      color: var(--color-foreground);
+      font-weight: 500;
+      border-radius: 10px;
+      padding: 0.58rem 1.15rem;
+      transition: border-color 160ms ease, background-color 160ms ease;
+    }
+    .btn-soft:hover {
+      border-color: var(--color-border-strong);
+      background-color: var(--color-muted);
+    }
+
+    .text-terracotta { color: var(--color-primary) !important; }
+    .bg-terracotta-soft {
+      background-color: var(--color-primary-soft) !important;
+      color: var(--color-primary) !important;
+      border: 1px solid rgba(194, 65, 12, 0.18);
+    }
+
+    /* Hero Preview Surface */
+    .sc-hero {
+      background:
+        radial-gradient(800px 360px at 85% 0%, rgba(194, 65, 12, 0.08), transparent 65%),
+        linear-gradient(180deg, #FFFFFF 0%, #F8F7F4 100%);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .hero-search {
+      background: #FFFFFF;
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+      padding: 6px;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+    .hero-search:focus-within {
+      border-color: var(--color-primary);
+      box-shadow: var(--shadow-focus);
+    }
+
+    /* Section Shell */
+    .ds-section {
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      box-shadow: var(--shadow-xs);
+    }
+    .ds-eyebrow {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-primary);
+      margin-bottom: 0.35rem;
+    }
+
+    /* Swatches */
+    .swatch-card {
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #FFFFFF;
+      transition: border-color 160ms ease, transform 160ms ease;
+    }
+    .swatch-card:hover {
+      border-color: var(--color-border-strong);
+      transform: translateY(-2px);
+    }
+    .swatch-color {
+      height: 68px;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+      padding: 8px;
+    }
+    .contrast-pill {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      color: #0F172A;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    }
+
+    /* Service Cards */
+    .sc-service-card {
+      background: #FFFFFF;
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: var(--shadow-xs);
+      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+    .sc-service-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--color-border-strong);
+      box-shadow: var(--shadow-md);
+    }
+    .service-thumb {
+      aspect-ratio: 16 / 9;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+    }
+
+    /* Badges & Status Pills */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.72rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-radius: 999px;
+      line-height: 1.2;
+    }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .status-pending { background: var(--color-pending-bg); color: var(--color-pending); }
+    .status-pending .status-dot { background: var(--color-pending-dot); }
+    .status-confirmed { background: var(--color-confirmed-bg); color: var(--color-confirmed); }
+    .status-confirmed .status-dot { background: var(--color-confirmed-dot); }
+    .status-inprogress { background: var(--color-inprogress-bg); color: var(--color-inprogress); }
+    .status-inprogress .status-dot { background: var(--color-inprogress-dot); }
+    .status-completed { background: var(--color-completed-bg); color: var(--color-completed); }
+    .status-completed .status-dot { background: var(--color-completed-dot); }
+    .status-danger { background: var(--color-destructive-bg); color: var(--color-destructive-text); }
+    .status-danger .status-dot { background: var(--color-destructive); }
+
+    /* Filter Pill Tags */
+    .sc-filter-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.8rem;
+      font-size: 0.82rem;
+      border-radius: 999px;
+      background-color: var(--color-primary-soft);
+      color: var(--color-primary);
+      border: 1px solid rgba(194, 65, 12, 0.22);
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 150ms ease, color 150ms ease;
+    }
+    .sc-filter-tag:hover {
+      background-color: var(--color-primary);
+      color: #FFFFFF;
+    }
+
+    /* Booking Stepper */
+    .sc-stepper {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      position: relative;
+      padding: 0.75rem 0;
+    }
+    .sc-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      position: relative;
+      z-index: 1;
+    }
+    .sc-step:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      width: 100%;
+      height: 3px;
+      background: var(--color-border);
+      z-index: -1;
+      transition: background-color 200ms ease;
+    }
+    .sc-step.completed:not(:last-child)::after {
+      background: var(--color-completed-dot);
+    }
+    .sc-step-dot {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.84rem;
+      font-weight: 700;
+      background: var(--color-muted);
+      color: var(--color-muted-foreground);
+      border: 2px solid #FFFFFF;
+      box-shadow: 0 0 0 1.5px var(--color-border);
+      transition: all 200ms ease;
+    }
+    .sc-step.active-pending .sc-step-dot {
+      background: var(--color-pending-dot);
+      color: #FFFFFF;
+      box-shadow: 0 0 0 4px var(--color-pending-bg);
+    }
+    .sc-step.active-confirmed .sc-step-dot {
+      background: var(--color-confirmed-dot);
+      color: #FFFFFF;
+      box-shadow: 0 0 0 4px var(--color-confirmed-bg);
+    }
+    .sc-step.active-inprogress .sc-step-dot {
+      background: var(--color-inprogress-dot);
+      color: #FFFFFF;
+      box-shadow: 0 0 0 4px var(--color-inprogress-bg);
+    }
+    .sc-step.completed .sc-step-dot,
+    .sc-step.active-completed .sc-step-dot {
+      background: var(--color-completed-dot);
+      color: #FFFFFF;
+      box-shadow: 0 0 0 4px var(--color-completed-bg);
+    }
+    .sc-step-label {
+      font-size: 0.78rem;
+      margin-top: 0.5rem;
+      color: var(--color-muted-foreground);
+      font-weight: 500;
+      text-align: center;
+    }
+    .sc-step.completed .sc-step-label,
+    .sc-step[class*="active-"] .sc-step-label {
+      color: var(--color-foreground);
+      font-weight: 600;
+    }
+
+    /* Star Rating Interactive */
+    .sc-star-btn {
+      background: none;
+      border: none;
+      padding: 2px;
+      font-size: 1.75rem;
+      color: #D4D4D8;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 140ms ease, transform 140ms ease;
+    }
+    .sc-star-btn.active, .sc-star-btn:hover {
+      color: var(--color-rating);
+      transform: scale(1.1);
+    }
+
+    /* Form Controls */
+    .form-control, .form-select {
+      border-color: var(--color-border);
+      border-radius: 10px;
+      padding: 0.62rem 0.9rem;
+      font-size: 0.94rem;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--color-primary);
+      box-shadow: var(--shadow-focus);
+    }
+    .form-check-input:checked {
+      background-color: var(--color-primary);
+      border-color: var(--color-primary);
+    }
+
+    /* Code block */
+    pre.ds-code {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      font-size: 0.84rem;
+      overflow-x: auto;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navbar Mockup -->
+  <header class="sticky-top">
+    <nav class="navbar navbar-expand-lg sc-navbar py-2">
+      <div class="container">
+        <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4 text-dark text-decoration-none" href="#top">
+          <span class="brand-mark" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M3 10.5L12 3l9 7.5" stroke="#C2410C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 21s-5.5-4.3-5.5-8.5a5.5 5.5 0 1 1 11 0C17.5 16.7 12 21 12 21Z" fill="#0F172A"/>
+              <circle cx="12" cy="12.3" r="2.2" fill="#FFFFFF"/>
+            </svg>
+          </span>
+          <span>Sev<span class="text-terracotta">ro</span></span>
+          <span class="badge rounded-pill bg-terracotta-soft ms-2" style="font-size:0.7rem;">Design System v1.0</span>
+        </a>
+        <div class="d-none d-lg-flex align-items-center gap-1 ms-4 me-auto">
+          <a class="nav-link active" href="#hero">Hero</a>
+          <a class="nav-link" href="#palette">Palette</a>
+          <a class="nav-link" href="#typography">Typography</a>
+          <a class="nav-link" href="#components">Components</a>
+          <a class="nav-link" href="#cards">Service Cards</a>
+          <a class="nav-link" href="#stepper">Booking Stepper</a>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <button type="button" class="btn btn-soft btn-sm px-3">Login</button>
+          <button type="button" class="btn btn-terracotta btn-sm px-3">Get Started</button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Live Hero Direction Preview -->
+  <section id="hero" class="sc-hero py-5">
+    <div class="container py-lg-3">
+      <div class="row align-items-center g-4">
+        <div class="col-lg-7">
+          <span class="badge rounded-pill bg-terracotta-soft px-3 py-2 mb-3 fw-semibold">
+            <i class="bi bi-patch-check-fill me-1" aria-hidden="true"></i> Admin-Verified Local Professionals
+          </span>
+          <h1 class="display-5 fw-bold mb-3" style="line-height: 1.12;">
+            Trusted Home Services, Booked with Fixed Pricing.
+          </h1>
+          <p class="lead mb-4" style="color: var(--color-muted-foreground); max-width: 38rem; font-size: 1.06rem;">
+            Connect directly with verified electricians, plumbers, cleaners, and repair specialists in your city. Transparent fixed rates &mdash; pay directly after service completion.
+          </p>
+
+          <form class="hero-search d-flex flex-column flex-sm-row gap-2 mb-4" onsubmit="event.preventDefault()">
+            <div class="input-group">
+              <span class="input-group-text bg-transparent border-0 text-muted">
+                <i class="bi bi-search" aria-hidden="true"></i>
+              </span>
+              <input type="text" class="form-control border-0 shadow-none" aria-label="Search services" placeholder="Search plumbing, AC repair, deep cleaning, wiring..." />
+            </div>
+            <button type="submit" class="btn btn-terracotta px-4 text-nowrap">
+              Search Services
+            </button>
+          </form>
+
+          <div class="d-flex flex-wrap gap-4 align-items-center">
+            <div>
+              <div class="font-heading fw-bold fs-4 tabular">120+</div>
+              <div class="small" style="color: var(--color-muted-foreground);">Verified Providers</div>
+            </div>
+            <div class="vr opacity-25"></div>
+            <div>
+              <div class="font-heading fw-bold fs-4 tabular">450+</div>
+              <div class="small" style="color: var(--color-muted-foreground);">Fixed-Price Services</div>
+            </div>
+            <div class="vr opacity-25"></div>
+            <div>
+              <div class="font-heading fw-bold fs-4 tabular">4.9 <i class="bi bi-star-fill text-warning fs-6" aria-hidden="true"></i></div>
+              <div class="small" style="color: var(--color-muted-foreground);">Average Customer Rating</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="ds-section p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+              <div>
+                <h5 class="fw-bold mb-0">How Sevro Works</h5>
+                <small style="color: var(--color-muted-foreground);">Simple 3-step local booking</small>
+              </div>
+              <span class="status-pill status-completed"><span class="status-dot"></span> Pay on Service</span>
+            </div>
+            <div class="d-flex gap-3 mb-3">
+              <span class="badge rounded-circle d-inline-flex align-items-center justify-content-center flex-shrink-0" style="width:30px;height:30px;background:var(--color-primary);color:#fff;">1</span>
+              <div>
+                <div class="fw-semibold">Browse Verified Services</div>
+                <small style="color: var(--color-muted-foreground);">Filter by category, city, fixed ₹ price, and live availability.</small>
+              </div>
+            </div>
+            <div class="d-flex gap-3 mb-3">
+              <span class="badge rounded-circle d-inline-flex align-items-center justify-content-center flex-shrink-0" style="width:30px;height:30px;background:var(--color-primary);color:#fff;">2</span>
+              <div>
+                <div class="fw-semibold">Pick Date &amp; Saved Address</div>
+                <small style="color: var(--color-muted-foreground);">Book in seconds with zero hidden fees or upfront charges.</small>
+              </div>
+            </div>
+            <div class="d-flex gap-3">
+              <span class="badge rounded-circle d-inline-flex align-items-center justify-content-center flex-shrink-0" style="width:30px;height:30px;background:var(--color-primary);color:#fff;">3</span>
+              <div>
+                <div class="fw-semibold">Track Progress &amp; Review</div>
+                <small style="color: var(--color-muted-foreground);">Follow 6-state live booking progress and leave verified ratings.</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="container py-5 d-grid gap-4">
+
+    <!-- 1. Palette -->
+    <section id="palette" class="ds-section">
+      <div class="ds-eyebrow">01 · Color System</div>
+      <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
+        <div>
+          <h2 class="h4 fw-bold mb-1">Brand, Neutral &amp; Semantic Palette</h2>
+          <p class="mb-0 small" style="color: var(--color-muted-foreground);">Warm alabaster canvas + burnt terracotta primary (harmonized with Sevro's house-pin logo) + slate ink authority. Every text pair passes WCAG AA/AAA.</p>
+        </div>
+        <span class="status-pill status-confirmed"><span class="status-dot"></span> Bootstrap 5.3 Mapped</span>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="swatch-card">
+            <div class="swatch-color" style="background:#C2410C;"><span class="contrast-pill">5.18:1 AA</span></div>
+            <div class="p-3">
+              <div class="fw-semibold small">Primary CTA</div>
+              <code class="small">#C2410C</code>
+              <div class="text-muted" style="font-size:0.75rem;">--color-primary / --sc-primary</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="swatch-card">
+            <div class="swatch-color" style="background:#9A3412;"><span class="contrast-pill">7.31:1 AAA</span></div>
+            <div class="p-3">
+              <div class="fw-semibold small">Primary Hover</div>
+              <code class="small">#9A3412</code>
+              <div class="text-muted" style="font-size:0.75rem;">--color-primary-hover</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="swatch-card">
+            <div class="swatch-color" style="background:#FFF4ED;"><span class="contrast-pill">4.79:1 AA</span></div>
+            <div class="p-3">
+              <div class="fw-semibold small">Primary Soft Tint</div>
+              <code class="small">#FFF4ED</code>
+              <div class="text-muted" style="font-size:0.75rem;">--color-primary-soft</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="swatch-card">
+            <div class="swatch-color" style="background:#0F172A;"><span class="contrast-pill">17.8:1 AAA</span></div>
+            <div class="p-3">
+              <div class="fw-semibold small">Secondary Slate Ink</div>
+              <code class="small">#0F172A</code>
+              <div class="text-muted" style="font-size:0.75rem;">--color-secondary</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="swatch-card">
+            <div class="swatch-color" style="background:#1D4ED8;"><span class="contrast-pill">6.69:1 AA</span></div>
+            <div class="p-3">
+              <div class="fw-semibold small">Verified Trust Blue</div>
+              <code class="small">#1D4ED8</code>
+              <div class="text-muted" style="font-size:0.75rem;">--color-accent</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="swatch-card">
+            <div class="swatch-color" style="background:#F8F7F4;"><span class="contrast-pill">16.6:1 AAA</span></div>
+            <div class="p-3">
+              <div class="fw-semibold small">Page Canvas</div>
+              <code class="small">#F8F7F4</code>
+              <div class="text-muted" style="font-size:0.75rem;">--color-background</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="swatch-card">
+            <div class="swatch-color" style="background:#18181B;"><span class="contrast-pill">17.7:1 AAA</span></div>
+            <div class="p-3">
+              <div class="fw-semibold small">Primary Text</div>
+              <code class="small">#18181B</code>
+              <div class="text-muted" style="font-size:0.75rem;">--color-foreground</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="swatch-card">
+            <div class="swatch-color" style="background:#52525B;"><span class="contrast-pill">7.61:1 AAA</span></div>
+            <div class="p-3">
+              <div class="fw-semibold small">Muted Text</div>
+              <code class="small">#52525B</code>
+              <div class="text-muted" style="font-size:0.75rem;">--color-muted-foreground</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Typography -->
+    <section id="typography" class="ds-section">
+      <div class="ds-eyebrow">02 · Typography</div>
+      <h2 class="h4 fw-bold mb-3">Plus Jakarta Sans (Headings) + Inter (UI &amp; Body)</h2>
+      <div class="row g-4 align-items-center">
+        <div class="col-lg-7">
+          <div class="font-heading fw-bold mb-2" style="font-size: 2.2rem; line-height: 1.15;">Local Services Catalog</div>
+          <div class="font-heading fw-bold h4 mb-2">Verified Home Repair &amp; Maintenance</div>
+          <p class="mb-2" style="color: var(--color-muted-foreground); max-width: 40rem;">
+            Clear hierarchy with tight heading tracking and generous body line-height (1.6) keeps descriptions, filter rails, and booking summaries effortless to scan on mobile and desktop.
+          </p>
+          <div class="d-flex flex-wrap gap-4 pt-2 border-top">
+            <div>
+              <div class="small text-muted">Fixed Price (Tabular Nums)</div>
+              <div class="font-heading fw-bold fs-4 tabular">₹499 <span class="fs-6 fw-normal text-muted">/ visit</span></div>
+            </div>
+            <div>
+              <div class="small text-muted">Booking ID</div>
+              <div class="fw-semibold tabular">#SVR-2026-0148</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="p-3 rounded-3" style="background: var(--color-muted);">
+            <div class="small fw-semibold mb-2">Scale Summary</div>
+            <ul class="list-unstyled small mb-0 d-grid gap-1" style="color: var(--color-muted-foreground);">
+              <li><strong>Display H1:</strong> Plus Jakarta Sans 800 · 48px</li>
+              <li><strong>Page H2:</strong> Plus Jakarta Sans 700 · 28px</li>
+              <li><strong>Card Title:</strong> Plus Jakarta Sans 600 · 17px</li>
+              <li><strong>Body Copy:</strong> Inter 400 · 15–16px / 1.6</li>
+              <li><strong>Labels &amp; Pills:</strong> Inter 600 · 12–13px</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Buttons, Badges, Filter Pills & Inputs -->
+    <section id="components" class="ds-section">
+      <div class="ds-eyebrow">03 · Interactive Controls</div>
+      <h2 class="h4 fw-bold mb-4">Buttons, Filter Pills, Status Badges &amp; Forms</h2>
+      <div class="row g-4">
+        <div class="col-lg-6 d-grid gap-4">
+          <div>
+            <div class="small fw-semibold text-uppercase text-muted mb-2">Button Hierarchy</div>
+            <div class="d-flex flex-wrap gap-2">
+              <button type="button" class="btn btn-terracotta"><i class="bi bi-calendar-check me-1" aria-hidden="true"></i> Book Service</button>
+              <button type="button" class="btn btn-outline-terracotta">View Provider</button>
+              <button type="button" class="btn btn-ink">Admin Verify</button>
+              <button type="button" class="btn btn-soft">Cancel</button>
+              <button type="button" class="btn btn-terracotta" disabled style="opacity:0.5;">Disabled</button>
+            </div>
+          </div>
+
+          <div>
+            <div class="small fw-semibold text-uppercase text-muted mb-2">6-State Booking Badges</div>
+            <div class="d-flex flex-wrap gap-2">
+              <span class="status-pill status-pending"><span class="status-dot"></span> Pending</span>
+              <span class="status-pill status-confirmed"><span class="status-dot"></span> Confirmed</span>
+              <span class="status-pill status-inprogress"><span class="status-dot"></span> In Progress</span>
+              <span class="status-pill status-completed"><span class="status-dot"></span> Completed</span>
+              <span class="status-pill status-danger"><span class="status-dot"></span> Cancelled</span>
+              <span class="status-pill status-danger"><span class="status-dot"></span> Rejected</span>
+            </div>
+          </div>
+
+          <div>
+            <div class="small fw-semibold text-uppercase text-muted mb-2">Catalog Active Filter Pills</div>
+            <div class="d-flex flex-wrap gap-2">
+              <span class="sc-filter-tag">Electrician <i class="bi bi-x-lg" style="font-size:0.7rem;" aria-hidden="true"></i></span>
+              <span class="sc-filter-tag">Available Now <i class="bi bi-x-lg" style="font-size:0.7rem;" aria-hidden="true"></i></span>
+              <span class="sc-filter-tag">Under ₹500 <i class="bi bi-x-lg" style="font-size:0.7rem;" aria-hidden="true"></i></span>
+              <span class="sc-filter-tag">Pune <i class="bi bi-x-lg" style="font-size:0.7rem;" aria-hidden="true"></i></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="p-3 rounded-3 border bg-white">
+            <div class="mb-3">
+              <label for="previewAddr" class="form-label small fw-semibold">Service Address</label>
+              <input id="previewAddr" type="text" class="form-control" value="Flat 402, Green Park Residency, Kothrud" />
+              <div class="form-text">Saved addresses are verified for account ownership before booking.</div>
+            </div>
+            <div class="mb-3">
+              <label for="previewDate" class="form-label small fw-semibold">Preferred Service Date</label>
+              <input id="previewDate" type="text" class="form-control is-invalid" value="Past Date Selected" aria-invalid="true" />
+              <div class="invalid-feedback">Please select today or a future date for your booking.</div>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="previewAvail" checked />
+              <label class="form-check-label small fw-medium" for="previewAvail">Show Available Now providers only</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Realistic Sevro Service Cards -->
+    <section id="cards" class="ds-section">
+      <div class="ds-eyebrow">04 · Marketplace Catalog</div>
+      <h2 class="h4 fw-bold mb-4">Sevro Service Cards (3-Column Grid)</h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <article class="sc-service-card h-100 d-flex flex-column">
+            <div class="service-thumb" style="background: linear-gradient(135deg, #FFF4ED 0%, #FFEDD5 100%); color: #C2410C;">
+              <i class="bi bi-lightning-charge-fill" aria-hidden="true"></i>
+              <span class="status-pill status-completed position-absolute top-0 end-0 m-2 bg-white shadow-sm"><span class="status-dot"></span> Available</span>
+            </div>
+            <div class="p-3 d-flex flex-column flex-grow-1">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge rounded-pill bg-terracotta-soft">Electrician</span>
+                <span class="small fw-semibold tabular"><i class="bi bi-star-fill text-warning me-1" aria-hidden="true"></i>4.9 <span class="text-muted fw-normal">(42)</span></span>
+              </div>
+              <h3 class="h6 fw-bold mb-1">MCB &amp; Switchboard Repair</h3>
+              <p class="small mb-3" style="color: var(--color-muted-foreground);">
+                <i class="bi bi-patch-check-fill text-primary me-1" aria-hidden="true"></i>SparkFix Electricals &middot; Pune
+              </p>
+              <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="text-muted" style="font-size:0.72rem;">Fixed Price</div>
+                  <div class="font-heading fw-bold fs-5 tabular">₹399</div>
+                </div>
+                <button type="button" class="btn btn-terracotta btn-sm px-3">Book Now</button>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="col-md-4">
+          <article class="sc-service-card h-100 d-flex flex-column">
+            <div class="service-thumb" style="background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); color: #1D4ED8;">
+              <i class="bi bi-droplet-half" aria-hidden="true"></i>
+              <span class="status-pill status-completed position-absolute top-0 end-0 m-2 bg-white shadow-sm"><span class="status-dot"></span> Available</span>
+            </div>
+            <div class="p-3 d-flex flex-column flex-grow-1">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge rounded-pill bg-terracotta-soft">Plumber</span>
+                <span class="small fw-semibold tabular"><i class="bi bi-star-fill text-warning me-1" aria-hidden="true"></i>4.8 <span class="text-muted fw-normal">(31)</span></span>
+              </div>
+              <h3 class="h6 fw-bold mb-1">Tap, Mixer &amp; Pipeline Leak Fix</h3>
+              <p class="small mb-3" style="color: var(--color-muted-foreground);">
+                <i class="bi bi-patch-check-fill text-primary me-1" aria-hidden="true"></i>FlowRight Plumbing &middot; Mumbai
+              </p>
+              <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="text-muted" style="font-size:0.72rem;">Fixed Price</div>
+                  <div class="font-heading fw-bold fs-5 tabular">₹449</div>
+                </div>
+                <button type="button" class="btn btn-terracotta btn-sm px-3">Book Now</button>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="col-md-4">
+          <article class="sc-service-card h-100 d-flex flex-column">
+            <div class="service-thumb" style="background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%); color: #15803D;">
+              <i class="bi bi-stars" aria-hidden="true"></i>
+              <span class="status-pill status-pending position-absolute top-0 end-0 m-2 bg-white shadow-sm"><span class="status-dot"></span> Busy Today</span>
+            </div>
+            <div class="p-3 d-flex flex-column flex-grow-1">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge rounded-pill bg-terracotta-soft">Deep Cleaning</span>
+                <span class="small fw-semibold tabular"><i class="bi bi-star-fill text-warning me-1" aria-hidden="true"></i>5.0 <span class="text-muted fw-normal">(19)</span></span>
+              </div>
+              <h3 class="h6 fw-bold mb-1">2 BHK Full Kitchen &amp; Bath Cleaning</h3>
+              <p class="small mb-3" style="color: var(--color-muted-foreground);">
+                <i class="bi bi-patch-check-fill text-primary me-1" aria-hidden="true"></i>PureNest Home Care &middot; Pune
+              </p>
+              <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="text-muted" style="font-size:0.72rem;">Fixed Price</div>
+                  <div class="font-heading fw-bold fs-5 tabular">₹1,299</div>
+                </div>
+                <button type="button" class="btn btn-outline-terracotta btn-sm px-3">Details</button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Interactive Booking Stepper & Review Selector -->
+    <section id="stepper" class="ds-section">
+      <div class="ds-eyebrow">05 · Booking Lifecycle &amp; Reviews</div>
+      <div class="row g-4 align-items-center">
+        <div class="col-lg-8">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <h2 class="h5 fw-bold mb-0">Interactive Booking Progress Stepper</h2>
+            <div class="btn-group btn-group-sm" role="group" aria-label="Preview booking status">
+              <button type="button" class="btn btn-soft" onclick="setStep(0)">Pending</button>
+              <button type="button" class="btn btn-soft" onclick="setStep(1)">Confirmed</button>
+              <button type="button" class="btn btn-soft" onclick="setStep(2)">In Progress</button>
+              <button type="button" class="btn btn-soft" onclick="setStep(3)">Completed</button>
+            </div>
+          </div>
+          <div class="sc-stepper" id="demoStepper">
+            <div class="sc-step completed"><div class="sc-step-dot"><i class="bi bi-check-lg" aria-hidden="true"></i></div><div class="sc-step-label">Pending</div></div>
+            <div class="sc-step completed"><div class="sc-step-dot"><i class="bi bi-check-lg" aria-hidden="true"></i></div><div class="sc-step-label">Confirmed</div></div>
+            <div class="sc-step active-inprogress"><div class="sc-step-dot"><i class="bi bi-tools" aria-hidden="true"></i></div><div class="sc-step-label">In Progress</div></div>
+            <div class="sc-step"><div class="sc-step-dot">4</div><div class="sc-step-label">Completed</div></div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="p-3 rounded-3 border" style="background: var(--color-background);">
+            <div class="fw-semibold small mb-1">Rate Completed Service</div>
+            <div class="d-flex align-items-center gap-1 mb-1" id="demoStars" role="radiogroup" aria-label="Star rating">
+              <button type="button" class="sc-star-btn active" onclick="setStars(1)" aria-label="1 star"><i class="bi bi-star-fill"></i></button>
+              <button type="button" class="sc-star-btn active" onclick="setStars(2)" aria-label="2 stars"><i class="bi bi-star-fill"></i></button>
+              <button type="button" class="sc-star-btn active" onclick="setStars(3)" aria-label="3 stars"><i class="bi bi-star-fill"></i></button>
+              <button type="button" class="sc-star-btn active" onclick="setStars(4)" aria-label="4 stars"><i class="bi bi-star-fill"></i></button>
+              <button type="button" class="sc-star-btn" onclick="setStars(5)" aria-label="5 stars"><i class="bi bi-star-fill"></i></button>
+            </div>
+            <small id="starLabel" style="color: var(--color-muted-foreground);">4 / 5 — Great service</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Quick Integration Reference -->
+    <section class="ds-section">
+      <div class="ds-eyebrow">06 · Bootstrap 5.3 Integration</div>
+      <h2 class="h5 fw-bold mb-2">Applying Tokens in <code>Sevro/wwwroot/css/site.css</code></h2>
+      <p class="small mb-3" style="color: var(--color-muted-foreground);">
+        <code>tokens.css</code> maps both Bootstrap 5.3's native <code>--bs-*</code> variables and Sevro's existing <code>--sc-*</code> variables so existing Razor views upgrade cleanly without breaking any Bootstrap layout classes.
+      </p>
+      <pre class="ds-code"><code>&lt;!-- 1. Add Plus Jakarta Sans alongside Inter in Sevro/Views/Shared/_Layout.cshtml --&gt;
+&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet" /&gt;
+
+&lt;!-- 2. Load tokens.css right after Bootstrap 5.3 and before site.css (or paste into site.css) --&gt;
+&lt;link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" /&gt;
+&lt;link rel="stylesheet" href="~/css/tokens.css" asp-append-version="true" /&gt;
+&lt;link rel="stylesheet" href="~/css/site.css" asp-append-version="true" /&gt;</code></pre>
+    </section>
+  </main>
+
+  <script>
+    const activeClasses = ['active-pending', 'active-confirmed', 'active-inprogress', 'active-completed'];
+    const stepIcons = ['<i class="bi bi-clock"></i>', '<i class="bi bi-check2-circle"></i>', '<i class="bi bi-tools"></i>', '<i class="bi bi-patch-check-fill"></i>'];
+    function setStep(idx) {
+      const steps = document.querySelectorAll('#demoStepper .sc-step');
+      steps.forEach((el, i) => {
+        el.className = 'sc-step';
+        const dot = el.querySelector('.sc-step-dot');
+        if (i < idx) {
+          el.classList.add('completed');
+          dot.innerHTML = '<i class="bi bi-check-lg"></i>';
+        } else if (i === idx) {
+          el.classList.add(activeClasses[i]);
+          dot.innerHTML = stepIcons[i];
+        } else {
+          dot.textContent = String(i + 1);
+        }
+      });
+    }
+    const labels = ['1 / 5 — Poor', '2 / 5 — Fair', '3 / 5 — Good', '4 / 5 — Great service', '5 / 5 — Excellent!'];
+    function setStars(n) {
+      document.querySelectorAll('#demoStars .sc-star-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', i < n);
+      });
+      document.getElementById('starLabel').textContent = labels[n - 1];
+    }
+  </script>
+</body>
+</html>

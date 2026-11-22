@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,14 +14,16 @@ namespace Sevro.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IWebHostEnvironment _env;
 
-        public CustomerController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public CustomerController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IWebHostEnvironment env)
         {
             _context = context;
             _userManager = userManager;
+            _env = env;
         }
 
-        private string CurrentUserId => _userManager.GetUserId(User)!;
+        private int CurrentUserId => int.TryParse(_userManager.GetUserId(User), out var id) ? id : 0;
 
         public async Task<IActionResult> Dashboard()
         {
@@ -80,10 +82,7 @@ namespace Sevro.Controllers
             if (user == null) return NotFound();
 
             model.Email = user.Email ?? string.Empty;
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
+            if (!ModelState.IsValid) return View(model);
 
             user.FullName = model.FullName.Trim();
             user.PhoneNumber = model.PhoneNumber.Trim();
@@ -96,9 +95,7 @@ namespace Sevro.Controllers
             }
 
             foreach (var error in result.Errors)
-            {
                 ModelState.AddModelError(string.Empty, error.Description);
-            }
             return View(model);
         }
 
@@ -144,9 +141,7 @@ namespace Sevro.Controllers
 
             TempData["Success"] = "New service address added.";
             if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
-            {
                 return Redirect(returnUrl);
-            }
             return RedirectToAction(nameof(Addresses));
         }
 
@@ -158,25 +153,20 @@ namespace Sevro.Controllers
 
             if (address == null) return NotFound();
 
-            var model = new AddressViewModel
+            return View("AddressForm", new AddressViewModel
             {
                 AddressId = address.AddressId,
                 Address = address.Address,
                 City = address.City,
                 Pincode = address.Pincode
-            };
-
-            return View("AddressForm", model);
+            });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditAddress(AddressViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return View("AddressForm", model);
-            }
+            if (!ModelState.IsValid) return View("AddressForm", model);
 
             var address = await _context.CustomerAddresses
                 .FirstOrDefaultAsync(a => a.AddressId == model.AddressId && a.CustomerId == CurrentUserId);
@@ -214,7 +204,7 @@ namespace Sevro.Controllers
             return RedirectToAction(nameof(Addresses));
         }
 
-        // --- Book a Service ---
+        // --- Book a Service (Date + Time Slot + Description + Optional Photo + Transparent Price Snapshot) ---
         [HttpGet]
         public async Task<IActionResult> Book(int id)
         {
@@ -222,7 +212,7 @@ namespace Sevro.Controllers
                 .Include(s => s.Category)
                 .Include(s => s.ProviderProfile)
                     .ThenInclude(p => p.User)
-                .FirstOrDefaultAsync(s => s.ProviderServiceId == id);
+                .FirstOrDefaultAsync(s => s.ProviderServiceId == id && s.IsActive);
 
             if (service == null || !service.ProviderProfile.IsVerified)
             {
@@ -253,6 +243,7 @@ namespace Sevro.Controllers
                 SavedAddresses = addresses,
                 AddressId = addresses.FirstOrDefault()?.AddressId ?? 0,
                 BookingDate = DateTime.Today.AddDays(1),
+                PreferredTimeSlot = CreateBookingViewModel.TimeSlots[1],
                 ProviderAverageRating = reviews.Any() ? reviews.Average() : 0,
                 ProviderReviewCount = reviews.Count
             };
@@ -268,7 +259,7 @@ namespace Sevro.Controllers
                 .Include(s => s.Category)
                 .Include(s => s.ProviderProfile)
                     .ThenInclude(p => p.User)
-                .FirstOrDefaultAsync(s => s.ProviderServiceId == model.ProviderServiceId);
+                .FirstOrDefaultAsync(s => s.ProviderServiceId == model.ProviderServiceId && s.IsActive);
 
             if (service == null || !service.ProviderProfile.IsVerified || !service.ProviderProfile.IsAvailable)
             {
@@ -281,17 +272,11 @@ namespace Sevro.Controllers
                 .OrderByDescending(a => a.AddressId)
                 .ToListAsync();
 
-            // Enforce Address Ownership integrity rule
-            var ownsAddress = addresses.Any(a => a.AddressId == model.AddressId);
-            if (!ownsAddress)
-            {
+            if (!addresses.Any(a => a.AddressId == model.AddressId))
                 ModelState.AddModelError(nameof(model.AddressId), "Please select one of your own saved addresses.");
-            }
 
             if (model.BookingDate.Date < DateTime.Today)
-            {
                 ModelState.AddModelError(nameof(model.BookingDate), "Booking date cannot be in the past.");
-            }
 
             if (!ModelState.IsValid)
             {
@@ -307,12 +292,33 @@ namespace Sevro.Controllers
                 return View(model);
             }
 
+            string? photoPath = null;
+            if (model.IssuePhoto != null && model.IssuePhoto.Length > 0 && model.IssuePhoto.Length <= 5 * 1024 * 1024)
+            {
+                var ext = Path.GetExtension(model.IssuePhoto.FileName).ToLowerInvariant();
+                var allowed = new[] { ".png", ".jpg", ".jpeg", ".webp" };
+                if (allowed.Contains(ext))
+                {
+                    var dir = Path.Combine(_env.WebRootPath, "uploads", "bookings");
+                    Directory.CreateDirectory(dir);
+                    var fileName = $"{Guid.NewGuid():N}{ext}";
+                    var fullPath = Path.Combine(dir, fileName);
+                    await using var stream = new FileStream(fullPath, FileMode.Create);
+                    await model.IssuePhoto.CopyToAsync(stream);
+                    photoPath = $"/uploads/bookings/{fileName}";
+                }
+            }
+
             var booking = new Booking
             {
                 CustomerId = CurrentUserId,
                 ProviderServiceId = service.ProviderServiceId,
                 AddressId = model.AddressId,
                 BookingDate = model.BookingDate.Date,
+                PreferredTimeSlot = model.PreferredTimeSlot?.Trim(),
+                ProblemDescription = model.ProblemDescription?.Trim(),
+                IssuePhotoPath = photoPath,
+                AgreedPrice = service.PricingType == PricingType.QuoteRequired ? null : service.Price,
                 Status = BookingStatus.Pending,
                 CreatedAt = DateTime.UtcNow
             };
@@ -320,7 +326,41 @@ namespace Sevro.Controllers
             _context.Bookings.Add(booking);
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = $"Booking #{booking.BookingId} submitted! Track status below while {service.ProviderProfile.BusinessName} reviews your request.";
+            TempData["Success"] = service.PricingType == PricingType.QuoteRequired
+                ? $"Quote request #{booking.BookingId} sent to {service.ProviderProfile.BusinessName}! You will be able to approve their quotation before work starts."
+                : $"Booking #{booking.BookingId} submitted! Track status below while {service.ProviderProfile.BusinessName} reviews your request.";
+            return RedirectToAction(nameof(Bookings));
+        }
+
+        // --- Customer Quotation Approval / Decline ---
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RespondToQuotation(int id, bool approve)
+        {
+            var booking = await _context.Bookings
+                .FirstOrDefaultAsync(b => b.BookingId == id && b.CustomerId == CurrentUserId);
+
+            if (booking == null) return NotFound();
+
+            if (!booking.QuotedAmount.HasValue)
+            {
+                TempData["Error"] = "No quotation has been sent for this booking yet.";
+                return RedirectToAction(nameof(Bookings));
+            }
+
+            booking.IsQuoteApproved = approve;
+            if (approve)
+            {
+                booking.AgreedPrice = booking.QuotedAmount;
+                TempData["Success"] = $"Quotation of ₹{booking.QuotedAmount.Value:N0} approved for Booking #{booking.BookingId}. Your provider can now start the work.";
+            }
+            else
+            {
+                booking.Status = BookingStatus.Cancelled;
+                TempData["Success"] = $"Quotation declined and Booking #{booking.BookingId} has been cancelled.";
+            }
+
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Bookings));
         }
 
@@ -340,9 +380,7 @@ namespace Sevro.Controllers
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(status) && Enum.TryParse<BookingStatus>(status, true, out var parsedStatus))
-            {
                 query = query.Where(b => b.Status == parsedStatus);
-            }
 
             ViewBag.CurrentStatus = status;
             var bookings = await query.OrderByDescending(b => b.CreatedAt).ToListAsync();

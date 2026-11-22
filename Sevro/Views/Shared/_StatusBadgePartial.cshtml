@@ -1,14 +1,17 @@
 @model BookingStatus
 @{
-    var (badgeClass, label) = Model switch
+    var (statusClass, label) = Model switch
     {
-        BookingStatus.Pending => ("bg-warning text-dark", "Pending"),
-        BookingStatus.Confirmed => ("bg-primary text-white", "Confirmed"),
-        BookingStatus.InProgress => ("bg-info text-dark", "In Progress"),
-        BookingStatus.Completed => ("bg-success text-white", "Completed"),
-        BookingStatus.Rejected => ("bg-danger text-white", "Rejected"),
-        BookingStatus.Cancelled => ("bg-danger text-white", "Cancelled"),
-        _ => ("bg-secondary text-white", Model.ToString())
+        BookingStatus.Pending => ("sc-status-pending", "Pending"),
+        BookingStatus.Confirmed => ("sc-status-confirmed", "Confirmed"),
+        BookingStatus.InProgress => ("sc-status-inprogress", "In Progress"),
+        BookingStatus.Completed => ("sc-status-completed", "Completed"),
+        BookingStatus.Rejected => ("sc-status-danger", "Rejected"),
+        BookingStatus.Cancelled => ("sc-status-danger", "Cancelled"),
+        _ => ("sc-status-muted", Model.ToString())
     };
 }
-<span class="badge rounded-pill @badgeClass px-3 py-2 fw-medium">@label</span>
+<span class="sc-status-pill @statusClass">
+    <span class="sc-status-dot" aria-hidden="true"></span>
+    <span>@label</span>
+</span>

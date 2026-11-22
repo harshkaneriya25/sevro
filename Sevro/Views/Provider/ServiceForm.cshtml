@@ -1,20 +1,34 @@
-﻿@model Sevro.ViewModels.Provider.ProviderServiceFormViewModel
+@model Sevro.ViewModels.Provider.ProviderServiceFormViewModel
 @{
     var isEdit = Model.ProviderServiceId > 0;
     ViewData["Title"] = isEdit ? "Edit Service" : "Add New Service";
 }
 
-<div class="container py-4">
+<div class="container py-2 py-lg-3">
     <div class="row justify-content-center">
-        <div class="col-lg-7">
-            <div class="sc-card p-4 p-md-5 border-0 shadow-sm">
-                <h2 class="h4 fw-bold mb-1">@ViewData["Title"]</h2>
-                <p class="text-muted small mb-4">Link your service to a category and set a clear, transparent fixed price.</p>
+        <div class="col-12 col-xl-10">
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb small mb-0">
+                    <li class="breadcrumb-item"><a asp-action="Dashboard" class="text-decoration-none text-terracotta">Provider Dashboard</a></li>
+                    <li class="breadcrumb-item"><a asp-action="Services" class="text-decoration-none text-terracotta">My Services</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+                </ol>
+            </nav>
+
+            <div class="sc-card sc-card-accent p-4 p-md-5">
+                <div class="sc-form-header">
+                    <span class="sc-form-icon"><i class="bi bi-tools" aria-hidden="true"></i></span>
+                    <div>
+                        <div class="sc-section-eyebrow mb-0">Service Menu</div>
+                        <h2 class="h4 fw-bold mb-0">@ViewData["Title"]</h2>
+                        <p class="text-muted small mb-0">Pick a standard catalog service to auto-fill affordable &#8377; pricing, or customize your own rate.</p>
+                    </div>
+                </div>
 
                 @if (!Model.Categories.Any())
                 {
-                    <div class="alert alert-warning border-0 small">
-                        <i class="bi bi-exclamation-circle me-1"></i>
+                    <div class="alert alert-warning border-0 small mb-4">
+                        <i class="bi bi-exclamation-circle-fill me-1" aria-hidden="true"></i>
                         No service categories are available yet. Please ask the Admin to add Service Categories first.
                     </div>
                 }
@@ -22,37 +36,93 @@
                 <form asp-action="@(isEdit ? "EditService" : "CreateService")" method="post" novalidate>
                     @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="ProviderServiceId" />
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2"></div>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small" role="alert"></div>
 
-                    <div class="form-floating mb-3">
-                        <select asp-for="CategoryId" asp-items="Model.Categories" class="form-select">
-                            <option value="">-- Select Category --</option>
-                        </select>
-                        <label asp-for="CategoryId"></label>
-                        <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                    <div class="sc-form-section-title"><i class="bi bi-grid-fill" aria-hidden="true"></i> Service Category &amp; Template</div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label asp-for="CategoryId" class="form-label fw-semibold small mb-1"></label>
+                            <select asp-for="CategoryId" asp-items="Model.Categories" class="form-select sc-input-lg" id="providerCategorySelect">
+                                <option value="">-- Select Category --</option>
+                            </select>
+                            <span asp-validation-for="CategoryId"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="CatalogServiceId" class="form-label fw-semibold small mb-1"></label>
+                            <select asp-for="CatalogServiceId" class="form-select sc-input-lg" id="catalogTemplateSelect" data-selected="@Model.CatalogServiceId">
+                                <option value="">-- Custom Service (or Quick-Fill) --</option>
+                            </select>
+                            <div class="form-text">Selecting a standard template pre-fills recommended &#8377; pricing &amp; duration.</div>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="ServiceName" class="form-label fw-semibold small mb-1"></label>
+                            <input asp-for="ServiceName" class="form-control sc-input-lg" id="serviceNameInput" placeholder="e.g., Ceiling Fan Installation" />
+                            <span asp-validation-for="ServiceName"></span>
+                        </div>
                     </div>
 
-                    <div class="form-floating mb-3">
-                        <input asp-for="ServiceName" class="form-control" placeholder="e.g., Ceiling Fan Installation" />
-                        <label asp-for="ServiceName"></label>
-                        <span asp-validation-for="ServiceName" class="text-danger small"></span>
+                    <div class="sc-form-section-title pt-3 border-top"><i class="bi bi-currency-rupee" aria-hidden="true"></i> Pricing &amp; Duration</div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6 col-lg-4">
+                            <label asp-for="PricingType" class="form-label fw-semibold small mb-1"></label>
+                            <select asp-for="PricingType" class="form-select sc-input-lg" id="pricingTypeSelect">
+                                <option value="@PricingType.Fixed">Fixed Price (Per Job)</option>
+                                <option value="@PricingType.StartingFrom">Starting From (&#8377;)</option>
+                                <option value="@PricingType.Hourly">Per Hour</option>
+                                <option value="@PricingType.PerVisit">Per Visit / Inspection</option>
+                                <option value="@PricingType.PerUnit">Per Unit / Item</option>
+                                <option value="@PricingType.QuoteRequired">Quotation Required</option>
+                            </select>
+                            <span asp-validation-for="PricingType"></span>
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label asp-for="Price" class="form-label fw-semibold small mb-1"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white text-muted fw-semibold">&#8377;</span>
+                                <input asp-for="Price" type="number" step="1" min="0" class="form-control sc-input-lg sc-tabular" id="priceInput" placeholder="199" />
+                            </div>
+                            <span asp-validation-for="Price"></span>
+                            <div class="form-text" id="priceHint">Displayed transparently to customers before booking.</div>
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label asp-for="Unit" class="form-label fw-semibold small mb-1"></label>
+                            <input asp-for="Unit" class="form-control sc-input-lg" id="unitInput" placeholder="Per job" />
+                            <span asp-validation-for="Unit"></span>
+                            <div class="form-text">e.g., Per job, Per hour, Per visit, Per fan</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EstimatedDuration" class="form-label fw-semibold small mb-1"></label>
+                            <input asp-for="EstimatedDuration" class="form-control sc-input-lg" id="durationInput" placeholder="30–60 mins" />
+                            <span asp-validation-for="EstimatedDuration"></span>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end">
+                            <div class="w-100 px-3 py-2 rounded-3 border bg-light d-flex align-items-center justify-content-between gap-2" style="min-height: 46px;">
+                                <div class="min-w-0">
+                                    <div class="fw-semibold small">Service Visibility</div>
+                                    <div class="text-muted text-truncate" style="font-size:0.74rem;">Pause anytime without losing history</div>
+                                </div>
+                                <div class="form-check form-switch mb-0 flex-shrink-0">
+                                    <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="isActiveSwitch" />
+                                    <label class="form-check-label small fw-semibold" for="isActiveSwitch">Active</label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="form-floating mb-3">
-                        <input asp-for="Price" type="number" step="0.01" min="1" class="form-control" placeholder="499.00" />
-                        <label asp-for="Price"></label>
-                        <span asp-validation-for="Price" class="text-danger small"></span>
+                    <div class="sc-form-section-title pt-3 border-top"><i class="bi bi-card-text" aria-hidden="true"></i> Service Details</div>
+                    <div class="mb-4">
+                        <label asp-for="Description" class="form-label fw-semibold small mb-1"></label>
+                        <textarea asp-for="Description" class="form-control" id="descriptionInput" rows="4" placeholder="Describe what is included in this service (e.g., inspection, labor, spare parts extra with approval)"></textarea>
+                        <span asp-validation-for="Description"></span>
+                        <div class="form-text">Mention what's covered in the price so customers can book with confidence.</div>
                     </div>
 
-                    <div class="form-floating mb-4">
-                        <textarea asp-for="Description" class="form-control" style="height: 110px;" placeholder="Describe what is included in this service"></textarea>
-                        <label asp-for="Description"></label>
-                        <span asp-validation-for="Description" class="text-danger small"></span>
-                    </div>
-
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-terracotta px-4">@(isEdit ? "Update Service" : "Publish Service")</button>
-                        <a asp-action="Services" class="btn btn-outline-secondary">Cancel</a>
+                    <div class="d-flex flex-wrap gap-2 pt-3 border-top">
+                        <button type="submit" class="btn btn-terracotta sc-btn-sheen px-4 py-2 d-inline-flex align-items-center gap-2">
+                            <span>@(isEdit ? "Update Service" : "Publish Service")</span>
+                            <i class="bi bi-arrow-right sc-cta-arrow" aria-hidden="true"></i>
+                        </button>
+                        <a asp-action="Services" class="btn btn-outline-secondary px-4 py-2">Cancel</a>
                     </div>
                 </form>
             </div>
@@ -62,4 +132,5 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/provider-service-form.js" asp-append-version="true"></script>
 }

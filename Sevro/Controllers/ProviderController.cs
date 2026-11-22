@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -15,16 +15,21 @@ namespace Sevro.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IWebHostEnvironment _env;
 
-        public ProviderController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public ProviderController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IWebHostEnvironment env)
         {
             _context = context;
             _userManager = userManager;
+            _env = env;
         }
 
         private async Task<ProviderProfile?> GetCurrentProviderProfileAsync()
         {
-            var userId = _userManager.GetUserId(User);
+            var userIdRaw = _userManager.GetUserId(User);
+            if (!int.TryParse(userIdRaw, out var userId))
+                return null;
+
             return await _context.ProviderProfiles
                 .Include(p => p.User)
                 .FirstOrDefaultAsync(p => p.UserId == userId);
@@ -87,7 +92,9 @@ namespace Sevro.Controllers
                 BusinessName = profile.BusinessName,
                 ExperienceYears = profile.ExperienceYears,
                 City = profile.City,
+                ServiceAreas = profile.ServiceAreas,
                 Description = profile.Description,
+                ExistingPortfolioPhotos = ParsePortfolioPhotos(profile.PortfolioPhotos),
                 IsVerified = profile.IsVerified,
                 IsAvailable = profile.IsAvailable,
                 AverageRating = reviewRatings.Any() ? reviewRatings.Average() : 0,
@@ -107,6 +114,7 @@ namespace Sevro.Controllers
             model.Email = profile.User.Email ?? string.Empty;
             model.IsVerified = profile.IsVerified;
             model.IsAvailable = profile.IsAvailable;
+            model.ExistingPortfolioPhotos = ParsePortfolioPhotos(profile.PortfolioPhotos);
 
             if (!ModelState.IsValid)
             {
@@ -118,7 +126,31 @@ namespace Sevro.Controllers
             profile.BusinessName = model.BusinessName.Trim();
             profile.ExperienceYears = model.ExperienceYears;
             profile.City = model.City.Trim();
+            profile.ServiceAreas = model.ServiceAreas?.Trim();
             profile.Description = model.Description?.Trim();
+
+            if (model.PortfolioPhotoUploads != null && model.PortfolioPhotoUploads.Any())
+            {
+                var photos = ParsePortfolioPhotos(profile.PortfolioPhotos);
+                var allowed = new[] { ".png", ".jpg", ".jpeg", ".webp" };
+                var dir = Path.Combine(_env.WebRootPath, "uploads", "portfolio");
+                Directory.CreateDirectory(dir);
+
+                foreach (var file in model.PortfolioPhotoUploads.Take(6))
+                {
+                    if (file.Length == 0 || file.Length > 4 * 1024 * 1024) continue;
+                    var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+                    if (!allowed.Contains(ext)) continue;
+
+                    var fileName = $"{profile.ProviderProfileId}_{Guid.NewGuid():N}{ext}";
+                    var fullPath = Path.Combine(dir, fileName);
+                    await using var stream = new FileStream(fullPath, FileMode.Create);
+                    await file.CopyToAsync(stream);
+                    photos.Add($"/uploads/portfolio/{fileName}");
+                }
+
+                profile.PortfolioPhotos = string.Join("|", photos.TakeLast(8));
+            }
 
             await _userManager.UpdateAsync(profile.User);
             await _context.SaveChangesAsync();
@@ -146,10 +178,31 @@ namespace Sevro.Controllers
 
             TempData["Success"] = $"Availability status updated to {statusLabel}.";
             if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
-            {
                 return Redirect(returnUrl);
-            }
             return RedirectToAction(nameof(Dashboard));
+        }
+
+        // --- Dynamic Master Catalog lookup for Provider Service Form ---
+        [HttpGet]
+        public async Task<IActionResult> CatalogServicesByCategory(int categoryId)
+        {
+            var items = await _context.CatalogServices
+                .Where(cs => cs.CategoryId == categoryId && cs.IsActive)
+                .OrderByDescending(cs => cs.IsPopular)
+                .ThenBy(cs => cs.Name)
+                .Select(cs => new
+                {
+                    id = cs.CatalogServiceId,
+                    name = cs.Name,
+                    description = cs.Description ?? "",
+                    price = cs.Price ?? 0m,
+                    pricingType = cs.PricingType.ToString(),
+                    unit = cs.Unit ?? "Per job",
+                    duration = cs.EstimatedDuration ?? "30–60 mins"
+                })
+                .ToListAsync();
+
+            return Json(items);
         }
 
         // --- Provider Services CRUD ---
@@ -171,12 +224,32 @@ namespace Sevro.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> CreateService()
+        public async Task<IActionResult> CreateService(int? catalogServiceId = null)
         {
             var model = new ProviderServiceFormViewModel
             {
+                PricingType = PricingType.Fixed,
+                Unit = "Per job",
+                IsActive = true,
                 Categories = await GetCategorySelectListAsync()
             };
+
+            if (catalogServiceId.HasValue)
+            {
+                var template = await _context.CatalogServices.FindAsync(catalogServiceId.Value);
+                if (template != null && template.IsActive)
+                {
+                    model.CatalogServiceId = template.CatalogServiceId;
+                    model.CategoryId = template.CategoryId;
+                    model.ServiceName = template.Name;
+                    model.Description = template.Description;
+                    model.Price = template.Price ?? 0m;
+                    model.PricingType = template.PricingType;
+                    model.Unit = template.Unit;
+                    model.EstimatedDuration = template.EstimatedDuration;
+                }
+            }
+
             return View("ServiceForm", model);
         }
 
@@ -187,6 +260,7 @@ namespace Sevro.Controllers
             var profile = await GetCurrentProviderProfileAsync();
             if (profile == null) return NotFound();
 
+            ValidateProviderPrice(model);
             if (!ModelState.IsValid)
             {
                 model.Categories = await GetCategorySelectListAsync();
@@ -197,9 +271,14 @@ namespace Sevro.Controllers
             {
                 ProviderProfileId = profile.ProviderProfileId,
                 CategoryId = model.CategoryId,
+                CatalogServiceId = model.CatalogServiceId,
                 ServiceName = model.ServiceName.Trim(),
                 Description = model.Description?.Trim(),
-                Price = model.Price
+                Price = model.PricingType == PricingType.QuoteRequired ? 0m : model.Price,
+                PricingType = model.PricingType,
+                Unit = string.IsNullOrWhiteSpace(model.Unit) ? "Per job" : model.Unit.Trim(),
+                EstimatedDuration = model.EstimatedDuration?.Trim(),
+                IsActive = model.IsActive
             };
 
             _context.ProviderServices.Add(service);
@@ -224,9 +303,14 @@ namespace Sevro.Controllers
             {
                 ProviderServiceId = service.ProviderServiceId,
                 CategoryId = service.CategoryId,
+                CatalogServiceId = service.CatalogServiceId,
                 ServiceName = service.ServiceName,
                 Description = service.Description,
                 Price = service.Price,
+                PricingType = service.PricingType,
+                Unit = service.Unit,
+                EstimatedDuration = service.EstimatedDuration,
+                IsActive = service.IsActive,
                 Categories = await GetCategorySelectListAsync()
             };
 
@@ -240,6 +324,7 @@ namespace Sevro.Controllers
             var profile = await GetCurrentProviderProfileAsync();
             if (profile == null) return NotFound();
 
+            ValidateProviderPrice(model);
             if (!ModelState.IsValid)
             {
                 model.Categories = await GetCategorySelectListAsync();
@@ -252,12 +337,36 @@ namespace Sevro.Controllers
             if (service == null) return NotFound();
 
             service.CategoryId = model.CategoryId;
+            service.CatalogServiceId = model.CatalogServiceId;
             service.ServiceName = model.ServiceName.Trim();
             service.Description = model.Description?.Trim();
-            service.Price = model.Price;
+            service.Price = model.PricingType == PricingType.QuoteRequired ? 0m : model.Price;
+            service.PricingType = model.PricingType;
+            service.Unit = string.IsNullOrWhiteSpace(model.Unit) ? "Per job" : model.Unit.Trim();
+            service.EstimatedDuration = model.EstimatedDuration?.Trim();
+            service.IsActive = model.IsActive;
 
             await _context.SaveChangesAsync();
             TempData["Success"] = "Service details updated.";
+            return RedirectToAction(nameof(Services));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleServiceStatus(int id)
+        {
+            var profile = await GetCurrentProviderProfileAsync();
+            if (profile == null) return NotFound();
+
+            var service = await _context.ProviderServices
+                .FirstOrDefaultAsync(s => s.ProviderServiceId == id && s.ProviderProfileId == profile.ProviderProfileId);
+
+            if (service == null) return NotFound();
+
+            service.IsActive = !service.IsActive;
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"'{service.ServiceName}' is now {(service.IsActive ? "Active" : "Paused")}.";
             return RedirectToAction(nameof(Services));
         }
 
@@ -276,7 +385,7 @@ namespace Sevro.Controllers
             var hasBookings = await _context.Bookings.AnyAsync(b => b.ProviderServiceId == id);
             if (hasBookings)
             {
-                TempData["Error"] = "Cannot delete a service that has existing or historical bookings.";
+                TempData["Error"] = "Cannot delete a service that has existing or historical bookings. Pause it instead.";
                 return RedirectToAction(nameof(Services));
             }
 
@@ -287,7 +396,7 @@ namespace Sevro.Controllers
             return RedirectToAction(nameof(Services));
         }
 
-        // --- Manage Incoming & Active Bookings ---
+        // --- Manage Incoming & Active Bookings + Quotations ---
         [HttpGet]
         public async Task<IActionResult> Bookings(string? status = null)
         {
@@ -304,13 +413,49 @@ namespace Sevro.Controllers
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(status) && Enum.TryParse<BookingStatus>(status, true, out var parsed))
-            {
                 query = query.Where(b => b.Status == parsed);
-            }
 
             ViewBag.CurrentStatus = status;
             var bookings = await query.OrderByDescending(b => b.CreatedAt).ToListAsync();
             return View(bookings);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SendQuotation(int bookingId, decimal quotedAmount, string? quoteNotes)
+        {
+            var profile = await GetCurrentProviderProfileAsync();
+            if (profile == null) return NotFound();
+
+            if (quotedAmount <= 0)
+            {
+                TempData["Error"] = "Quotation amount must be greater than ₹0.";
+                return RedirectToAction(nameof(Bookings));
+            }
+
+            var booking = await _context.Bookings
+                .Include(b => b.ProviderService)
+                .FirstOrDefaultAsync(b => b.BookingId == bookingId && b.ProviderService.ProviderProfileId == profile.ProviderProfileId);
+
+            if (booking == null) return NotFound();
+
+            if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Confirmed)
+            {
+                TempData["Error"] = "Quotations can only be sent for Pending or Confirmed bookings.";
+                return RedirectToAction(nameof(Bookings));
+            }
+
+            booking.QuotedAmount = quotedAmount;
+            booking.QuoteNotes = quoteNotes?.Trim();
+            booking.IsQuoteApproved = null; // awaiting customer approval
+            if (booking.Status == BookingStatus.Pending)
+            {
+                booking.Status = BookingStatus.Confirmed;
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["Success"] = $"Quotation of ₹{quotedAmount:N0} sent for Booking #{booking.BookingId}. Waiting for customer approval before work begins.";
+            return RedirectToAction(nameof(Bookings));
         }
 
         [HttpPost]
@@ -332,7 +477,15 @@ namespace Sevro.Controllers
                 return RedirectToAction(nameof(Bookings));
             }
 
-            // Enforce strict provider workflow transitions
+            // For QuoteRequired services, customer must approve quotation before work starts
+            if (target == BookingStatus.InProgress
+                && booking.ProviderService.PricingType == PricingType.QuoteRequired
+                && booking.IsQuoteApproved != true)
+            {
+                TempData["Error"] = $"Booking #{booking.BookingId} requires a customer-approved quotation before starting work.";
+                return RedirectToAction(nameof(Bookings));
+            }
+
             var isValidTransition = (booking.Status, target) switch
             {
                 (BookingStatus.Pending, BookingStatus.Confirmed) => true,
@@ -354,9 +507,7 @@ namespace Sevro.Controllers
             }
 
             if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
-            {
                 return Redirect(returnUrl);
-            }
             return RedirectToAction(nameof(Bookings));
         }
 
@@ -382,10 +533,30 @@ namespace Sevro.Controllers
             return View(reviews);
         }
 
+        private void ValidateProviderPrice(ProviderServiceFormViewModel model)
+        {
+            if (model.PricingType == PricingType.QuoteRequired)
+            {
+                model.Price = 0m;
+                return;
+            }
+            if (model.Price <= 0)
+            {
+                ModelState.AddModelError(nameof(model.Price), "Enter a valid positive price in ₹ (or select Quotation Required).");
+            }
+        }
+
+        private static List<string> ParsePortfolioPhotos(string? raw) =>
+            string.IsNullOrWhiteSpace(raw)
+                ? new List<string>()
+                : raw.Split('|', StringSplitOptions.RemoveEmptyEntries).ToList();
+
         private async Task<List<SelectListItem>> GetCategorySelectListAsync()
         {
             return await _context.ServiceCategories
-                .OrderBy(c => c.CategoryName)
+                .Where(c => c.IsActive)
+                .OrderBy(c => c.DisplayOrder)
+                .ThenBy(c => c.CategoryName)
                 .Select(c => new SelectListItem
                 {
                     Value = c.CategoryId.ToString(),

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace Sevro.ViewModels.Provider
 {
@@ -34,9 +35,18 @@ namespace Sevro.ViewModels.Provider
         [StringLength(100)]
         public string City { get; set; } = string.Empty;
 
+        [StringLength(300)]
+        [Display(Name = "Service Areas / Neighborhoods")]
+        public string? ServiceAreas { get; set; }
+
         [StringLength(1000)]
         [Display(Name = "About Your Business")]
         public string? Description { get; set; }
+
+        [Display(Name = "Upload Portfolio Photos (Optional)")]
+        public List<IFormFile>? PortfolioPhotoUploads { get; set; }
+
+        public List<string> ExistingPortfolioPhotos { get; set; } = new();
 
         public bool IsVerified { get; set; }
         public bool IsAvailable { get; set; }
